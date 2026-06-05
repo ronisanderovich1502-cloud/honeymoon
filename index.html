@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ירח דבש ביפן 🇯🇵</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Noto+Sans+Hebrew:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --cream: #FFF8F0;
+            --blush: #F4C2C2;
+            --rose: #E8A0BF;
+            --gold: #C9A96E;
+            --gold-light: #F5E6CC;
+            --text: #3D2C2E;
+            --text-light: #6B5153;
+            --tokyo-color: #E8A0BF;
+            --kyoto-color: #9B72AA;
+            --osaka-color: #F4A460;
+        }
+
+        body {
+            font-family: 'Noto Sans Hebrew', sans-serif;
+            background: var(--cream);
+            color: var(--text);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            flex-direction: row-reverse;
+        }
+
+        .sidebar {
+            width: 420px;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 0;
+            background: var(--cream);
+            border-left: 1px solid var(--gold-light);
+            scroll-behavior: smooth;
+        }
+
+        .sidebar::-webkit-scrollbar { width: 6px; }
+        .sidebar::-webkit-scrollbar-track { background: var(--cream); }
+        .sidebar::-webkit-scrollbar-thumb { background: var(--blush); border-radius: 3px; }
+
+        .header {
+            text-align: center;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #fff8f0 0%, #fce4ec 100%);
+            border-bottom: 1px solid var(--gold-light);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .header .subtitle {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            font-weight: 300;
+        }
+
+        .header .hearts {
+            color: var(--rose);
+            font-size: 1.2rem;
+            margin-top: 6px;
+        }
+
+        .city-divider {
+            padding: 12px 20px;
+            background: linear-gradient(90deg, var(--gold-light), transparent);
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            color: var(--gold);
+            font-weight: 700;
+            position: sticky;
+            top: 110px;
+            z-index: 5;
+            border-bottom: 1px solid var(--gold-light);
+        }
+
+        .day-card {
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(201, 169, 110, 0.15);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .day-card:hover {
+            background: rgba(244, 194, 194, 0.1);
+        }
+
+        .day-card.active {
+            background: rgba(244, 194, 194, 0.2);
+            border-right: 3px solid var(--rose);
+        }
+
+        .day-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .day-badge {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .day-badge.tokyo { background: var(--tokyo-color); }
+        .day-badge.kyoto { background: var(--kyoto-color); }
+        .day-badge.osaka { background: var(--osaka-color); }
+
+        .day-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .day-date {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            font-weight: 300;
+        }
+
+        .activities {
+            padding-right: 42px;
+            display: none;
+        }
+
+        .day-card.active .activities {
+            display: block;
+        }
+
+        .activity {
+            padding: 8px 0;
+            border-bottom: 1px dashed rgba(201, 169, 110, 0.15);
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .activity:last-child { border-bottom: none; }
+
+        .activity-time {
+            font-weight: 600;
+            color: var(--gold);
+            font-size: 0.75rem;
+        }
+
+        .activity-name {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .activity-desc {
+            color: var(--text-light);
+            font-size: 0.8rem;
+            font-weight: 300;
+        }
+
+        .map-container {
+            flex: 1;
+            height: 100vh;
+            position: relative;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        .leaflet-popup-content-wrapper {
+            border-radius: 12px;
+            font-family: 'Noto Sans Hebrew', sans-serif;
+            direction: rtl;
+        }
+
+        .leaflet-popup-content {
+            margin: 12px 16px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .popup-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: var(--text);
+        }
+
+        .popup-time {
+            color: var(--gold);
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .popup-desc {
+            color: var(--text-light);
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                height: 50vh;
+                border-left: none;
+                border-top: 2px solid var(--gold-light);
+                order: 2;
+            }
+            .map-container {
+                height: 50vh;
+                order: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="header">
+                <h1>ירח דבש ביפן</h1>
+                <div class="subtitle">27 בספטמבר – 10 באוקטובר | טוקיו · קיוטו · אוסקה</div>
+                <div class="hearts">♥ ♥ ♥</div>
+            </div>
+            <div id="itinerary"></div>
+        </div>
+        <div class="map-container">
+            <div id="map"></div>
+        </div>
+    </div>
+
+    <script>
+    const days = [
+        {
+            day: 1, date: '27.9', weekday: 'ראשון', city: 'tokyo',
+            title: 'נחיתה וערב בשינג׳וקו',
+            activities: [
+                { name: 'הגעה למלון Daiwa Roynet', time: 'אחה״צ', desc: 'צ׳ק-אין והתרעננות', lat: 35.6938, lng: 139.6921 },
+                { name: 'Omoide Yokocho', time: 'ערב', desc: 'סמטאות ניאון, יאקיטורי ובירה', lat: 35.6934, lng: 139.6984 }
+            ]
+        },
+        {
+            day: 2, date: '28.9', weekday: 'שני', city: 'tokyo',
+            title: 'הרג׳וקו, שיבויה ווואגיו',
+            activities: [
+                { name: "FLIPPER'S – פנקייק סופלה", time: '09:30', desc: 'פנקייקים אווריריים כמו ענן', lat: 35.6912, lng: 139.7046 },
+                { name: 'מקדש Meiji', time: '11:00', desc: 'יער עבות ושער עץ ענק', lat: 35.6764, lng: 139.6993 },
+                { name: 'רחוב Takeshita', time: '12:30', desc: 'אופנת רחוב וקרפים', lat: 35.6716, lng: 139.7031 },
+                { name: 'Jikasei MENSHO – ראמן', time: '15:30', desc: 'ראמן מודרני ברמת מישלן', lat: 35.6601, lng: 139.6983 },
+                { name: 'Shibuya Sky', time: '17:00', desc: 'שקיעה רומנטית מקומה 47', lat: 35.6584, lng: 139.7022 },
+                { name: 'Han no daidokoro – יאקיניקו', time: '19:30', desc: 'וואגיו פרימיום על גריל אישי', lat: 35.6564, lng: 139.6961 }
+            ]
+        },
+        {
+            day: 3, date: '29.9', weekday: 'שלישי', city: 'tokyo',
+            title: 'צוקיג׳י, teamLab וגינזה',
+            activities: [
+                { name: 'שוק Tsukiji', time: '09:00', desc: 'סושי טרי, תמנון ואומלט יפני', lat: 35.6654, lng: 139.7707 },
+                { name: 'teamLab Planets', time: '12:00', desc: 'מוזיאון חושי יחפים', lat: 35.6427, lng: 139.7837 },
+                { name: 'Age.3 GINZA – סנדוויץ׳ ויראלי', time: '16:00', desc: 'לחם מטוגן עם קצפת מטורפת', lat: 35.6726, lng: 139.7649 }
+            ]
+        },
+        {
+            day: 4, date: '30.9', weekday: 'רביעי', city: 'tokyo',
+            title: 'Tokyo DisneySea 🌋',
+            activities: [
+                { name: 'Tokyo DisneySea', time: 'יום שלם', desc: 'הר געש, גונדולה, Fantasy Springs', lat: 35.6267, lng: 139.8851 }
+            ]
+        },
+        {
+            day: 5, date: '1.10', weekday: 'חמישי', city: 'tokyo',
+            title: 'אסאקוסה, אקיהברה ו-NOBU',
+            activities: [
+                { name: 'מקדש Senso-ji', time: '10:00', desc: 'לנטרנת ענק ורחוב Nakamise', lat: 35.7148, lng: 139.7967 },
+                { name: 'Akihabara', time: '14:00', desc: 'גיימינג, אנימה וארקיידים', lat: 35.7023, lng: 139.7745 },
+                { name: 'NOBU Tokyo', time: '19:30', desc: 'ארוחת יוקרה – דג הגד שחור במיסו', lat: 35.6657, lng: 139.7497 }
+            ]
+        },
+        {
+            day: 6, date: '2.10', weekday: 'שישי', city: 'tokyo',
+            title: 'האקונה (הר פוג׳י) וחגיגת טונה',
+            activities: [
+                { name: 'Hakone – אגם אשי ורכבל', time: '08:00–17:00', desc: 'ספינת פיראטים, רכבל ונוף הר פוג׳י', lat: 35.2028, lng: 139.0245 },
+                { name: 'Maguro Mart – חגיגת טונה', time: '19:30', desc: 'מגרדים טונה מהעצם לסושי!', lat: 35.7063, lng: 139.6659 }
+            ]
+        },
+        {
+            day: 7, date: '3.10', weekday: 'שבת', city: 'kyoto',
+            title: 'רכבת קליע וגיון',
+            activities: [
+                { name: 'Shinkansen לקיוטו', time: '09:30', desc: 'רכבת קליע – שעתיים ו-15 דקות', lat: 35.6812, lng: 139.7671 },
+                { name: 'רובע Gion וסמטאות Pontocho', time: '17:00', desc: 'בתי עץ, פנסי נייר וגיישות', lat: 35.0037, lng: 135.7756 },
+                { name: 'Shogun Burger – וואגיו', time: '19:30', desc: 'המבורגר 100% וואגיו עם חותם שוגון', lat: 35.0032, lng: 135.7690 }
+            ]
+        },
+        {
+            day: 8, date: '4.10', weekday: 'ראשון', city: 'kyoto',
+            title: 'קיומיזו, מקדש הזהב וגיוזות',
+            activities: [
+                { name: 'Kiyomizu-dera', time: '08:30', desc: 'מרפסת עץ מעל צמרות העצים', lat: 34.9949, lng: 135.7850 },
+                { name: 'סמטאות Ninenzaka', time: '10:30', desc: 'רחובות אבן עתיקים + סטארבקס טטאמי', lat: 34.9981, lng: 135.7806 },
+                { name: 'Kinkaku-ji – מקדש הזהב', time: '13:30', desc: 'מקדש מצופה זהב טהור על אגם', lat: 35.0394, lng: 135.7292 },
+                { name: 'Chao Chao Gyoza', time: '18:30', desc: 'גיוזות קריספיות במילויים מטורפים', lat: 35.0041, lng: 135.7672 }
+            ]
+        },
+        {
+            day: 9, date: '5.10', weekday: 'שני', city: 'kyoto',
+            title: 'ארשייאמה ו-teamLab לילי',
+            activities: [
+                { name: 'יער הבמבוק', time: '08:30', desc: 'קני במבוק ענקיים מתנשאים לגובה', lat: 35.0170, lng: 135.6713 },
+                { name: 'פארק הקופים Iwatayama', time: '10:30', desc: 'קופי מקאק חופשיים – מאכילים מהיד', lat: 35.0098, lng: 135.6770 },
+                { name: 'teamLab Biovortex Kyoto', time: '17:30', desc: 'מיצגי אור דיגיטליים בגנים', lat: 34.9881, lng: 135.7480 }
+            ]
+        },
+        {
+            day: 10, date: '6.10', weekday: 'שלישי', city: 'kyoto',
+            title: 'פושימי אינארי ושוק נישיקי',
+            activities: [
+                { name: 'Fushimi Inari – אלף השערים', time: '07:30', desc: 'מנהרות שערים כתומים על ההר', lat: 34.9671, lng: 135.7727 },
+                { name: 'שוק Nishiki', time: '11:30', desc: 'שיפודי וואגיו, מוצ׳י ומאצ׳ה', lat: 35.0050, lng: 135.7649 }
+            ]
+        },
+        {
+            day: 11, date: '7.10', weekday: 'רביעי', city: 'osaka',
+            title: 'מפלי מינו ודוטונבורי',
+            activities: [
+                { name: 'מפלי Minoh', time: '13:00', desc: 'הליכה ביער + עלי מייפל מטוגנים', lat: 34.8387, lng: 135.4705 },
+                { name: 'Dotonbori', time: '18:30', desc: 'ניאון, טאקויאקי ואוקונומיאקי', lat: 34.6687, lng: 135.5013 }
+            ]
+        },
+        {
+            day: 12, date: '8.10', weekday: 'חמישי', city: 'osaka',
+            title: 'Universal Studios Japan 🍄🎃',
+            activities: [
+                { name: 'Universal Studios Japan', time: 'יום שלם', desc: 'סופר מריו + Halloween Horror Nights', lat: 34.6654, lng: 135.4323 }
+            ]
+        },
+        {
+            day: 13, date: '9.10', weekday: 'שישי', city: 'osaka',
+            title: 'נארה, טירת אוסקה ושינסקאי',
+            activities: [
+                { name: 'Nara Park – הצבאים', time: '09:00', desc: 'צבאים שמקדים לקבל אוכל + מקדש Todai-ji', lat: 34.6851, lng: 135.8430 },
+                { name: 'טירת אוסקה', time: '14:30', desc: 'טירה מרהיבה עם תצפית', lat: 34.6873, lng: 135.5262 },
+                { name: 'רובע Shinsekai – קושיקאטסו', time: '18:30', desc: 'אווירת רטרו + שיפודים מטוגנים', lat: 34.6527, lng: 135.5063 }
+            ]
+        },
+        {
+            day: 14, date: '10.10', weekday: 'שבת', city: 'osaka',
+            title: 'שופינג וטיסה לבנגקוק ✈️',
+            activities: [
+                { name: 'Don Quijote Dotonbori', time: 'בוקר', desc: 'חטיפים, קוסמטיקה ומזכרות', lat: 34.6690, lng: 135.5018 },
+                { name: 'שדה תעופה Kansai (KIX)', time: 'אחה״צ', desc: 'רכבת Rap:t → טיסה לבנגקוק', lat: 34.4347, lng: 135.2440 }
+            ]
+        }
+    ];
+
+    const cityNames = { tokyo: '🗼 טוקיו', kyoto: '⛩️ קיוטו', osaka: '🎡 אוסקה' };
+    const cityColors = { tokyo: '#E8A0BF', kyoto: '#9B72AA', osaka: '#F4A460' };
+
+    // Initialize map
+    const map = L.map('map', { zoomControl: false }).setView([35.6762, 139.6503], 11);
+
+    L.control.zoom({ position: 'topleft' }).addTo(map);
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+        subdomains: 'abcd',
+        maxZoom: 19
+    }).addTo(map);
+
+    // Create markers
+    const allMarkers = [];
+    const dayMarkers = {};
+
+    days.forEach(day => {
+        dayMarkers[day.day] = [];
+        day.activities.forEach(act => {
+            const icon = L.divIcon({
+                className: 'custom-marker',
+                html: `<div style="
+                    width: 28px; height: 28px;
+                    background: ${cityColors[day.city]};
+                    border: 2px solid white;
+                    border-radius: 50%;
+                    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+                    display: flex; align-items: center; justify-content: center;
+                    font-size: 11px; font-weight: 700; color: white;
+                ">${day.day}</div>`,
+                iconSize: [28, 28],
+                iconAnchor: [14, 14]
+            });
+
+            const marker = L.marker([act.lat, act.lng], { icon })
+                .addTo(map)
+                .bindPopup(`
+                    <div class="popup-title">${act.name}</div>
+                    <div class="popup-time">יום ${day.day} | ${act.time}</div>
+                    <div class="popup-desc">${act.desc}</div>
+                `);
+
+            allMarkers.push(marker);
+            dayMarkers[day.day].push(marker);
+        });
+    });
+
+    // Build sidebar
+    const itineraryEl = document.getElementById('itinerary');
+    let currentCity = '';
+
+    days.forEach(day => {
+        if (day.city !== currentCity) {
+            currentCity = day.city;
+            const divider = document.createElement('div');
+            divider.className = 'city-divider';
+            divider.textContent = cityNames[day.city];
+            itineraryEl.appendChild(divider);
+        }
+
+        const card = document.createElement('div');
+        card.className = 'day-card';
+        card.dataset.day = day.day;
+        card.innerHTML = `
+            <div class="day-header">
+                <div class="day-badge ${day.city}">${day.day}</div>
+                <div>
+                    <div class="day-title">${day.title}</div>
+                    <div class="day-date">${day.date} | יום ${day.weekday}</div>
+                </div>
+            </div>
+            <div class="activities">
+                ${day.activities.map(a => `
+                    <div class="activity">
+                        <span class="activity-time">${a.time}</span>
+                        <span class="activity-name"> ${a.name}</span>
+                        <div class="activity-desc">${a.desc}</div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+
+        card.addEventListener('click', () => {
+            document.querySelectorAll('.day-card').forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+
+            const markers = dayMarkers[day.day];
+            if (markers.length === 1) {
+                map.setView(markers[0].getLatLng(), 14, { animate: true });
+                markers[0].openPopup();
+            } else if (markers.length > 1) {
+                const group = L.featureGroup(markers);
+                map.fitBounds(group.getBounds().pad(0.2), { animate: true });
+            }
+        });
+
+        itineraryEl.appendChild(card);
+    });
+
+    // Open first day by default
+    document.querySelector('.day-card').classList.add('active');
+    </script>
+</body>
+</html>
