@@ -1428,6 +1428,37 @@
         // City emoji map
         const cityEmoji = { tokyo: '🗼', kyoto: '⛩️', osaka: '🎡' };
 
+        // Determine default "from" location
+        const actIndex = day.activities.indexOf(act);
+        let defaultFrom = null;
+        if (actIndex > 0) {
+            defaultFrom = day.activities[actIndex - 1];
+        } else {
+            // First activity of the day — find the nearest hotel
+            const hotelRe = /מלון|hotel|inn|hostel|check.?in|roynet/i;
+            for (const d of days) {
+                for (const a of d.activities) {
+                    if (hotelRe.test(a.name + ' ' + (a.desc || '')) && (a.lat !== lat || a.lng !== lng)) {
+                        defaultFrom = a;
+                        break;
+                    }
+                }
+                if (defaultFrom) break;
+            }
+        }
+
+        // Build extended dropdown options: same-city activities + hotels + flights from all days
+        const hotelFlightRe = /מלון|hotel|inn|hostel|check.?in|roynet|נמל|טיסה|flight|airport|narita|haneda|kix|itami/i;
+        const sameCityOpts = days.filter(d => d.city === day.city)
+            .flatMap(d => d.activities)
+            .filter(a => a.lat !== lat || a.lng !== lng);
+        const extraOpts = days.filter(d => d.city !== day.city)
+            .flatMap(d => d.activities)
+            .filter(a => hotelFlightRe.test(a.name + ' ' + (a.desc || '')) && (a.lat !== lat || a.lng !== lng));
+        const allOpts = [...sameCityOpts];
+        extraOpts.forEach(a => { if (!allOpts.find(o => o.lat === a.lat && o.lng === a.lng)) allOpts.push(a); });
+        const optionsHtml = allOpts.map(a => `<option value="${a.lat},${a.lng}">${a.name}</option>`).join('');
+
         panelContent.innerHTML = `
             ${photo
                 ? `<img class="panel-photo" src="${photo}" alt="${name}" onerror="this.style.display='none'">`
@@ -1463,11 +1494,20 @@
                     <div class="transit-title">🚦 איך מגיעים לכאן?</div>
                     <select class="transit-from-select" id="transitFrom">
                         <option value="">📍 מיקומי הנוכחי</option>
-                        ${days.filter(d => d.city === day.city).flatMap(d => d.activities.filter(a => a.lat !== lat || a.lng !== lng).map(a => `<option value="${a.lat},${a.lng}">${a.name}</option>`)).join('')}
+                        ${optionsHtml}
                     </select>
                     <div class="transit-options" id="transitOptions"><div class="transit-loading">בחר נקודת מוצא לחישוב מסלולים...</div></div>
                 </div>
             </div>`;
+
+        // Auto-select default and calculate
+        if (defaultFrom) {
+            const sel = document.getElementById('transitFrom');
+            if (sel) {
+                sel.value = `${defaultFrom.lat},${defaultFrom.lng}`;
+                calcTransitOptions(defaultFrom.lat, defaultFrom.lng, lat, lng, day.city);
+            }
+        }
     }
 
     // --- ADD PLACE MODAL (Nominatim, no API key) ---
