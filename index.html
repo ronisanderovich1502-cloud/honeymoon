@@ -1447,11 +1447,6 @@
         setNotes(notes);
     });
 
-    // Stop card collapse when clicking inside activities
-    document.addEventListener('click', e => {
-        if (e.target.closest('.activities')) e.stopPropagation();
-    }, true);
-
     // --- SEARCH ---
     document.getElementById('searchInput').addEventListener('input', function() {
         const q = this.value.trim().toLowerCase();
