@@ -62,7 +62,7 @@
             transition: background 0.25s, color 0.25s;
         }
 
-        .container { display: flex; height: 100vh; flex-direction: row-reverse; }
+        .container { display: flex; height: 100vh; flex-direction: row; }
 
         /* ── SIDEBAR ── */
         .sidebar {
@@ -324,14 +324,15 @@
         .day-card.active .activities { display: block; }
 
         .activity {
-            padding: 9px 0;
+            padding: 5px 0;
             border-bottom: 1px solid var(--border);
-            font-size: 0.84rem;
-            line-height: 1.5;
+            font-size: 0.82rem;
+            line-height: 1.35;
             display: flex;
             align-items: flex-start;
-            gap: 10px;
+            gap: 8px;
         }
+        .activity.focused { background: color-mix(in srgb, var(--rose) 8%, transparent); border-radius: 6px; }
         .activity:last-child { border-bottom: none; }
 
         .activity-check {
@@ -404,7 +405,7 @@
             border: 1px solid rgba(255,255,255,0.5);
             font-size: 0.76rem;
             font-family: 'Noto Sans Hebrew', sans-serif;
-            direction: rtl;
+
             min-width: 138px;
         }
         body.dark .map-overlay { background: rgba(31,41,55,0.92); border-color: rgba(255,255,255,0.1); }
@@ -467,7 +468,7 @@
             width: 370px; max-width: 92vw;
             box-shadow: 0 20px 60px rgba(0,0,0,0.2);
             font-family: 'Noto Sans Hebrew', sans-serif;
-            direction: rtl;
+
             border: 1px solid var(--border);
         }
 
@@ -505,7 +506,7 @@
             width: 390px; max-width: 92vw;
             box-shadow: 0 20px 60px rgba(0,0,0,0.2);
             font-family: 'Noto Sans Hebrew', sans-serif;
-            direction: rtl;
+
             border: 1px solid var(--border);
         }
         .sync-modal h3 { font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
@@ -598,7 +599,7 @@
             max-height: 60vh;
             overflow-y: auto;
             font-family: 'Noto Sans Hebrew', sans-serif;
-            direction: rtl;
+
         }
 
         .place-panel.open { transform: translateY(0); }
@@ -819,8 +820,9 @@
             <div class="header">
                 <div class="header-top">
                     <div style="width:60px"></div>
-                    <h1>ירח דבש ביפן 🇯🇵</h1>
+                    <h1 data-i18n="header_title">ירח דבש ביפן 🇯🇵</h1>
                     <div class="header-actions">
+                        <button class="icon-btn" id="langBtn" title="Switch language" style="font-size:0.7rem;font-weight:700;letter-spacing:0.5px">🇺🇸 EN</button>
                         <button class="icon-btn" id="syncSettingsBtn" title="סנכרון">
                             <div class="sync-dot" id="syncDot"></div>☁️
                         </button>
@@ -828,21 +830,21 @@
                         <button class="icon-btn" id="shareBtn" title="שיתוף">🔗</button>
                     </div>
                 </div>
-                <div class="subtitle">27 בספטמבר – 10 באוקטובר | טוקיו · קיוטו · אוסקה</div>
+                <div class="subtitle" data-i18n="subtitle">27 בספטמבר – 10 באוקטובר | טוקיו · קיוטו · אוסקה</div>
                 <div class="countdown" id="countdown"></div>
             </div>
 
             <div class="stats-bar" id="statsBar"></div>
 
             <div class="search-bar">
-                <input type="text" id="searchInput" placeholder="🔍  חפש יום, פעילות או מקום..." />
+                <input type="text" id="searchInput" data-i18n-ph="search_ph" placeholder="🔍  חפש יום, פעילות או מקום..." />
             </div>
 
             <div class="city-filter">
-                <button class="filter-btn active" data-city="all">הכל</button>
-                <button class="filter-btn" data-city="tokyo">🗼 טוקיו</button>
-                <button class="filter-btn" data-city="kyoto">⛩️ קיוטו</button>
-                <button class="filter-btn" data-city="osaka">🎡 אוסקה</button>
+                <button class="filter-btn active" data-city="all" data-i18n="filter_all">הכל</button>
+                <button class="filter-btn" data-city="tokyo" data-i18n="filter_tokyo">🗼 טוקיו</button>
+                <button class="filter-btn" data-city="kyoto" data-i18n="filter_kyoto">⛩️ קיוטו</button>
+                <button class="filter-btn" data-city="osaka" data-i18n="filter_osaka">🎡 אוסקה</button>
             </div>
 
             <div id="itinerary"></div>
@@ -856,10 +858,10 @@
                 <div id="panelContent"></div>
             </div>
             <div class="map-overlay">
-                <div class="map-overlay-title">מקרא</div>
-                <div class="map-legend-item"><div class="legend-dot" style="background:#E8A0BF"></div> טוקיו</div>
-                <div class="map-legend-item"><div class="legend-dot" style="background:#9B72AA"></div> קיוטו</div>
-                <div class="map-legend-item"><div class="legend-dot" style="background:#F4A460"></div> אוסקה</div>
+                <div class="map-overlay-title" data-i18n="legend_title">מקרא</div>
+                <div class="map-legend-item"><div class="legend-dot" style="background:#E8A0BF"></div> <span data-i18n="legend_tokyo">טוקיו</span></div>
+                <div class="map-legend-item"><div class="legend-dot" style="background:#9B72AA"></div> <span data-i18n="legend_kyoto">קיוטו</span></div>
+                <div class="map-legend-item"><div class="legend-dot" style="background:#F4A460"></div> <span data-i18n="legend_osaka">אוסקה</span></div>
                 <hr style="margin:8px 0;border-color:#eee">
                 <div id="overlayProgress" style="font-size:0.72rem;color:#6B5153"></div>
             </div>
@@ -1069,6 +1071,81 @@
     const cityColors = { tokyo: '#E8A0BF', kyoto: '#9B72AA', osaka: '#F4A460' };
     const totalActivities = days.reduce((s, d) => s + d.activities.length, 0);
 
+    // --- LANGUAGE / i18n ---
+    const dayTitlesEn = {
+        1:'Arrival & Shinjuku Evening', 2:'Harajuku, Shibuya & Wagyu',
+        3:'Tsukiji, teamLab & Ginza', 4:'Tokyo DisneySea 🌋',
+        5:'Asakusa, Akihabara & NOBU', 6:'Hakone (Mt. Fuji) & Tuna Feast',
+        7:'Bullet Train & Gion', 8:'Kiyomizu, Golden Temple & Gyoza',
+        9:'Arashiyama & teamLab Biovortex Night', 10:'Fushimi Inari & Nishiki Market',
+        11:'Mino Falls & Dotonbori', 12:'Universal Studios Japan 🍄🎃',
+        13:'Nara, Osaka Castle & Shinsekai', 14:'Shopping & Flight to Bangkok ✈️'
+    };
+    const weekdayEn = { ראשון:'Sunday', שני:'Monday', שלישי:'Tuesday', רביעי:'Wednesday', חמישי:'Thursday', שישי:'Friday', שבת:'Saturday' };
+    const TR = {
+        he: {
+            dir:'rtl', header_title:'ירח דבש ביפן 🇯🇵',
+            subtitle:'27 בספטמבר – 10 באוקטובר | טוקיו · קיוטו · אוסקה',
+            search_ph:'🔍  חפש יום, פעילות או מקום...',
+            filter_all:'הכל', filter_tokyo:'🗼 טוקיו', filter_kyoto:'⛩️ קיוטו', filter_osaka:'🎡 אוסקה',
+            days_lbl:'ימים', hours_lbl:'שעות', min_lbl:'דקות', sec_lbl:'שניות',
+            trip_started:'✈️ הטיול התחיל!',
+            stat_days:'ימים', stat_cities:'ערים', stat_acts:'פעילויות',
+            legend_title:'מקרא', legend_tokyo:'טוקיו', legend_kyoto:'קיוטו', legend_osaka:'אוסקה',
+            notes_ph:'הוסף הערות, טיפים, מספרי הזמנה...',
+            lang_btn:'🇺🇸 EN', day_prefix:'יום '
+        },
+        en: {
+            dir:'ltr', header_title:'Honeymoon in Japan 🇯🇵',
+            subtitle:'Sep 27 – Oct 10 | Tokyo · Kyoto · Osaka',
+            search_ph:'🔍  Search day, activity or place...',
+            filter_all:'All', filter_tokyo:'🗼 Tokyo', filter_kyoto:'⛩️ Kyoto', filter_osaka:'🎡 Osaka',
+            days_lbl:'Days', hours_lbl:'Hours', min_lbl:'Min', sec_lbl:'Sec',
+            trip_started:'✈️ The trip has started!',
+            stat_days:'days', stat_cities:'cities', stat_acts:'activities',
+            legend_title:'Legend', legend_tokyo:'Tokyo', legend_kyoto:'Kyoto', legend_osaka:'Osaka',
+            notes_ph:'Add notes, tips, booking numbers...',
+            lang_btn:'🇮🇱 HE', day_prefix:'Day '
+        }
+    };
+    let currentLang = localStorage.getItem('lang') || 'he';
+
+    function applyLang(lang) {
+        currentLang = lang;
+        localStorage.setItem('lang', lang);
+        const tr = TR[lang];
+        document.documentElement.dir = tr.dir;
+        document.documentElement.lang = lang;
+        // Static elements with data-i18n
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const k = el.dataset.i18n; if (tr[k] !== undefined) el.textContent = tr[k];
+        });
+        // Input placeholders
+        document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+            const k = el.dataset.i18nPh; if (tr[k] !== undefined) el.placeholder = tr[k];
+        });
+        // Notes textareas
+        document.querySelectorAll('.day-notes').forEach(el => el.placeholder = tr.notes_ph);
+        // Lang button
+        document.getElementById('langBtn').textContent = tr.lang_btn;
+        // Re-render dynamic parts
+        updateCountdown();
+        updateStats();
+        // Update day card titles + weekday labels
+        days.forEach(d => {
+            const card = document.querySelector(`.day-card[data-day="${d.day}"]`);
+            if (!card) return;
+            const titleEl = card.querySelector('.day-title');
+            if (titleEl) titleEl.textContent = lang === 'en' ? (dayTitlesEn[d.day] || d.title) : d.title;
+            const dateEl = card.querySelector('.day-date');
+            if (dateEl) {
+                const wd = lang === 'en' ? weekdayEn[d.weekday] : d.weekday;
+                dateEl.textContent = `${d.date} | ${tr.day_prefix}${wd}`;
+            }
+        });
+    }
+    document.getElementById('langBtn').addEventListener('click', () => applyLang(currentLang === 'he' ? 'en' : 'he'));
+
     // --- DARK MODE ---
     const darkToggle = document.getElementById('darkToggle');
     if (localStorage.getItem('darkMode') === '1') { document.body.classList.add('dark'); darkToggle.textContent = '☀️'; }
@@ -1093,16 +1170,17 @@
         const target = new Date('2026-09-27T00:00:00');
         const now = new Date();
         const diff = target - now;
-        if (diff <= 0) { document.getElementById('countdown').innerHTML = '<div style="color:var(--rose);font-weight:600">✈️ הטיול התחיל!</div>'; return; }
+        if (diff <= 0) { document.getElementById('countdown').innerHTML = `<div style="color:var(--rose);font-weight:600">${TR[currentLang].trip_started}</div>`; return; }
         const d = Math.floor(diff / 86400000);
         const h = Math.floor((diff % 86400000) / 3600000);
         const m = Math.floor((diff % 3600000) / 60000);
         const s = Math.floor((diff % 60000) / 1000);
+        const tr = TR[currentLang];
         document.getElementById('countdown').innerHTML = `
-            <div class="countdown-item"><div class="num">${d}</div><div class="label">ימים</div></div>
-            <div class="countdown-item"><div class="num">${String(h).padStart(2,'0')}</div><div class="label">שעות</div></div>
-            <div class="countdown-item"><div class="num">${String(m).padStart(2,'0')}</div><div class="label">דקות</div></div>
-            <div class="countdown-item"><div class="num">${String(s).padStart(2,'0')}</div><div class="label">שניות</div></div>
+            <div class="countdown-item"><div class="num">${d}</div><div class="label">${tr.days_lbl}</div></div>
+            <div class="countdown-item"><div class="num">${String(h).padStart(2,'0')}</div><div class="label">${tr.hours_lbl}</div></div>
+            <div class="countdown-item"><div class="num">${String(m).padStart(2,'0')}</div><div class="label">${tr.min_lbl}</div></div>
+            <div class="countdown-item"><div class="num">${String(s).padStart(2,'0')}</div><div class="label">${tr.sec_lbl}</div></div>
         `;
     }
     updateCountdown();
@@ -1122,10 +1200,11 @@
     function updateStats() {
         const done = countChecked();
         const pct = Math.round(done / totalActivities * 100);
+        const str = TR[currentLang];
         document.getElementById('statsBar').innerHTML = `
-            <div class="stat">📅 <strong>14</strong> ימים</div>
-            <div class="stat">🏙️ <strong>3</strong> ערים</div>
-            <div class="stat">📍 <strong>${totalActivities}</strong> פעילויות</div>
+            <div class="stat">📅 <strong>14</strong> ${str.stat_days}</div>
+            <div class="stat">🏙️ <strong>3</strong> ${str.stat_cities}</div>
+            <div class="stat">📍 <strong>${totalActivities}</strong> ${str.stat_acts}</div>
             <div class="stat">✅ <strong>${done}/${totalActivities}</strong> (${pct}%)</div>
         `;
         document.getElementById('overlayProgress').innerHTML = `✅ ${done}/${totalActivities} פעילויות (${pct}%)`;
@@ -1418,6 +1497,23 @@
         placePanel.dataset.lat  = act.lat;
         placePanel.dataset.lng  = act.lng;
         placePanel.dataset.city = day.city;
+
+        // Scroll sidebar to this activity and highlight it
+        const actIdx = day.activities.indexOf(act);
+        const actEl = document.getElementById(`act-${day.day}-${actIdx}`);
+        if (actEl) {
+            // Expand the day card if not already active
+            const card = actEl.closest('.day-card');
+            if (card && !card.classList.contains('active')) {
+                document.querySelectorAll('.day-card').forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+            }
+            setTimeout(() => {
+                actEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                actEl.classList.add('focused');
+                setTimeout(() => actEl.classList.remove('focused'), 2500);
+            }, 100);
+        }
         panelContent.innerHTML = `<div class="panel-loading">⏳ טוען פרטים...</div>`;
 
         const { lat, lng, name } = act;
@@ -1606,6 +1702,7 @@
     }
 
     document.getElementById('modalConfirm').addEventListener('click', () => {
+        if (document.getElementById('modalConfirm').dataset.editDay) return; // edit handled separately
         const name = document.getElementById('newPlaceName').value.trim();
         const desc = document.getElementById('newPlaceDesc').value.trim();
         const time = document.getElementById('newPlaceTime').value.trim() || '?';
@@ -1879,6 +1976,10 @@
             // Re-draw path
             if (selectedDayNum === dayNum) selectDayOnMap(dayNum);
             updateStats();
+            const toast = document.getElementById('toast');
+            toast.textContent = jbKey && jbBin ? '🗑️ מחוק ומסונכרן...' : '🗑️ מחוק מקומית — לא מחובר לסנכרון ☁️';
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); toast.textContent = '🔗 הקישור הועתק!'; }, 3000);
             syncSave();
             return;
         }
@@ -1955,15 +2056,16 @@
         resetModal();
 
         const toast = document.getElementById('toast');
-        toast.textContent = `✅ ${name} עודכן!`;
+        toast.textContent = jbKey && jbBin ? `✅ ${name} עודכן ומסונכרן!` : `✅ ${name} עודכן מקומית — לא מחובר לסנכרון ☁️`;
         toast.classList.add('show');
-        setTimeout(() => { toast.classList.remove('show'); toast.textContent = '🔗 הקישור הועתק!'; }, 2500);
+        setTimeout(() => { toast.classList.remove('show'); toast.textContent = '🔗 הקישור הועתק!'; }, 3000);
     });
 
     // Init
     document.querySelector('.day-card').classList.add('active');
     selectDayOnMap(1);
     updateStats();
+    if (currentLang !== 'he') applyLang(currentLang); // restore saved language
     </script>
 </body>
 </html>
