@@ -455,6 +455,130 @@
 
         .toast.show { transform: translateX(-50%) translateY(0); }
 
+        /* ADD PLACE MODAL */
+        .add-place-btn {
+            position: absolute;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1000;
+            background: var(--rose);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 44px; height: 44px;
+            font-size: 1.4rem;
+            cursor: pointer;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.2);
+            display: flex; align-items: center; justify-content: center;
+            transition: transform 0.2s;
+        }
+        .add-place-btn:hover { transform: scale(1.1); }
+
+        .modal-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 2000;
+            align-items: center; justify-content: center;
+        }
+        .modal-overlay.open { display: flex; }
+
+        .modal {
+            background: var(--cream);
+            border-radius: 16px;
+            padding: 24px;
+            width: 360px;
+            max-width: 90vw;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+            font-family: 'Noto Sans Hebrew', sans-serif;
+            direction: rtl;
+        }
+
+        .modal h3 {
+            font-family: 'Playfair Display', serif;
+            color: var(--text);
+            margin-bottom: 16px;
+            font-size: 1.1rem;
+        }
+
+        .modal label {
+            display: block;
+            font-size: 0.78rem;
+            color: var(--text-light);
+            margin-bottom: 4px;
+            margin-top: 10px;
+        }
+
+        .modal input, .modal select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--gold-light);
+            border-radius: 8px;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Noto Sans Hebrew', sans-serif;
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        .modal input:focus { border-color: var(--rose); }
+
+        .modal-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 18px;
+            justify-content: flex-end;
+        }
+
+        .btn-primary {
+            background: var(--rose);
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-family: 'Noto Sans Hebrew', sans-serif;
+        }
+
+        .btn-secondary {
+            background: none;
+            border: 1px solid var(--gold-light);
+            color: var(--text-light);
+            padding: 8px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-family: 'Noto Sans Hebrew', sans-serif;
+        }
+
+        #places-search-results {
+            margin-top: 6px;
+            border: 1px solid var(--gold-light);
+            border-radius: 8px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .place-result {
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            color: var(--text);
+            border-bottom: 1px solid var(--border);
+            transition: background 0.15s;
+        }
+
+        .place-result:last-child { border-bottom: none; }
+        .place-result:hover { background: var(--card-hover); }
+        .place-result small { color: var(--text-light); display: block; font-size: 0.72rem; }
+
+        .api-key-hint {
+            font-size: 0.72rem;
+            color: var(--text-light);
+            margin-top: 6px;
+        }
+
         @media (max-width: 768px) {
             .container { flex-direction: column; }
             .sidebar { width: 100%; height: 55vh; border-left: none; border-top: 2px solid var(--gold-light); order: 2; }
@@ -509,6 +633,35 @@
     </div>
 
     <div class="toast" id="toast">🔗 הקישור הועתק!</div>
+
+    <!-- ADD PLACE MODAL -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <h3>➕ הוסף מקום לתוכנית</h3>
+
+            <label>🔍 חפש מקום (Google Places)</label>
+            <input type="text" id="placesSearchInput" placeholder="לדוגמה: Ramen Ichiran Tokyo" autocomplete="off" />
+            <div id="places-search-results"></div>
+            <div class="api-key-hint" id="apiKeyHint"></div>
+
+            <label>📛 שם המקום</label>
+            <input type="text" id="newPlaceName" placeholder="שם המקום" />
+
+            <label>📝 תיאור קצר</label>
+            <input type="text" id="newPlaceDesc" placeholder="מה עושים שם?" />
+
+            <label>🕐 שעה</label>
+            <input type="text" id="newPlaceTime" placeholder="לדוגמה: 14:00" />
+
+            <label>📅 יום בתוכנית</label>
+            <select id="newPlaceDay"></select>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" id="modalCancel">ביטול</button>
+                <button class="btn-primary" id="modalConfirm">הוסף לתוכנית ✓</button>
+            </div>
+        </div>
+    </div>
 
     <script>
     const days = [
@@ -734,20 +887,78 @@
         subdomains: 'abcd', maxZoom: 19
     }).addTo(map);
 
+    // Add "+" button to map
+    const addPlaceBtn = document.createElement('button');
+    addPlaceBtn.className = 'add-place-btn';
+    addPlaceBtn.innerHTML = '+';
+    addPlaceBtn.title = 'הוסף מקום לתוכנית';
+    document.querySelector('.map-container').appendChild(addPlaceBtn);
+
     const dayMarkers = {};
+    const allMarkersList = []; // flat list of all {marker, dayNum}
+    let currentPolyline = null;
+    let selectedDayNum = null;
+
+    function buildMarkerIcon(day, opacity = 1) {
+        return L.divIcon({
+            className: 'custom-marker',
+            html: `<div style="width:28px;height:28px;background:${cityColors[day.city]};border:2px solid white;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;opacity:${opacity}">${day.day}</div>`,
+            iconSize: [28, 28], iconAnchor: [14, 14]
+        });
+    }
+
+    function selectDayOnMap(dayNum) {
+        selectedDayNum = dayNum;
+        const day = days.find(d => d.day === dayNum);
+        if (!currentPolyline) {} else { map.removeLayer(currentPolyline); currentPolyline = null; }
+
+        // Dim/brighten markers
+        allMarkersList.forEach(({ marker, dayNum: dn, day: d }) => {
+            const opacity = (dn === dayNum) ? 1 : 0.2;
+            marker.setIcon(buildMarkerIcon(d, opacity));
+        });
+
+        // Draw path line for selected day
+        const markers = dayMarkers[dayNum];
+        if (markers && markers.length > 1) {
+            const latlngs = markers.map(m => m.getLatLng());
+            const day = days.find(d => d.day === dayNum);
+            currentPolyline = L.polyline(latlngs, {
+                color: cityColors[day.city],
+                weight: 3,
+                opacity: 0.8,
+                dashArray: '8, 6',
+                lineJoin: 'round'
+            }).addTo(map);
+        }
+
+        // Fly to day's bounds
+        const mks = dayMarkers[dayNum];
+        if (mks && mks.length === 1) { map.setView(mks[0].getLatLng(), 14, { animate: true }); mks[0].openPopup(); }
+        else if (mks && mks.length > 1) { map.fitBounds(L.featureGroup(mks).getBounds().pad(0.2), { animate: true }); }
+    }
+
     days.forEach(day => {
         dayMarkers[day.day] = [];
         day.activities.forEach(act => {
-            const icon = L.divIcon({
-                className: 'custom-marker',
-                html: `<div style="width:28px;height:28px;background:${cityColors[day.city]};border:2px solid white;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white">${day.day}</div>`,
-                iconSize: [28, 28], iconAnchor: [14, 14]
-            });
+            const icon = buildMarkerIcon(day, 1);
             const marker = L.marker([act.lat, act.lng], { icon }).addTo(map)
                 .bindPopup(`<div class="popup-title">${act.name}</div><div class="popup-time">יום ${day.day} | ${act.time}</div><div class="popup-desc">${act.desc}</div>`);
             dayMarkers[day.day].push(marker);
+            allMarkersList.push({ marker, dayNum: day.day, day });
         });
     });
+
+    // Expose for dynamic additions
+    function addMarkerToMap(day, act) {
+        const icon = buildMarkerIcon(day, selectedDayNum && selectedDayNum !== day.day ? 0.2 : 1);
+        const marker = L.marker([act.lat, act.lng], { icon }).addTo(map)
+            .bindPopup(`<div class="popup-title">${act.name}</div><div class="popup-time">יום ${day.day} | ${act.time}</div><div class="popup-desc">${act.desc}</div>`);
+        if (!dayMarkers[day.day]) dayMarkers[day.day] = [];
+        dayMarkers[day.day].push(marker);
+        allMarkersList.push({ marker, dayNum: day.day, day });
+        return marker;
+    }
 
     // --- SIDEBAR ---
     const itineraryEl = document.getElementById('itinerary');
@@ -808,9 +1019,7 @@
         card.querySelector('.day-header').addEventListener('click', () => {
             document.querySelectorAll('.day-card').forEach(c => c.classList.remove('active'));
             card.classList.add('active');
-            const markers = dayMarkers[day.day];
-            if (markers.length === 1) { map.setView(markers[0].getLatLng(), 14, { animate: true }); markers[0].openPopup(); }
-            else if (markers.length > 1) { map.fitBounds(L.featureGroup(markers).getBounds().pad(0.2), { animate: true }); }
+            selectDayOnMap(day.day);
         });
 
         itineraryEl.appendChild(card);
@@ -873,8 +1082,165 @@
         });
     });
 
+    // --- GOOGLE PLACES MODAL ---
+    const GOOGLE_API_KEY = localStorage.getItem('googleApiKey') || '';
+    let selectedPlace = null; // { name, lat, lng }
+
+    // Populate day dropdown
+    const modalOverlay = document.getElementById('modalOverlay');
+    const daySelect = document.getElementById('newPlaceDay');
+    days.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d.day;
+        opt.textContent = `יום ${d.day} – ${d.title.replace(/[🌋🍄🎃✈️]/g, '').trim()} (${d.date})`;
+        daySelect.appendChild(opt);
+    });
+
+    // Pre-select current day if one is active
+    addPlaceBtn.addEventListener('click', () => {
+        if (selectedDayNum) daySelect.value = selectedDayNum;
+        modalOverlay.classList.add('open');
+        document.getElementById('placesSearchInput').focus();
+        updateApiHint();
+    });
+
+    document.getElementById('modalCancel').addEventListener('click', () => {
+        modalOverlay.classList.remove('open');
+        resetModal();
+    });
+
+    modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) { modalOverlay.classList.remove('open'); resetModal(); } });
+
+    function resetModal() {
+        document.getElementById('placesSearchInput').value = '';
+        document.getElementById('newPlaceName').value = '';
+        document.getElementById('newPlaceDesc').value = '';
+        document.getElementById('newPlaceTime').value = '';
+        document.getElementById('places-search-results').style.display = 'none';
+        selectedPlace = null;
+    }
+
+    function updateApiHint() {
+        const hint = document.getElementById('apiKeyHint');
+        if (!GOOGLE_API_KEY) {
+            hint.innerHTML = '⚠️ אין מפתח Google — <a href="#" id="setKeyLink" style="color:var(--rose)">הגדר מפתח API</a> לחיפוש אוטומטי, או מלא פרטים ידנית.';
+            document.getElementById('setKeyLink').onclick = e => {
+                e.preventDefault();
+                const key = prompt('הדבק כאן את מפתח Google Maps API שלך:');
+                if (key) { localStorage.setItem('googleApiKey', key); location.reload(); }
+            };
+        } else {
+            hint.textContent = '';
+        }
+    }
+
+    // Places search (Google or manual)
+    let searchTimeout;
+    document.getElementById('placesSearchInput').addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        const q = this.value.trim();
+        if (q.length < 2) { document.getElementById('places-search-results').style.display = 'none'; return; }
+        if (!GOOGLE_API_KEY) {
+            // No API key: just fill the name field automatically
+            document.getElementById('newPlaceName').value = q;
+            return;
+        }
+        searchTimeout = setTimeout(() => searchPlaces(q), 400);
+    });
+
+    function searchPlaces(query) {
+        const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&key=${GOOGLE_API_KEY}`;
+        // Use a CORS proxy since we're calling from browser
+        fetch(`https://corsproxy.io/?${encodeURIComponent(url)}`)
+            .then(r => r.json())
+            .then(data => {
+                const results = (data.results || []).slice(0, 5);
+                const container = document.getElementById('places-search-results');
+                if (!results.length) { container.style.display = 'none'; return; }
+                container.innerHTML = results.map(p => `
+                    <div class="place-result" data-lat="${p.geometry.location.lat}" data-lng="${p.geometry.location.lng}" data-name="${p.name}" data-addr="${p.formatted_address}">
+                        ${p.name}
+                        <small>${p.formatted_address}</small>
+                    </div>`).join('');
+                container.style.display = 'block';
+                container.querySelectorAll('.place-result').forEach(el => {
+                    el.addEventListener('click', () => {
+                        selectedPlace = { name: el.dataset.name, lat: parseFloat(el.dataset.lat), lng: parseFloat(el.dataset.lng) };
+                        document.getElementById('newPlaceName').value = el.dataset.name;
+                        document.getElementById('placesSearchInput').value = el.dataset.name;
+                        container.style.display = 'none';
+                    });
+                });
+            })
+            .catch(() => {});
+    }
+
+    // Confirm: add to itinerary
+    document.getElementById('modalConfirm').addEventListener('click', () => {
+        const name = document.getElementById('newPlaceName').value.trim();
+        const desc = document.getElementById('newPlaceDesc').value.trim();
+        const time = document.getElementById('newPlaceTime').value.trim() || '?';
+        const dayNum = parseInt(daySelect.value);
+        const day = days.find(d => d.day === dayNum);
+
+        if (!name) { alert('נא להזין שם מקום'); return; }
+
+        // If we have coordinates from Places, use them; otherwise ask user to click map
+        const lat = selectedPlace ? selectedPlace.lat : null;
+        const lng = selectedPlace ? selectedPlace.lng : null;
+
+        if (!lat) {
+            alert('לא נמצאו קואורדינטות. אנא חפש מקום ובחר מהרשימה, או הפעל מפתח Google API.');
+            return;
+        }
+
+        // Add to data
+        const newAct = { name, time, desc: desc || '', lat, lng };
+        day.activities.push(newAct);
+
+        // Add marker to map
+        addMarkerToMap(day, newAct);
+
+        // Add to sidebar card
+        const card = document.querySelector(`.day-card[data-day="${dayNum}"]`);
+        const activitiesEl = card.querySelector('.activities');
+        const notesWrap = card.querySelector('.day-notes-wrap');
+        const i = day.activities.length - 1;
+        const key = `${dayNum}-${i}`;
+        const actDiv = document.createElement('div');
+        actDiv.className = 'activity';
+        actDiv.id = `act-${key}`;
+        actDiv.innerHTML = `
+            <input type="checkbox" class="activity-check" data-key="${key}">
+            <div class="activity-content">
+                <span class="activity-time">${time}</span>
+                <span class="activity-name"> ${name}</span>
+                <div class="activity-desc">${desc}</div>
+            </div>`;
+        activitiesEl.insertBefore(actDiv, notesWrap);
+
+        // Update progress bar
+        updateStats();
+
+        // Fly map to new location
+        map.setView([lat, lng], 15, { animate: true });
+
+        // Re-draw path if this day is active
+        if (selectedDayNum === dayNum) selectDayOnMap(dayNum);
+
+        modalOverlay.classList.remove('open');
+        resetModal();
+
+        // Show toast
+        const toast = document.getElementById('toast');
+        toast.textContent = `✅ ${name} נוסף ליום ${dayNum}!`;
+        toast.classList.add('show');
+        setTimeout(() => { toast.classList.remove('show'); toast.textContent = '🔗 הקישור הועתק!'; }, 2500);
+    });
+
     // Init
     document.querySelector('.day-card').classList.add('active');
+    selectDayOnMap(1);
     updateStats();
     </script>
 </body>
