@@ -22,14 +22,35 @@
             --tokyo-color: #E8A0BF;
             --kyoto-color: #9B72AA;
             --osaka-color: #F4A460;
+            --bg: #FFF8F0;
+            --sidebar-bg: #FFF8F0;
+            --card-hover: rgba(244,194,194,0.1);
+            --card-active: rgba(244,194,194,0.2);
+            --border: rgba(201,169,110,0.15);
+        }
+
+        body.dark {
+            --cream: #1a1215;
+            --blush: #6b3a3a;
+            --rose: #8a4a6a;
+            --gold: #c9a96e;
+            --gold-light: #3a2e1e;
+            --text: #f0e0e0;
+            --text-light: #b09090;
+            --bg: #1a1215;
+            --sidebar-bg: #221518;
+            --card-hover: rgba(139,74,106,0.15);
+            --card-active: rgba(139,74,106,0.25);
+            --border: rgba(201,169,110,0.1);
         }
 
         body {
             font-family: 'Noto Sans Hebrew', sans-serif;
-            background: var(--cream);
+            background: var(--bg);
             color: var(--text);
             overflow: hidden;
             height: 100vh;
+            transition: background 0.3s, color 0.3s;
         }
 
         .container {
@@ -42,203 +63,403 @@
             width: 420px;
             height: 100vh;
             overflow-y: auto;
-            padding: 0;
-            background: var(--cream);
+            background: var(--sidebar-bg);
             border-left: 1px solid var(--gold-light);
             scroll-behavior: smooth;
+            transition: background 0.3s;
         }
 
         .sidebar::-webkit-scrollbar { width: 6px; }
         .sidebar::-webkit-scrollbar-track { background: var(--cream); }
         .sidebar::-webkit-scrollbar-thumb { background: var(--blush); border-radius: 3px; }
 
+        /* HEADER */
         .header {
             text-align: center;
-            padding: 30px 20px;
-            background: linear-gradient(135deg, #fff8f0 0%, #fce4ec 100%);
+            padding: 20px 20px 14px;
+            background: linear-gradient(135deg, var(--cream) 0%, #fce4ec22 100%);
             border-bottom: 1px solid var(--gold-light);
             position: sticky;
             top: 0;
             z-index: 10;
+            transition: background 0.3s;
         }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: 1px solid var(--gold-light);
+            border-radius: 8px;
+            padding: 5px 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            transition: all 0.2s;
+        }
+        .icon-btn:hover { background: var(--gold-light); color: var(--text); }
 
         .header h1 {
             font-family: 'Playfair Display', serif;
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             color: var(--text);
-            margin-bottom: 4px;
+            flex: 1;
         }
 
         .header .subtitle {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--text-light);
             font-weight: 300;
+            margin-bottom: 10px;
         }
 
-        .header .hearts {
-            color: var(--rose);
-            font-size: 1.2rem;
-            margin-top: 6px;
+        /* COUNTDOWN */
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 8px 0;
         }
 
+        .countdown-item {
+            text-align: center;
+            background: var(--gold-light);
+            border-radius: 10px;
+            padding: 6px 10px;
+            min-width: 52px;
+        }
+
+        .countdown-item .num {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--gold);
+            line-height: 1;
+        }
+
+        .countdown-item .label {
+            font-size: 0.6rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* STATS */
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            padding: 8px 20px;
+            background: var(--gold-light);
+            font-size: 0.75rem;
+            color: var(--text-light);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .stat { display: flex; align-items: center; gap: 4px; }
+        .stat strong { color: var(--gold); font-size: 0.9rem; }
+
+        /* SEARCH */
+        .search-bar {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border);
+            background: var(--sidebar-bg);
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 7px 12px;
+            border: 1px solid var(--gold-light);
+            border-radius: 20px;
+            background: var(--cream);
+            color: var(--text);
+            font-family: 'Noto Sans Hebrew', sans-serif;
+            font-size: 0.82rem;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        .search-bar input:focus { border-color: var(--rose); }
+        .search-bar input::placeholder { color: var(--text-light); }
+
+        /* CITY FILTER */
+        .city-filter {
+            display: flex;
+            gap: 6px;
+            padding: 8px 16px;
+            border-bottom: 1px solid var(--border);
+            background: var(--sidebar-bg);
+        }
+
+        .filter-btn {
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            font-size: 0.75rem;
+            cursor: pointer;
+            background: none;
+            color: var(--text-light);
+            font-family: 'Noto Sans Hebrew', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .filter-btn.active, .filter-btn:hover { color: white; border-color: transparent; }
+        .filter-btn[data-city="all"].active { background: var(--gold); }
+        .filter-btn[data-city="tokyo"].active { background: var(--tokyo-color); }
+        .filter-btn[data-city="kyoto"].active { background: var(--kyoto-color); }
+        .filter-btn[data-city="osaka"].active { background: var(--osaka-color); }
+
+        /* CITY DIVIDER */
         .city-divider {
-            padding: 12px 20px;
+            padding: 10px 20px;
             background: linear-gradient(90deg, var(--gold-light), transparent);
             font-family: 'Playfair Display', serif;
-            font-size: 1.1rem;
+            font-size: 1rem;
             color: var(--gold);
             font-weight: 700;
-            position: sticky;
-            top: 110px;
-            z-index: 5;
             border-bottom: 1px solid var(--gold-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
+        .city-progress {
+            font-family: 'Noto Sans Hebrew', sans-serif;
+            font-size: 0.7rem;
+            color: var(--text-light);
+            font-weight: 400;
+        }
+
+        /* DAY CARD */
         .day-card {
-            padding: 16px 20px;
-            border-bottom: 1px solid rgba(201, 169, 110, 0.15);
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: background 0.2s;
         }
 
-        .day-card:hover {
-            background: rgba(244, 194, 194, 0.1);
-        }
-
-        .day-card.active {
-            background: rgba(244, 194, 194, 0.2);
-            border-right: 3px solid var(--rose);
-        }
+        .day-card:hover { background: var(--card-hover); }
+        .day-card.active { background: var(--card-active); border-right: 3px solid var(--rose); }
+        .day-card.hidden { display: none; }
 
         .day-header {
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .day-badge {
-            width: 32px;
-            height: 32px;
+            width: 32px; height: 32px;
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: white;
-            flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.75rem; font-weight: 600;
+            color: white; flex-shrink: 0;
         }
-
         .day-badge.tokyo { background: var(--tokyo-color); }
         .day-badge.kyoto { background: var(--kyoto-color); }
         .day-badge.osaka { background: var(--osaka-color); }
 
         .day-title {
             font-family: 'Playfair Display', serif;
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--text);
+            font-size: 0.95rem; font-weight: 700;
+            color: var(--text); flex: 1;
         }
 
-        .day-date {
-            font-size: 0.75rem;
+        .day-date { font-size: 0.72rem; color: var(--text-light); font-weight: 300; }
+
+        .day-weather {
+            font-size: 0.72rem;
             color: var(--text-light);
-            font-weight: 300;
+            margin-right: auto;
         }
 
-        .activities {
-            padding-right: 42px;
-            display: none;
+        /* PROGRESS BAR */
+        .day-progress-bar {
+            height: 3px;
+            background: var(--border);
+            border-radius: 2px;
+            margin: 6px 0 0 42px;
+            overflow: hidden;
         }
 
-        .day-card.active .activities {
-            display: block;
+        .day-progress-fill {
+            height: 100%;
+            background: var(--rose);
+            border-radius: 2px;
+            transition: width 0.4s ease;
         }
+
+        /* ACTIVITIES */
+        .activities { padding-right: 42px; display: none; }
+        .day-card.active .activities { display: block; }
 
         .activity {
             padding: 8px 0;
-            border-bottom: 1px dashed rgba(201, 169, 110, 0.15);
+            border-bottom: 1px dashed var(--border);
             font-size: 0.85rem;
             line-height: 1.5;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
         }
 
         .activity:last-child { border-bottom: none; }
 
-        .activity-time {
-            font-weight: 600;
-            color: var(--gold);
-            font-size: 0.75rem;
+        .activity-check {
+            margin-top: 3px;
+            width: 16px; height: 16px;
+            border-radius: 4px;
+            border: 1.5px solid var(--blush);
+            cursor: pointer;
+            flex-shrink: 0;
+            appearance: none;
+            background: none;
+            transition: all 0.2s;
         }
 
-        .activity-name {
-            font-weight: 600;
-            color: var(--text);
+        .activity-check:checked {
+            background: var(--rose);
+            border-color: var(--rose);
         }
 
-        .activity-desc {
-            color: var(--text-light);
-            font-size: 0.8rem;
-            font-weight: 300;
-        }
-
-        .map-container {
-            flex: 1;
-            height: 100vh;
-            position: relative;
-        }
-
-        #map {
-            width: 100%;
+        .activity-check:checked::after {
+            content: '✓';
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
             height: 100%;
         }
 
+        .activity-content { flex: 1; }
+
+        .activity-time { font-weight: 600; color: var(--gold); font-size: 0.72rem; }
+        .activity-name { font-weight: 600; color: var(--text); }
+        .activity-desc { color: var(--text-light); font-size: 0.78rem; font-weight: 300; }
+
+        .activity.done .activity-name { text-decoration: line-through; opacity: 0.6; }
+
+        /* NOTES */
+        .day-notes-wrap {
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px dashed var(--border);
+        }
+
+        .day-notes-label {
+            font-size: 0.72rem;
+            color: var(--gold);
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .day-notes {
+            width: 100%;
+            min-height: 52px;
+            padding: 6px 8px;
+            font-family: 'Noto Sans Hebrew', sans-serif;
+            font-size: 0.78rem;
+            color: var(--text);
+            background: var(--cream);
+            border: 1px solid var(--gold-light);
+            border-radius: 8px;
+            resize: vertical;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        .day-notes:focus { border-color: var(--rose); }
+
+        /* MAP */
+        .map-container { flex: 1; height: 100vh; position: relative; }
+        #map { width: 100%; height: 100%; }
+
+        /* MAP OVERLAY STATS */
+        .map-overlay {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            z-index: 1000;
+            background: white;
+            border-radius: 12px;
+            padding: 10px 14px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+            font-size: 0.78rem;
+            font-family: 'Noto Sans Hebrew', sans-serif;
+            direction: rtl;
+            min-width: 140px;
+        }
+
+        body.dark .map-overlay { background: #2a1e22; color: #f0e0e0; }
+
+        .map-overlay-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.85rem;
+            color: var(--gold);
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        .map-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 3px;
+        }
+
+        .legend-dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        /* POPUP */
         .leaflet-popup-content-wrapper {
             border-radius: 12px;
             font-family: 'Noto Sans Hebrew', sans-serif;
             direction: rtl;
         }
 
-        .leaflet-popup-content {
-            margin: 12px 16px;
-            font-size: 0.85rem;
-            line-height: 1.5;
+        .leaflet-popup-content { margin: 12px 16px; font-size: 0.85rem; line-height: 1.5; }
+        .popup-title { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; margin-bottom: 4px; color: #3D2C2E; }
+        .popup-time { color: #C9A96E; font-size: 0.8rem; font-weight: 600; }
+        .popup-desc { color: #6B5153; font-size: 0.8rem; }
+
+        /* SHARE TOAST */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(60px);
+            background: #3D2C2E;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            z-index: 9999;
+            transition: transform 0.3s ease;
+            pointer-events: none;
         }
 
-        .popup-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 1rem;
-            font-weight: 700;
-            margin-bottom: 4px;
-            color: var(--text);
-        }
-
-        .popup-time {
-            color: var(--gold);
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .popup-desc {
-            color: var(--text-light);
-            font-size: 0.8rem;
-        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
 
         @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-            }
-            .sidebar {
-                width: 100%;
-                height: 50vh;
-                border-left: none;
-                border-top: 2px solid var(--gold-light);
-                order: 2;
-            }
-            .map-container {
-                height: 50vh;
-                order: 1;
-            }
+            .container { flex-direction: column; }
+            .sidebar { width: 100%; height: 55vh; border-left: none; border-top: 2px solid var(--gold-light); order: 2; }
+            .map-container { height: 45vh; order: 1; }
+            .map-overlay { display: none; }
         }
     </style>
 </head>
@@ -246,22 +467,55 @@
     <div class="container">
         <div class="sidebar">
             <div class="header">
-                <h1>ירח דבש ביפן</h1>
+                <div class="header-top">
+                    <div style="width:60px"></div>
+                    <h1>ירח דבש ביפן 🇯🇵</h1>
+                    <div class="header-actions">
+                        <button class="icon-btn" id="darkToggle" title="מצב לילה">🌙</button>
+                        <button class="icon-btn" id="shareBtn" title="שיתוף">🔗</button>
+                    </div>
+                </div>
                 <div class="subtitle">27 בספטמבר – 10 באוקטובר | טוקיו · קיוטו · אוסקה</div>
-                <div class="hearts">♥ ♥ ♥</div>
+                <div class="countdown" id="countdown"></div>
             </div>
+
+            <div class="stats-bar" id="statsBar"></div>
+
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="🔍  חפש יום, פעילות או מקום..." />
+            </div>
+
+            <div class="city-filter">
+                <button class="filter-btn active" data-city="all">הכל</button>
+                <button class="filter-btn" data-city="tokyo">🗼 טוקיו</button>
+                <button class="filter-btn" data-city="kyoto">⛩️ קיוטו</button>
+                <button class="filter-btn" data-city="osaka">🎡 אוסקה</button>
+            </div>
+
             <div id="itinerary"></div>
         </div>
+
         <div class="map-container">
             <div id="map"></div>
+            <div class="map-overlay">
+                <div class="map-overlay-title">מקרא</div>
+                <div class="map-legend-item"><div class="legend-dot" style="background:#E8A0BF"></div> טוקיו</div>
+                <div class="map-legend-item"><div class="legend-dot" style="background:#9B72AA"></div> קיוטו</div>
+                <div class="map-legend-item"><div class="legend-dot" style="background:#F4A460"></div> אוסקה</div>
+                <hr style="margin:8px 0;border-color:#eee">
+                <div id="overlayProgress" style="font-size:0.72rem;color:#6B5153"></div>
+            </div>
         </div>
     </div>
+
+    <div class="toast" id="toast">🔗 הקישור הועתק!</div>
 
     <script>
     const days = [
         {
             day: 1, date: '27.9', weekday: 'ראשון', city: 'tokyo',
             title: 'נחיתה וערב בשינג׳וקו',
+            weather: '☀️ 24°C',
             activities: [
                 { name: 'הגעה למלון Daiwa Roynet', time: 'אחה״צ', desc: 'צ׳ק-אין והתרעננות', lat: 35.6938, lng: 139.6921 },
                 { name: 'Omoide Yokocho', time: 'ערב', desc: 'סמטאות ניאון, יאקיטורי ובירה', lat: 35.6934, lng: 139.6984 }
@@ -270,6 +524,7 @@
         {
             day: 2, date: '28.9', weekday: 'שני', city: 'tokyo',
             title: 'הרג׳וקו, שיבויה ווואגיו',
+            weather: '🌤️ 23°C',
             activities: [
                 { name: "FLIPPER'S – פנקייק סופלה", time: '09:30', desc: 'פנקייקים אווריריים כמו ענן', lat: 35.6912, lng: 139.7046 },
                 { name: 'מקדש Meiji', time: '11:00', desc: 'יער עבות ושער עץ ענק', lat: 35.6764, lng: 139.6993 },
@@ -282,6 +537,7 @@
         {
             day: 3, date: '29.9', weekday: 'שלישי', city: 'tokyo',
             title: 'צוקיג׳י, teamLab וגינזה',
+            weather: '☀️ 23°C',
             activities: [
                 { name: 'שוק Tsukiji', time: '09:00', desc: 'סושי טרי, תמנון ואומלט יפני', lat: 35.6654, lng: 139.7707 },
                 { name: 'teamLab Planets', time: '12:00', desc: 'מוזיאון חושי יחפים', lat: 35.6427, lng: 139.7837 },
@@ -291,6 +547,7 @@
         {
             day: 4, date: '30.9', weekday: 'רביעי', city: 'tokyo',
             title: 'Tokyo DisneySea 🌋',
+            weather: '🌤️ 22°C',
             activities: [
                 { name: 'Tokyo DisneySea', time: 'יום שלם', desc: 'הר געש, גונדולה, Fantasy Springs', lat: 35.6267, lng: 139.8851 }
             ]
@@ -298,6 +555,7 @@
         {
             day: 5, date: '1.10', weekday: 'חמישי', city: 'tokyo',
             title: 'אסאקוסה, אקיהברה ו-NOBU',
+            weather: '☀️ 22°C',
             activities: [
                 { name: 'מקדש Senso-ji', time: '10:00', desc: 'לנטרנת ענק ורחוב Nakamise', lat: 35.7148, lng: 139.7967 },
                 { name: 'Akihabara', time: '14:00', desc: 'גיימינג, אנימה וארקיידים', lat: 35.7023, lng: 139.7745 },
@@ -307,6 +565,7 @@
         {
             day: 6, date: '2.10', weekday: 'שישי', city: 'tokyo',
             title: 'האקונה (הר פוג׳י) וחגיגת טונה',
+            weather: '⛅ 20°C',
             activities: [
                 { name: 'Hakone – אגם אשי ורכבל', time: '08:00–17:00', desc: 'ספינת פיראטים, רכבל ונוף הר פוג׳י', lat: 35.2028, lng: 139.0245 },
                 { name: 'Maguro Mart – חגיגת טונה', time: '19:30', desc: 'מגרדים טונה מהעצם לסושי!', lat: 35.7063, lng: 139.6659 }
@@ -315,6 +574,7 @@
         {
             day: 7, date: '3.10', weekday: 'שבת', city: 'kyoto',
             title: 'רכבת קליע וגיון',
+            weather: '☀️ 21°C',
             activities: [
                 { name: 'Shinkansen לקיוטו', time: '09:30', desc: 'רכבת קליע – שעתיים ו-15 דקות', lat: 35.6812, lng: 139.7671 },
                 { name: 'רובע Gion וסמטאות Pontocho', time: '17:00', desc: 'בתי עץ, פנסי נייר וגיישות', lat: 35.0037, lng: 135.7756 },
@@ -324,6 +584,7 @@
         {
             day: 8, date: '4.10', weekday: 'ראשון', city: 'kyoto',
             title: 'קיומיזו, מקדש הזהב וגיוזות',
+            weather: '🌤️ 20°C',
             activities: [
                 { name: 'Kiyomizu-dera', time: '08:30', desc: 'מרפסת עץ מעל צמרות העצים', lat: 34.9949, lng: 135.7850 },
                 { name: 'סמטאות Ninenzaka', time: '10:30', desc: 'רחובות אבן עתיקים + סטארבקס טטאמי', lat: 34.9981, lng: 135.7806 },
@@ -334,6 +595,7 @@
         {
             day: 9, date: '5.10', weekday: 'שני', city: 'kyoto',
             title: 'ארשייאמה ו-teamLab לילי',
+            weather: '☀️ 20°C',
             activities: [
                 { name: 'יער הבמבוק', time: '08:30', desc: 'קני במבוק ענקיים מתנשאים לגובה', lat: 35.0170, lng: 135.6713 },
                 { name: 'פארק הקופים Iwatayama', time: '10:30', desc: 'קופי מקאק חופשיים – מאכילים מהיד', lat: 35.0098, lng: 135.6770 },
@@ -343,6 +605,7 @@
         {
             day: 10, date: '6.10', weekday: 'שלישי', city: 'kyoto',
             title: 'פושימי אינארי ושוק נישיקי',
+            weather: '⛅ 19°C',
             activities: [
                 { name: 'Fushimi Inari – אלף השערים', time: '07:30', desc: 'מנהרות שערים כתומים על ההר', lat: 34.9671, lng: 135.7727 },
                 { name: 'שוק Nishiki', time: '11:30', desc: 'שיפודי וואגיו, מוצ׳י ומאצ׳ה', lat: 35.0050, lng: 135.7649 }
@@ -351,6 +614,7 @@
         {
             day: 11, date: '7.10', weekday: 'רביעי', city: 'osaka',
             title: 'מפלי מינו ודוטונבורי',
+            weather: '🌤️ 21°C',
             activities: [
                 { name: 'מפלי Minoh', time: '13:00', desc: 'הליכה ביער + עלי מייפל מטוגנים', lat: 34.8387, lng: 135.4705 },
                 { name: 'Dotonbori', time: '18:30', desc: 'ניאון, טאקויאקי ואוקונומיאקי', lat: 34.6687, lng: 135.5013 }
@@ -359,6 +623,7 @@
         {
             day: 12, date: '8.10', weekday: 'חמישי', city: 'osaka',
             title: 'Universal Studios Japan 🍄🎃',
+            weather: '☀️ 22°C',
             activities: [
                 { name: 'Universal Studios Japan', time: 'יום שלם', desc: 'סופר מריו + Halloween Horror Nights', lat: 34.6654, lng: 135.4323 }
             ]
@@ -366,6 +631,7 @@
         {
             day: 13, date: '9.10', weekday: 'שישי', city: 'osaka',
             title: 'נארה, טירת אוסקה ושינסקאי',
+            weather: '🌤️ 21°C',
             activities: [
                 { name: 'Nara Park – הצבאים', time: '09:00', desc: 'צבאים שמקדים לקבל אוכל + מקדש Todai-ji', lat: 34.6851, lng: 135.8430 },
                 { name: 'טירת אוסקה', time: '14:30', desc: 'טירה מרהיבה עם תצפית', lat: 34.6873, lng: 135.5262 },
@@ -375,6 +641,7 @@
         {
             day: 14, date: '10.10', weekday: 'שבת', city: 'osaka',
             title: 'שופינג וטיסה לבנגקוק ✈️',
+            weather: '☀️ 22°C',
             activities: [
                 { name: 'Don Quijote Dotonbori', time: 'בוקר', desc: 'חטיפים, קוסמטיקה ומזכרות', lat: 34.6690, lng: 135.5018 },
                 { name: 'שדה תעופה Kansai (KIX)', time: 'אחה״צ', desc: 'רכבת Rap:t → טיסה לבנגקוק', lat: 34.4347, lng: 135.2440 }
@@ -384,54 +651,105 @@
 
     const cityNames = { tokyo: '🗼 טוקיו', kyoto: '⛩️ קיוטו', osaka: '🎡 אוסקה' };
     const cityColors = { tokyo: '#E8A0BF', kyoto: '#9B72AA', osaka: '#F4A460' };
+    const totalActivities = days.reduce((s, d) => s + d.activities.length, 0);
 
-    // Initialize map
+    // --- DARK MODE ---
+    const darkToggle = document.getElementById('darkToggle');
+    if (localStorage.getItem('darkMode') === '1') { document.body.classList.add('dark'); darkToggle.textContent = '☀️'; }
+    darkToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark');
+        const isDark = document.body.classList.contains('dark');
+        darkToggle.textContent = isDark ? '☀️' : '🌙';
+        localStorage.setItem('darkMode', isDark ? '1' : '0');
+    });
+
+    // --- SHARE ---
+    document.getElementById('shareBtn').addEventListener('click', () => {
+        navigator.clipboard.writeText(location.href).then(() => {
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        });
+    });
+
+    // --- COUNTDOWN ---
+    function updateCountdown() {
+        const target = new Date('2026-09-27T00:00:00');
+        const now = new Date();
+        const diff = target - now;
+        if (diff <= 0) { document.getElementById('countdown').innerHTML = '<div style="color:var(--rose);font-weight:600">✈️ הטיול התחיל!</div>'; return; }
+        const d = Math.floor(diff / 86400000);
+        const h = Math.floor((diff % 86400000) / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        document.getElementById('countdown').innerHTML = `
+            <div class="countdown-item"><div class="num">${d}</div><div class="label">ימים</div></div>
+            <div class="countdown-item"><div class="num">${String(h).padStart(2,'0')}</div><div class="label">שעות</div></div>
+            <div class="countdown-item"><div class="num">${String(m).padStart(2,'0')}</div><div class="label">דקות</div></div>
+            <div class="countdown-item"><div class="num">${String(s).padStart(2,'0')}</div><div class="label">שניות</div></div>
+        `;
+    }
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+
+    // --- CHECKLIST STATE ---
+    function getChecked() { return JSON.parse(localStorage.getItem('checked') || '{}'); }
+    function setChecked(obj) { localStorage.setItem('checked', JSON.stringify(obj)); }
+    function getNotes() { return JSON.parse(localStorage.getItem('notes') || '{}'); }
+    function setNotes(obj) { localStorage.setItem('notes', JSON.stringify(obj)); }
+
+    function countChecked() {
+        const checked = getChecked();
+        return Object.values(checked).filter(Boolean).length;
+    }
+
+    function updateStats() {
+        const done = countChecked();
+        const pct = Math.round(done / totalActivities * 100);
+        document.getElementById('statsBar').innerHTML = `
+            <div class="stat">📅 <strong>14</strong> ימים</div>
+            <div class="stat">🏙️ <strong>3</strong> ערים</div>
+            <div class="stat">📍 <strong>${totalActivities}</strong> פעילויות</div>
+            <div class="stat">✅ <strong>${done}/${totalActivities}</strong> (${pct}%)</div>
+        `;
+        document.getElementById('overlayProgress').innerHTML = `✅ ${done}/${totalActivities} פעילויות (${pct}%)`;
+        updateAllProgressBars();
+    }
+
+    function updateAllProgressBars() {
+        const checked = getChecked();
+        days.forEach(day => {
+            const total = day.activities.length;
+            const done = day.activities.filter((_, i) => checked[`${day.day}-${i}`]).length;
+            const bar = document.getElementById(`bar-fill-${day.day}`);
+            if (bar) bar.style.width = (done / total * 100) + '%';
+        });
+    }
+
+    // --- MAP ---
     const map = L.map('map', { zoomControl: false }).setView([35.6762, 139.6503], 11);
-
     L.control.zoom({ position: 'topleft' }).addTo(map);
-
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-        subdomains: 'abcd',
-        maxZoom: 19
+        subdomains: 'abcd', maxZoom: 19
     }).addTo(map);
 
-    // Create markers
-    const allMarkers = [];
     const dayMarkers = {};
-
     days.forEach(day => {
         dayMarkers[day.day] = [];
         day.activities.forEach(act => {
             const icon = L.divIcon({
                 className: 'custom-marker',
-                html: `<div style="
-                    width: 28px; height: 28px;
-                    background: ${cityColors[day.city]};
-                    border: 2px solid white;
-                    border-radius: 50%;
-                    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-                    display: flex; align-items: center; justify-content: center;
-                    font-size: 11px; font-weight: 700; color: white;
-                ">${day.day}</div>`,
-                iconSize: [28, 28],
-                iconAnchor: [14, 14]
+                html: `<div style="width:28px;height:28px;background:${cityColors[day.city]};border:2px solid white;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white">${day.day}</div>`,
+                iconSize: [28, 28], iconAnchor: [14, 14]
             });
-
-            const marker = L.marker([act.lat, act.lng], { icon })
-                .addTo(map)
-                .bindPopup(`
-                    <div class="popup-title">${act.name}</div>
-                    <div class="popup-time">יום ${day.day} | ${act.time}</div>
-                    <div class="popup-desc">${act.desc}</div>
-                `);
-
-            allMarkers.push(marker);
+            const marker = L.marker([act.lat, act.lng], { icon }).addTo(map)
+                .bindPopup(`<div class="popup-title">${act.name}</div><div class="popup-time">יום ${day.day} | ${act.time}</div><div class="popup-desc">${act.desc}</div>`);
             dayMarkers[day.day].push(marker);
         });
     });
 
-    // Build sidebar
+    // --- SIDEBAR ---
     const itineraryEl = document.getElementById('itinerary');
     let currentCity = '';
 
@@ -440,51 +758,124 @@
             currentCity = day.city;
             const divider = document.createElement('div');
             divider.className = 'city-divider';
-            divider.textContent = cityNames[day.city];
+            divider.dataset.city = day.city;
+            divider.innerHTML = `<span>${cityNames[day.city]}</span><span class="city-progress" id="city-prog-${day.city}"></span>`;
             itineraryEl.appendChild(divider);
         }
 
+        const checked = getChecked();
+        const notes = getNotes();
         const card = document.createElement('div');
         card.className = 'day-card';
         card.dataset.day = day.day;
-        card.innerHTML = `
-            <div class="day-header">
-                <div class="day-badge ${day.city}">${day.day}</div>
-                <div>
-                    <div class="day-title">${day.title}</div>
-                    <div class="day-date">${day.date} | יום ${day.weekday}</div>
-                </div>
-            </div>
-            <div class="activities">
-                ${day.activities.map(a => `
-                    <div class="activity">
+        card.dataset.city = day.city;
+
+        const activitiesHtml = day.activities.map((a, i) => {
+            const key = `${day.day}-${i}`;
+            const isDone = checked[key] ? 'done' : '';
+            const isChecked = checked[key] ? 'checked' : '';
+            return `
+                <div class="activity ${isDone}" id="act-${key}">
+                    <input type="checkbox" class="activity-check" data-key="${key}" ${isChecked}>
+                    <div class="activity-content">
                         <span class="activity-time">${a.time}</span>
                         <span class="activity-name"> ${a.name}</span>
                         <div class="activity-desc">${a.desc}</div>
                     </div>
-                `).join('')}
+                </div>`;
+        }).join('');
+
+        card.innerHTML = `
+            <div class="day-header">
+                <div class="day-badge ${day.city}">${day.day}</div>
+                <div style="flex:1">
+                    <div class="day-title">${day.title}</div>
+                    <div class="day-date">${day.date} | יום ${day.weekday}</div>
+                </div>
+                <div class="day-weather">${day.weather}</div>
+            </div>
+            <div class="day-progress-bar"><div class="day-progress-fill" id="bar-fill-${day.day}" style="width:0%"></div></div>
+            <div class="activities">
+                ${activitiesHtml}
+                <div class="day-notes-wrap">
+                    <div class="day-notes-label">📝 הערות ליום ${day.day}</div>
+                    <textarea class="day-notes" data-day="${day.day}" placeholder="הוסף הערות, טיפים, מספרי הזמנה...">${notes[day.day] || ''}</textarea>
+                </div>
             </div>
         `;
 
-        card.addEventListener('click', () => {
+        // Click to expand
+        card.querySelector('.day-header').addEventListener('click', () => {
             document.querySelectorAll('.day-card').forEach(c => c.classList.remove('active'));
             card.classList.add('active');
-
             const markers = dayMarkers[day.day];
-            if (markers.length === 1) {
-                map.setView(markers[0].getLatLng(), 14, { animate: true });
-                markers[0].openPopup();
-            } else if (markers.length > 1) {
-                const group = L.featureGroup(markers);
-                map.fitBounds(group.getBounds().pad(0.2), { animate: true });
-            }
+            if (markers.length === 1) { map.setView(markers[0].getLatLng(), 14, { animate: true }); markers[0].openPopup(); }
+            else if (markers.length > 1) { map.fitBounds(L.featureGroup(markers).getBounds().pad(0.2), { animate: true }); }
         });
 
         itineraryEl.appendChild(card);
     });
 
-    // Open first day by default
+    // Checkboxes
+    document.addEventListener('change', e => {
+        if (!e.target.classList.contains('activity-check')) return;
+        const key = e.target.dataset.key;
+        const checked = getChecked();
+        checked[key] = e.target.checked;
+        setChecked(checked);
+        const actEl = document.getElementById(`act-${key}`);
+        if (actEl) actEl.classList.toggle('done', e.target.checked);
+        updateStats();
+    });
+
+    // Notes
+    document.addEventListener('input', e => {
+        if (!e.target.classList.contains('day-notes')) return;
+        const notes = getNotes();
+        notes[e.target.dataset.day] = e.target.value;
+        setNotes(notes);
+    });
+
+    // Stop card collapse when clicking inside activities
+    document.addEventListener('click', e => {
+        if (e.target.closest('.activities')) e.stopPropagation();
+    }, true);
+
+    // --- SEARCH ---
+    document.getElementById('searchInput').addEventListener('input', function() {
+        const q = this.value.trim().toLowerCase();
+        document.querySelectorAll('.day-card').forEach(card => {
+            const text = card.textContent.toLowerCase();
+            card.classList.toggle('hidden', q.length > 0 && !text.includes(q));
+        });
+    });
+
+    // --- CITY FILTER ---
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const city = btn.dataset.city;
+            document.querySelectorAll('.day-card').forEach(card => {
+                card.classList.toggle('hidden', city !== 'all' && card.dataset.city !== city);
+            });
+            document.querySelectorAll('.city-divider').forEach(div => {
+                div.style.display = (city !== 'all' && div.dataset.city !== city) ? 'none' : '';
+            });
+            if (city !== 'all') {
+                const cityDays = days.filter(d => d.city === city);
+                const lats = cityDays.flatMap(d => d.activities.map(a => a.lat));
+                const lngs = cityDays.flatMap(d => d.activities.map(a => a.lng));
+                map.fitBounds([[Math.min(...lats), Math.min(...lngs)], [Math.max(...lats), Math.max(...lngs)]], { padding: [30, 30], animate: true });
+            } else {
+                map.setView([35.6762, 139.6503], 11, { animate: true });
+            }
+        });
+    });
+
+    // Init
     document.querySelector('.day-card').classList.add('active');
+    updateStats();
     </script>
 </body>
 </html>
