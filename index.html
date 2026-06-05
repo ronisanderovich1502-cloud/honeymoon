@@ -1241,6 +1241,20 @@
                     ${website ? `<div class="panel-row"><span class="panel-row-icon">🌐</span><span class="panel-row-val"><a href="${website}" target="_blank" rel="noopener">פתח אתר</a></span></div>` : ''}
                     ${!hours && !fee && !addr && !website ? `<div class="panel-row"><span class="panel-row-val" style="color:var(--text-light);font-size:0.78rem">אין מידע נוסף ב-OpenStreetMap למקום זה</span></div>` : ''}
                 </div>
+                <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;">
+                    <a href="https://www.google.com/maps?q=${lat},${lng}" target="_blank" rel="noopener"
+                       style="flex:1;text-align:center;padding:9px 6px;background:#4285F4;color:white;border-radius:10px;text-decoration:none;font-size:0.78rem;font-weight:600;">
+                        🗺️ Google Maps
+                    </a>
+                    <a href="https://waze.com/ul?ll=${lat},${lng}&navigate=yes" target="_blank" rel="noopener"
+                       style="flex:1;text-align:center;padding:9px 6px;background:#05C3DE;color:white;border-radius:10px;text-decoration:none;font-size:0.78rem;font-weight:600;">
+                        🚗 Waze
+                    </a>
+                    <a href="https://www.google.com/search?q=${encodeURIComponent(name + ' Japan')}" target="_blank" rel="noopener"
+                       style="flex:1;text-align:center;padding:9px 6px;background:#34A853;color:white;border-radius:10px;text-decoration:none;font-size:0.78rem;font-weight:600;">
+                        🔍 Google
+                    </a>
+                </div>
             </div>`;
     }
 
