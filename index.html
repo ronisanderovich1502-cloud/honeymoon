@@ -873,28 +873,25 @@
     <!-- SYNC SETTINGS MODAL -->
     <div class="modal-overlay" id="syncModalOverlay">
         <div class="sync-modal">
-            <h3>☁️ סנכרון בין משתמשים</h3>
-            <p>שתפו תוכנית הטיול בזמן אמת עם כולם בקבוצה. כל שינוי מופיע מיד לכולם.</p>
+            <h3>🐙 סנכרון GitHub</h3>
+            <p>כל שינוי (הוספה/עריכה/מחיקה) יישמר ישירות ב-GitHub ויעלה לאתר תוך ~30 שניות.</p>
 
             <div style="background:var(--gold-light);border-radius:10px;padding:10px 14px;font-size:0.78rem;color:var(--text-light);margin-bottom:4px;line-height:1.6">
-                1. היכנסו ל־<strong>jsonbin.io</strong> → Sign Up (חינם)<br>
-                2. Dashboard → API Keys → צרו Master Key<br>
-                3. הכניסו את ה-Key למטה ולחצו "צור Bin חדש"<br>
-                4. שתפו את ה-Bin ID עם חברי הקבוצה
+                1. GitHub → Settings → Developer settings → Personal access tokens → <strong>Fine-grained tokens</strong><br>
+                2. Repository access: <strong>ronisanderovich1502-cloud/honeymoon</strong><br>
+                3. Permissions → Contents: <strong>Read and write</strong><br>
+                4. הדבק את ה-token למטה ולחץ שמור
             </div>
 
-            <label>🔑 Master Key</label>
-            <input type="password" id="jsonbinKey" placeholder="$2a$10$..." autocomplete="off" />
-
-            <label>📦 Bin ID <span style="font-size:0.7rem">(ריק = צור חדש)</span></label>
-            <input type="text" id="jsonbinBin" placeholder="67abc123..." autocomplete="off" />
+            <label>🔑 GitHub Token</label>
+            <input type="password" id="ghTokenInput" placeholder="github_pat_..." autocomplete="off" />
 
             <div class="sync-status-box" id="syncStatusBox"></div>
 
             <div class="modal-actions" style="flex-wrap:wrap;gap:6px;">
                 <button class="btn-secondary" id="syncModalCancel">סגור</button>
                 <button class="btn-secondary" id="syncDisconnect" style="color:#f44336;border-color:#f44336">נתק</button>
-                <button class="btn-primary" id="syncConnect">התחבר / צור Bin</button>
+                <button class="btn-primary" id="syncConnect">שמור Token</button>
             </div>
         </div>
     </div>
@@ -929,6 +926,7 @@
     </div>
 
     <script>
+    // __ITINERARY_DATA_START__
     const days = [
         {
             day: 1, date: '27.9', weekday: 'ראשון', city: 'tokyo',
@@ -1066,6 +1064,7 @@
             ]
         }
     ];
+    // __ITINERARY_DATA_END__
 
     const cityNames = { tokyo: '🗼 טוקיו', kyoto: '⛩️ קיוטו', osaka: '🎡 אוסקה' };
     const cityColors = { tokyo: '#E8A0BF', kyoto: '#9B72AA', osaka: '#F4A460' };
@@ -1736,69 +1735,71 @@
         activitiesEl.insertBefore(actDiv, notesWrap);
         updateStats();
         if (selectedDayNum === dayNum) selectDayOnMap(dayNum);
-        syncSave();
+        syncSave(`Add place: ${name} (Day ${dayNum})`);
         modalOverlay.classList.remove('open');
         resetModal();
 
         const toast = document.getElementById('toast');
-        toast.textContent = `✅ ${name} נוסף ליום ${dayNum}!`;
+        toast.textContent = ghToken ? `✅ ${name} נוסף — מעלה ל-GitHub...` : `✅ ${name} נוסף מקומית — לא מחובר ל-GitHub ☁️`;
         toast.classList.add('show');
-        setTimeout(() => { toast.classList.remove('show'); toast.textContent = '🔗 הקישור הועתק!'; }, 2500);
+        setTimeout(() => { toast.classList.remove('show'); toast.textContent = '🔗 הקישור הועתק!'; }, 3000);
     });
 
-    // --- JSONBIN SYNC ---
-    const JSONBIN_BASE = 'https://api.jsonbin.io/v3';
-    let jbKey  = localStorage.getItem('jbKey')  || '';
-    let jbBin  = localStorage.getItem('jbBin')  || '';
-    let lastEtag = '';
+    // --- GITHUB SYNC ---
+    const GH_REPO = 'ronisanderovich1502-cloud/honeymoon';
+    const GH_FILE = 'index.html';
+    let ghToken = localStorage.getItem('ghToken') || '';
 
     function setSyncDot(state) { // 'synced' | 'syncing' | 'error' | ''
         const dot = document.getElementById('syncDot');
         dot.className = 'sync-dot' + (state ? ' ' + state : '');
     }
 
-    async function syncSave() {
-        if (!jbKey || !jbBin) return;
+    async function syncSave(commitMsg) {
+        if (!ghToken) { setSyncDot(''); return; }
         setSyncDot('syncing');
+        const headers = { 'Authorization': `Bearer ${ghToken}`, 'Accept': 'application/vnd.github+json' };
         try {
-            const res = await fetch(`${JSONBIN_BASE}/b/${jbBin}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'X-Master-Key': jbKey },
-                body: JSON.stringify({ days })
-            });
-            if (!res.ok) throw new Error(res.status);
-            setSyncDot('synced');
-        } catch(e) { setSyncDot('error'); }
-    }
+            // 1. Get current file content + SHA from GitHub
+            const fileRes = await fetch(`https://api.github.com/repos/${GH_REPO}/contents/${GH_FILE}`, { headers });
+            if (!fileRes.ok) throw new Error(`GitHub ${fileRes.status}`);
+            const fileData = await fileRes.json();
+            const currentContent = decodeURIComponent(escape(atob(fileData.content.replace(/\n/g, ''))));
+            const sha = fileData.sha;
 
-    async function syncLoad(silent = false) {
-        if (!jbKey || !jbBin) return false;
-        if (!silent) setSyncDot('syncing');
-        try {
-            const res = await fetch(`${JSONBIN_BASE}/b/${jbBin}/latest`, {
-                headers: { 'X-Master-Key': jbKey }
+            // 2. Replace days array between data markers
+            const newDays = JSON.stringify(days, null, 8);
+            const newContent = currentContent.replace(
+                /\/\/ __ITINERARY_DATA_START__[\s\S]*?\/\/ __ITINERARY_DATA_END__/,
+                `// __ITINERARY_DATA_START__\n    const days = ${newDays};\n    // __ITINERARY_DATA_END__`
+            );
+
+            // 3. Commit to master
+            const commitRes = await fetch(`https://api.github.com/repos/${GH_REPO}/contents/${GH_FILE}`, {
+                method: 'PUT',
+                headers: { ...headers, 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: commitMsg || 'Update itinerary via website',
+                    content: btoa(unescape(encodeURIComponent(newContent))),
+                    sha,
+                    branch: 'master'
+                })
             });
-            if (!res.ok) throw new Error(res.status);
-            const etag = res.headers.get('X-Bin-Meta') || '';
-            const data = await res.json();
-            if (!data.record || !data.record.days) throw new Error('bad data');
-            if (etag && etag === lastEtag) { setSyncDot('synced'); return false; } // no changes
-            lastEtag = etag;
-            // Merge remote days into local days array
-            const remote = data.record.days;
-            remote.forEach((rd, i) => {
-                if (days[i]) days[i].activities = rd.activities;
-            });
+            if (!commitRes.ok) {
+                const err = await commitRes.json();
+                throw new Error(err.message || commitRes.status);
+            }
             setSyncDot('synced');
-            return true; // changed
-        } catch(e) { if (!silent) setSyncDot('error'); return false; }
+        } catch(e) {
+            console.error('GitHub sync:', e.message);
+            setSyncDot('error');
+        }
     }
 
     // Settings modal
     const syncModalOverlay = document.getElementById('syncModalOverlay');
     document.getElementById('syncSettingsBtn').addEventListener('click', () => {
-        document.getElementById('jsonbinKey').value = jbKey;
-        document.getElementById('jsonbinBin').value = jbBin;
+        document.getElementById('ghTokenInput').value = ghToken;
         document.getElementById('syncStatusBox').className = 'sync-status-box';
         syncModalOverlay.classList.add('open');
     });
@@ -1806,60 +1807,32 @@
     syncModalOverlay.addEventListener('click', e => { if (e.target === syncModalOverlay) syncModalOverlay.classList.remove('open'); });
 
     document.getElementById('syncDisconnect').addEventListener('click', () => {
-        localStorage.removeItem('jbKey'); localStorage.removeItem('jbBin');
-        jbKey = ''; jbBin = ''; setSyncDot('');
+        localStorage.removeItem('ghToken');
+        ghToken = ''; setSyncDot('');
         syncModalOverlay.classList.remove('open');
     });
 
     document.getElementById('syncConnect').addEventListener('click', async () => {
-        const key = document.getElementById('jsonbinKey').value.trim();
-        const bin = document.getElementById('jsonbinBin').value.trim();
+        const token = document.getElementById('ghTokenInput').value.trim();
         const box = document.getElementById('syncStatusBox');
-        if (!key) { box.className = 'sync-status-box err'; box.textContent = '❌ נא להזין Master Key'; return; }
-        box.className = 'sync-status-box'; box.textContent = '⏳ מתחבר...'; box.style.display = 'block';
-
+        if (!token) { box.className = 'sync-status-box err'; box.textContent = '❌ נא להזין Token'; return; }
+        box.className = 'sync-status-box'; box.textContent = '⏳ מאמת...'; box.style.display = 'block';
         try {
-            if (bin) {
-                // Connect to existing bin
-                const res = await fetch(`${JSONBIN_BASE}/b/${bin}/latest`, { headers: { 'X-Master-Key': key } });
-                if (!res.ok) throw new Error('Bin not found');
-                jbKey = key; jbBin = bin;
-                localStorage.setItem('jbKey', key); localStorage.setItem('jbBin', bin);
-                box.className = 'sync-status-box ok'; box.textContent = `✅ מחובר! Bin ID: ${bin}`;
-                setSyncDot('synced');
-                // Load remote data and re-render
-                const changed = await syncLoad();
-                if (changed) location.reload();
-            } else {
-                // Create new bin
-                const res = await fetch(`${JSONBIN_BASE}/b`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-Master-Key': key, 'X-Bin-Name': 'honeymoon-itinerary', 'X-Bin-Private': 'false' },
-                    body: JSON.stringify({ days })
-                });
-                if (!res.ok) throw new Error('Create failed: ' + res.status);
-                const data = await res.json();
-                const newBin = data.metadata.id;
-                jbKey = key; jbBin = newBin;
-                localStorage.setItem('jbKey', key); localStorage.setItem('jbBin', newBin);
-                document.getElementById('jsonbinBin').value = newBin;
-                box.className = 'sync-status-box ok';
-                box.innerHTML = `✅ Bin נוצר!<br>📦 Bin ID: <strong>${newBin}</strong><br><small>שלח את ה-Key + Bin ID לחברי הקבוצה</small>`;
-                setSyncDot('synced');
-            }
+            const res = await fetch(`https://api.github.com/repos/${GH_REPO}/contents/${GH_FILE}`, {
+                headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' }
+            });
+            if (!res.ok) throw new Error(`GitHub ${res.status} — בדוק שה-token נכון ויש לו הרשאות Contents: write`);
+            ghToken = token;
+            localStorage.setItem('ghToken', token);
+            setSyncDot('synced');
+            box.className = 'sync-status-box ok';
+            box.textContent = '✅ מחובר! שינויים יעלו אוטומטית ל-GitHub Pages תוך ~30 שניות.';
         } catch(e) {
-            box.className = 'sync-status-box err'; box.textContent = `❌ שגיאה: ${e.message}`;
+            box.className = 'sync-status-box err'; box.textContent = `❌ ${e.message}`;
         }
     });
 
-    // Auto-poll every 30s
-    if (jbKey && jbBin) {
-        syncLoad().then(changed => { if (changed) location.reload(); });
-        setInterval(async () => {
-            const changed = await syncLoad(true);
-            if (changed) location.reload();
-        }, 30000);
-    } else { setSyncDot(''); }
+    setSyncDot(ghToken ? 'synced' : '');
 
     // --- TRANSIT ROUTING ---
     function haversineKm(lat1, lng1, lat2, lng2) {
@@ -1977,10 +1950,10 @@
             if (selectedDayNum === dayNum) selectDayOnMap(dayNum);
             updateStats();
             const toast = document.getElementById('toast');
-            toast.textContent = jbKey && jbBin ? '🗑️ מחוק ומסונכרן...' : '🗑️ מחוק מקומית — לא מחובר לסנכרון ☁️';
+            toast.textContent = ghToken ? '🗑️ מחוק ומסונכרן...' : '🗑️ מחוק מקומית — לא מחובר לסנכרון ☁️';
             toast.classList.add('show');
             setTimeout(() => { toast.classList.remove('show'); toast.textContent = '🔗 הקישור הועתק!'; }, 3000);
-            syncSave();
+            syncSave(`Remove place: ${act.name} (Day ${dayNum})`);
             return;
         }
 
@@ -2046,7 +2019,7 @@
         }
 
         if (selectedDayNum === dayNum) selectDayOnMap(dayNum);
-        syncSave();
+        syncSave(`Edit place: ${name} (Day ${dayNum})`);
 
         // Reset
         this.textContent = 'הוסף לתוכנית ✓';
@@ -2056,7 +2029,7 @@
         resetModal();
 
         const toast = document.getElementById('toast');
-        toast.textContent = jbKey && jbBin ? `✅ ${name} עודכן ומסונכרן!` : `✅ ${name} עודכן מקומית — לא מחובר לסנכרון ☁️`;
+        toast.textContent = ghToken ? `✅ ${name} עודכן ומסונכרן!` : `✅ ${name} עודכן מקומית — לא מחובר לסנכרון ☁️`;
         toast.classList.add('show');
         setTimeout(() => { toast.classList.remove('show'); toast.textContent = '🔗 הקישור הועתק!'; }, 3000);
     });
