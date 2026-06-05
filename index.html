@@ -667,6 +667,21 @@
             font-size: 0.85rem;
         }
 
+        @keyframes shimmer {
+            0%   { background-position: -400px 0; }
+            100% { background-position:  400px 0; }
+        }
+        .skeleton-box {
+            background: linear-gradient(90deg, var(--border) 25%, color-mix(in srgb,var(--border) 50%,var(--bg)) 50%, var(--border) 75%);
+            background-size: 800px 100%;
+            animation: shimmer 1.4s infinite linear;
+            border-radius: 6px;
+        }
+        .skeleton-photo { height: 160px; width: 100%; border-radius: var(--radius) var(--radius) 0 0; }
+        .skeleton-line  { height: 11px; margin: 6px 0; display: block; }
+        .skeleton-line.w60 { width: 60%; }
+        .skeleton-line.w40 { width: 40%; }
+
         .panel-close {
             position: absolute;
             top: 14px; left: 14px;
@@ -1508,91 +1523,40 @@
                 setTimeout(() => actEl.classList.remove('focused'), 2500);
             }, 100);
         }
-        panelContent.innerHTML = `<div class="panel-loading">⏳ טוען פרטים...</div>`;
-
         const { lat, lng, name } = act;
-        let photo = null, hours = null, website = null, phone = null, addr = null, fee = null, cuisine = null;
-
-        try {
-            // 1. Overpass: get OSM node/way near coordinates
-            const radius = 100;
-            const overpassQ = `[out:json][timeout:10];(node(around:${radius},${lat},${lng});way(around:${radius},${lat},${lng}););out tags 1;`;
-            const ovRes = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQ)}`);
-            const ovData = await ovRes.json();
-            const el = ovData.elements && ovData.elements[0];
-            if (el && el.tags) {
-                const t = el.tags;
-                hours = t.opening_hours || null;
-                website = t.website || t['contact:website'] || null;
-                phone = t.phone || t['contact:phone'] || null;
-                addr = [t['addr:street'], t['addr:housenumber'], t['addr:city']].filter(Boolean).join(' ') || null;
-                fee = t.fee === 'yes' ? (t.charge || 'בתשלום') : (t.fee === 'no' ? 'כניסה חופשית' : null);
-                cuisine = t.cuisine ? t.cuisine.replace(/_/g, ' ') : null;
-            }
-        } catch(e) {}
-
-        try {
-            // 2. Wikimedia Commons: search for a photo
-            const wikiQ = encodeURIComponent(name.split('–')[0].trim());
-            const wikiRes = await fetch(`https://en.wikipedia.org/w/api.php?action=query&titles=${wikiQ}&prop=pageimages&format=json&pithumbsize=600&origin=*`);
-            const wikiData = await wikiRes.json();
-            const pages = wikiData.query && wikiData.query.pages;
-            if (pages) {
-                const page = Object.values(pages)[0];
-                if (page.thumbnail) photo = page.thumbnail.source;
-            }
-        } catch(e) {}
-
-        // City emoji map
         const cityEmoji = { tokyo: '🗼', kyoto: '⛩️', osaka: '🎡' };
 
-        // Determine default "from" location
+        // --- Compute transit options synchronously ---
         const actIndex = day.activities.indexOf(act);
         let defaultFrom = null;
         if (actIndex > 0) {
             defaultFrom = day.activities[actIndex - 1];
         } else {
-            // First activity of the day — find the nearest hotel
             const hotelRe = /מלון|hotel|inn|hostel|check.?in|roynet/i;
             for (const d of days) {
                 for (const a of d.activities) {
-                    if (hotelRe.test(a.name + ' ' + (a.desc || '')) && (a.lat !== lat || a.lng !== lng)) {
-                        defaultFrom = a;
-                        break;
-                    }
+                    if (hotelRe.test(a.name + ' ' + (a.desc || '')) && (a.lat !== lat || a.lng !== lng)) { defaultFrom = a; break; }
                 }
                 if (defaultFrom) break;
             }
         }
-
-        // Build extended dropdown options: same-city activities + hotels + flights from all days
         const hotelFlightRe = /מלון|hotel|inn|hostel|check.?in|roynet|נמל|טיסה|flight|airport|narita|haneda|kix|itami/i;
-        const sameCityOpts = days.filter(d => d.city === day.city)
-            .flatMap(d => d.activities)
-            .filter(a => a.lat !== lat || a.lng !== lng);
-        const extraOpts = days.filter(d => d.city !== day.city)
-            .flatMap(d => d.activities)
-            .filter(a => hotelFlightRe.test(a.name + ' ' + (a.desc || '')) && (a.lat !== lat || a.lng !== lng));
+        const sameCityOpts = days.filter(d => d.city === day.city).flatMap(d => d.activities).filter(a => a.lat !== lat || a.lng !== lng);
+        const extraOpts = days.filter(d => d.city !== day.city).flatMap(d => d.activities).filter(a => hotelFlightRe.test(a.name + ' ' + (a.desc || '')) && (a.lat !== lat || a.lng !== lng));
         const allOpts = [...sameCityOpts];
         extraOpts.forEach(a => { if (!allOpts.find(o => o.lat === a.lat && o.lng === a.lng)) allOpts.push(a); });
         const optionsHtml = allOpts.map(a => `<option value="${a.lat},${a.lng}">${a.name}</option>`).join('');
 
+        // --- Render card immediately with known data + skeleton loaders ---
         panelContent.innerHTML = `
-            ${photo
-                ? `<img class="panel-photo" src="${photo}" alt="${name}" onerror="this.style.display='none'">`
-                : `<div class="panel-photo-placeholder">${cityEmoji[day.city] || '📍'}</div>`}
+            <div id="panelPhotoArea" class="skeleton-box skeleton-photo"></div>
             <div class="panel-body">
                 <div class="panel-title">${name}</div>
                 <span class="panel-day-badge" style="background:${cityColors[day.city]}">יום ${day.day} · ${act.time}</span>
-                <div class="panel-details">
+                <div class="panel-details" id="panelDetails">
                     ${act.desc ? `<div class="panel-row"><span class="panel-row-icon">📝</span><span class="panel-row-val">${act.desc}</span></div>` : ''}
-                    ${hours ? `<div class="panel-row"><span class="panel-row-icon">🕐</span><span class="panel-row-val">${hours}</span></div>` : ''}
-                    ${cuisine ? `<div class="panel-row"><span class="panel-row-icon">🍽️</span><span class="panel-row-val">${cuisine}</span></div>` : ''}
-                    ${fee ? `<div class="panel-row"><span class="panel-row-icon">💴</span><span class="panel-row-val">${fee}</span></div>` : ''}
-                    ${addr ? `<div class="panel-row"><span class="panel-row-icon">📍</span><span class="panel-row-val">${addr}</span></div>` : ''}
-                    ${phone ? `<div class="panel-row"><span class="panel-row-icon">📞</span><span class="panel-row-val"><a href="tel:${phone}">${phone}</a></span></div>` : ''}
-                    ${website ? `<div class="panel-row"><span class="panel-row-icon">🌐</span><span class="panel-row-val"><a href="${website}" target="_blank" rel="noopener">פתח אתר</a></span></div>` : ''}
-                    ${!hours && !fee && !addr && !website ? `<div class="panel-row"><span class="panel-row-val" style="color:var(--text-light);font-size:0.78rem">אין מידע נוסף ב-OpenStreetMap למקום זה</span></div>` : ''}
+                    <span class="skeleton-box skeleton-line w60"></span>
+                    <span class="skeleton-box skeleton-line w40"></span>
                 </div>
                 <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;">
                     <a href="https://www.google.com/maps?q=${lat},${lng}" target="_blank" rel="noopener"
@@ -1618,7 +1582,7 @@
                 </div>
             </div>`;
 
-        // Auto-select default and calculate
+        // Auto-select transit default immediately
         if (defaultFrom) {
             const sel = document.getElementById('transitFrom');
             if (sel) {
@@ -1626,6 +1590,57 @@
                 calcTransitOptions(defaultFrom.lat, defaultFrom.lng, lat, lng, day.city);
             }
         }
+
+        // --- Fire API requests in parallel, update DOM as each resolves ---
+        const panelKey = `${lat},${lng}`; // guard: ignore stale responses if user switched panel
+
+        // Photo (Wikipedia) — updates photo area
+        fetch(`https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(name.split('–')[0].trim())}&prop=pageimages&format=json&pithumbsize=600&origin=*`)
+            .then(r => r.json())
+            .catch(() => null)
+            .then(data => {
+                if (`${placePanel.dataset.lat},${placePanel.dataset.lng}` !== panelKey) return;
+                const photoEl = document.getElementById('panelPhotoArea');
+                if (!photoEl) return;
+                const pages = data && data.query && data.query.pages;
+                const page = pages && Object.values(pages)[0];
+                if (page && page.thumbnail) {
+                    photoEl.outerHTML = `<img class="panel-photo" src="${page.thumbnail.source}" alt="${name}" onerror="this.style.display='none'">`;
+                } else {
+                    photoEl.outerHTML = `<div class="panel-photo-placeholder">${cityEmoji[day.city] || '📍'}</div>`;
+                }
+            });
+
+        // OSM details (Overpass) — replaces skeleton lines with real data
+        const overpassQ = `[out:json][timeout:10];(node(around:100,${lat},${lng});way(around:100,${lat},${lng}););out tags 1;`;
+        fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQ)}`)
+            .then(r => r.json())
+            .catch(() => null)
+            .then(ovData => {
+                if (`${placePanel.dataset.lat},${placePanel.dataset.lng}` !== panelKey) return;
+                const detailsEl = document.getElementById('panelDetails');
+                if (!detailsEl) return;
+                detailsEl.querySelectorAll('.skeleton-box').forEach(el => el.remove());
+                const el = ovData && ovData.elements && ovData.elements[0];
+                const t = (el && el.tags) || {};
+                const hours   = t.opening_hours || null;
+                const website = t.website || t['contact:website'] || null;
+                const phone   = t.phone || t['contact:phone'] || null;
+                const addr    = [t['addr:street'], t['addr:housenumber'], t['addr:city']].filter(Boolean).join(' ') || null;
+                const fee     = t.fee === 'yes' ? (t.charge || 'בתשלום') : (t.fee === 'no' ? 'כניסה חופשית' : null);
+                const cuisine = t.cuisine ? t.cuisine.replace(/_/g, ' ') : null;
+                const rows = [
+                    hours   && `<div class="panel-row"><span class="panel-row-icon">🕐</span><span class="panel-row-val">${hours}</span></div>`,
+                    cuisine && `<div class="panel-row"><span class="panel-row-icon">🍽️</span><span class="panel-row-val">${cuisine}</span></div>`,
+                    fee     && `<div class="panel-row"><span class="panel-row-icon">💴</span><span class="panel-row-val">${fee}</span></div>`,
+                    addr    && `<div class="panel-row"><span class="panel-row-icon">📍</span><span class="panel-row-val">${addr}</span></div>`,
+                    phone   && `<div class="panel-row"><span class="panel-row-icon">📞</span><span class="panel-row-val"><a href="tel:${phone}">${phone}</a></span></div>`,
+                    website && `<div class="panel-row"><span class="panel-row-icon">🌐</span><span class="panel-row-val"><a href="${website}" target="_blank" rel="noopener">פתח אתר</a></span></div>`,
+                ].filter(Boolean);
+                if (rows.length) {
+                    detailsEl.insertAdjacentHTML('beforeend', rows.join(''));
+                }
+            });
     }
 
     // --- ADD PLACE MODAL (Nominatim, no API key) ---
