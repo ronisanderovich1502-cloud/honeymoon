@@ -351,7 +351,8 @@
             color: white; font-size: 10px; height: 100%;
         }
 
-        .activity-content { flex: 1; min-width: 0; }
+        .activity-content { flex: 1; min-width: 0; cursor: pointer; }
+        .activity-content:hover .activity-name { color: var(--rose); }
         .activity-time { font-weight: 600; color: var(--gold); font-size: 0.7rem; display: block; }
         .activity-name { font-weight: 600; color: var(--text); font-size: 0.84rem; }
         .activity-desc { color: var(--text-light); font-size: 0.76rem; margin-top: 1px; display: block; }
@@ -1201,8 +1202,15 @@
 
     function selectDayOnMap(dayNum) {
         selectedDayNum = dayNum;
-        const day = days.find(d => d.day === dayNum);
         if (!currentPolyline) {} else { map.removeLayer(currentPolyline); currentPolyline = null; }
+
+        // null = reset all markers to full opacity and fit all bounds
+        if (dayNum === null) {
+            allMarkersList.forEach(({ marker, day: d, act: a }) => marker.setIcon(buildMarkerIcon(d, a, 1)));
+            const allMks = Object.values(dayMarkers).flat();
+            if (allMks.length > 1) map.fitBounds(L.featureGroup(allMks).getBounds().pad(0.1), { animate: true });
+            return;
+        }
 
         // Dim/brighten markers
         allMarkersList.forEach(({ marker, dayNum: dn, day: d, act: a }) => {
@@ -1280,7 +1288,7 @@
             return `
                 <div class="activity ${isDone}" id="act-${key}">
                     <input type="checkbox" class="activity-check" data-key="${key}" ${isChecked}>
-                    <div class="activity-content">
+                    <div class="activity-content" data-day="${day.day}" data-idx="${i}">
                         <span class="activity-time">${a.time}</span>
                         <span class="activity-name"> ${a.name}</span>
                         <div class="activity-desc">${a.desc}</div>
@@ -1311,14 +1319,33 @@
             </div>
         `;
 
-        // Click to expand
+        // Click to expand / collapse (toggle on second click)
         card.querySelector('.day-header').addEventListener('click', () => {
+            const isActive = card.classList.contains('active');
             document.querySelectorAll('.day-card').forEach(c => c.classList.remove('active'));
-            card.classList.add('active');
-            selectDayOnMap(day.day);
+            if (!isActive) {
+                card.classList.add('active');
+                selectDayOnMap(day.day);
+            } else {
+                selectDayOnMap(null); // reset map to show all days
+            }
         });
 
         itineraryEl.appendChild(card);
+    });
+
+    // Activity content click → focus map + open place panel
+    document.addEventListener('click', e => {
+        const content = e.target.closest('.activity-content');
+        if (!content) return;
+        const dayNum = parseInt(content.dataset.day);
+        const idx = parseInt(content.dataset.idx);
+        const d = days.find(d => d.day === dayNum);
+        if (!d) return;
+        const a = d.activities[idx];
+        if (!a || !a.lat || !a.lng) return;
+        map.setView([a.lat, a.lng], 17, { animate: true });
+        fetchPlaceDetails(a, d);
     });
 
     // Checkboxes
@@ -1599,10 +1626,14 @@
         actDiv.className = 'activity'; actDiv.id = `act-${key}`;
         actDiv.innerHTML = `
             <input type="checkbox" class="activity-check" data-key="${key}">
-            <div class="activity-content">
+            <div class="activity-content" data-day="${dayNum}" data-idx="${i}">
                 <span class="activity-time">${time}</span>
                 <span class="activity-name"> ${name}</span>
                 <div class="activity-desc">${desc}</div>
+            </div>
+            <div class="activity-actions">
+                <button class="act-btn edit-btn" data-day="${dayNum}" data-idx="${i}" title="ערוך">✏️</button>
+                <button class="act-btn remove-btn" data-day="${dayNum}" data-idx="${i}" title="מחק">🗑️</button>
             </div>`;
         activitiesEl.insertBefore(actDiv, notesWrap);
         updateStats();
