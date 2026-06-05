@@ -579,6 +579,96 @@
             margin-top: 6px;
         }
 
+        /* PLACE DETAILS PANEL */
+        .place-panel {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            z-index: 1001;
+            background: var(--cream);
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 -4px 24px rgba(0,0,0,0.18);
+            padding: 0;
+            transform: translateY(100%);
+            transition: transform 0.35s cubic-bezier(.4,0,.2,1);
+            max-height: 60vh;
+            overflow-y: auto;
+            font-family: 'Noto Sans Hebrew', sans-serif;
+            direction: rtl;
+        }
+
+        .place-panel.open { transform: translateY(0); }
+
+        .panel-handle {
+            text-align: center;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .panel-handle-bar {
+            display: inline-block;
+            width: 40px; height: 4px;
+            background: var(--blush);
+            border-radius: 2px;
+        }
+
+        .panel-photo {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .panel-photo-placeholder {
+            width: 100%; height: 120px;
+            background: linear-gradient(135deg, var(--gold-light), var(--blush));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem;
+        }
+
+        .panel-body { padding: 14px 18px 20px; }
+
+        .panel-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .panel-day-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .panel-details { display: flex; flex-direction: column; gap: 6px; }
+
+        .panel-row {
+            display: flex; gap: 8px; align-items: flex-start;
+            font-size: 0.82rem; color: var(--text);
+        }
+
+        .panel-row-icon { flex-shrink: 0; font-size: 0.9rem; }
+        .panel-row-val { flex: 1; color: var(--text-light); }
+        .panel-row-val a { color: var(--rose); text-decoration: none; }
+
+        .panel-loading {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-light);
+            font-size: 0.85rem;
+        }
+
+        .panel-close {
+            position: absolute;
+            top: 14px; left: 14px;
+            background: none; border: none;
+            font-size: 1.2rem; cursor: pointer;
+            color: var(--text-light);
+        }
+
         @media (max-width: 768px) {
             .container { flex-direction: column; }
             .sidebar { width: 100%; height: 55vh; border-left: none; border-top: 2px solid var(--gold-light); order: 2; }
@@ -621,6 +711,11 @@
 
         <div class="map-container">
             <div id="map"></div>
+            <div class="place-panel" id="placePanel">
+                <button class="panel-close" id="panelClose">✕</button>
+                <div class="panel-handle"><div class="panel-handle-bar"></div></div>
+                <div id="panelContent"></div>
+            </div>
             <div class="map-overlay">
                 <div class="map-overlay-title">מקרא</div>
                 <div class="map-legend-item"><div class="legend-dot" style="background:#E8A0BF"></div> טוקיו</div>
@@ -942,8 +1037,8 @@
         dayMarkers[day.day] = [];
         day.activities.forEach(act => {
             const icon = buildMarkerIcon(day, 1);
-            const marker = L.marker([act.lat, act.lng], { icon }).addTo(map)
-                .bindPopup(`<div class="popup-title">${act.name}</div><div class="popup-time">יום ${day.day} | ${act.time}</div><div class="popup-desc">${act.desc}</div>`);
+            const marker = L.marker([act.lat, act.lng], { icon }).addTo(map);
+            marker.on('click', () => fetchPlaceDetails(act, day));
             dayMarkers[day.day].push(marker);
             allMarkersList.push({ marker, dayNum: day.day, day });
         });
@@ -952,8 +1047,8 @@
     // Expose for dynamic additions
     function addMarkerToMap(day, act) {
         const icon = buildMarkerIcon(day, selectedDayNum && selectedDayNum !== day.day ? 0.2 : 1);
-        const marker = L.marker([act.lat, act.lng], { icon }).addTo(map)
-            .bindPopup(`<div class="popup-title">${act.name}</div><div class="popup-time">יום ${day.day} | ${act.time}</div><div class="popup-desc">${act.desc}</div>`);
+        const marker = L.marker([act.lat, act.lng], { icon }).addTo(map);
+        marker.on('click', () => fetchPlaceDetails(act, day));
         if (!dayMarkers[day.day]) dayMarkers[day.day] = [];
         dayMarkers[day.day].push(marker);
         allMarkersList.push({ marker, dayNum: day.day, day });
@@ -1082,33 +1177,94 @@
         });
     });
 
-    // --- GOOGLE PLACES MODAL ---
-    const GOOGLE_API_KEY = localStorage.getItem('googleApiKey') || '';
-    let selectedPlace = null; // { name, lat, lng }
+    // --- PLACE DETAILS PANEL (Overpass + Nominatim, no API key) ---
+    const placePanel = document.getElementById('placePanel');
+    const panelContent = document.getElementById('panelContent');
 
-    // Populate day dropdown
+    document.getElementById('panelClose').addEventListener('click', () => placePanel.classList.remove('open'));
+    document.querySelector('.panel-handle').addEventListener('click', () => placePanel.classList.remove('open'));
+
+    async function fetchPlaceDetails(act, day) {
+        placePanel.classList.add('open');
+        panelContent.innerHTML = `<div class="panel-loading">⏳ טוען פרטים...</div>`;
+
+        const { lat, lng, name } = act;
+        let photo = null, hours = null, website = null, phone = null, addr = null, fee = null, cuisine = null;
+
+        try {
+            // 1. Overpass: get OSM node/way near coordinates
+            const radius = 100;
+            const overpassQ = `[out:json][timeout:10];(node(around:${radius},${lat},${lng});way(around:${radius},${lat},${lng}););out tags 1;`;
+            const ovRes = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQ)}`);
+            const ovData = await ovRes.json();
+            const el = ovData.elements && ovData.elements[0];
+            if (el && el.tags) {
+                const t = el.tags;
+                hours = t.opening_hours || null;
+                website = t.website || t['contact:website'] || null;
+                phone = t.phone || t['contact:phone'] || null;
+                addr = [t['addr:street'], t['addr:housenumber'], t['addr:city']].filter(Boolean).join(' ') || null;
+                fee = t.fee === 'yes' ? (t.charge || 'בתשלום') : (t.fee === 'no' ? 'כניסה חופשית' : null);
+                cuisine = t.cuisine ? t.cuisine.replace(/_/g, ' ') : null;
+            }
+        } catch(e) {}
+
+        try {
+            // 2. Wikimedia Commons: search for a photo
+            const wikiQ = encodeURIComponent(name.split('–')[0].trim());
+            const wikiRes = await fetch(`https://en.wikipedia.org/w/api.php?action=query&titles=${wikiQ}&prop=pageimages&format=json&pithumbsize=600&origin=*`);
+            const wikiData = await wikiRes.json();
+            const pages = wikiData.query && wikiData.query.pages;
+            if (pages) {
+                const page = Object.values(pages)[0];
+                if (page.thumbnail) photo = page.thumbnail.source;
+            }
+        } catch(e) {}
+
+        // City emoji map
+        const cityEmoji = { tokyo: '🗼', kyoto: '⛩️', osaka: '🎡' };
+
+        panelContent.innerHTML = `
+            ${photo
+                ? `<img class="panel-photo" src="${photo}" alt="${name}" onerror="this.style.display='none'">`
+                : `<div class="panel-photo-placeholder">${cityEmoji[day.city] || '📍'}</div>`}
+            <div class="panel-body">
+                <div class="panel-title">${name}</div>
+                <span class="panel-day-badge" style="background:${cityColors[day.city]}">יום ${day.day} · ${act.time}</span>
+                <div class="panel-details">
+                    ${act.desc ? `<div class="panel-row"><span class="panel-row-icon">📝</span><span class="panel-row-val">${act.desc}</span></div>` : ''}
+                    ${hours ? `<div class="panel-row"><span class="panel-row-icon">🕐</span><span class="panel-row-val">${hours}</span></div>` : ''}
+                    ${cuisine ? `<div class="panel-row"><span class="panel-row-icon">🍽️</span><span class="panel-row-val">${cuisine}</span></div>` : ''}
+                    ${fee ? `<div class="panel-row"><span class="panel-row-icon">💴</span><span class="panel-row-val">${fee}</span></div>` : ''}
+                    ${addr ? `<div class="panel-row"><span class="panel-row-icon">📍</span><span class="panel-row-val">${addr}</span></div>` : ''}
+                    ${phone ? `<div class="panel-row"><span class="panel-row-icon">📞</span><span class="panel-row-val"><a href="tel:${phone}">${phone}</a></span></div>` : ''}
+                    ${website ? `<div class="panel-row"><span class="panel-row-icon">🌐</span><span class="panel-row-val"><a href="${website}" target="_blank" rel="noopener">פתח אתר</a></span></div>` : ''}
+                    ${!hours && !fee && !addr && !website ? `<div class="panel-row"><span class="panel-row-val" style="color:var(--text-light);font-size:0.78rem">אין מידע נוסף ב-OpenStreetMap למקום זה</span></div>` : ''}
+                </div>
+            </div>`;
+    }
+
+    // --- ADD PLACE MODAL (Nominatim, no API key) ---
+    let selectedPlace = null;
+
     const modalOverlay = document.getElementById('modalOverlay');
     const daySelect = document.getElementById('newPlaceDay');
     days.forEach(d => {
         const opt = document.createElement('option');
         opt.value = d.day;
-        opt.textContent = `יום ${d.day} – ${d.title.replace(/[🌋🍄🎃✈️]/g, '').trim()} (${d.date})`;
+        opt.textContent = `יום ${d.day} – ${d.title.replace(/[🌋🍄🎃✈️]/gu, '').trim()} (${d.date})`;
         daySelect.appendChild(opt);
     });
 
-    // Pre-select current day if one is active
+    document.getElementById('apiKeyHint').textContent = '🗺️ חיפוש חופשי באמצעות OpenStreetMap — ללא מפתח API';
+
     addPlaceBtn.addEventListener('click', () => {
         if (selectedDayNum) daySelect.value = selectedDayNum;
         modalOverlay.classList.add('open');
         document.getElementById('placesSearchInput').focus();
-        updateApiHint();
     });
 
-    document.getElementById('modalCancel').addEventListener('click', () => {
-        modalOverlay.classList.remove('open');
-        resetModal();
-    });
-
+    document.getElementById('modalCancel').addEventListener('click', () => { modalOverlay.classList.remove('open'); resetModal(); });
     modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) { modalOverlay.classList.remove('open'); resetModal(); } });
 
     function resetModal() {
@@ -1120,47 +1276,26 @@
         selectedPlace = null;
     }
 
-    function updateApiHint() {
-        const hint = document.getElementById('apiKeyHint');
-        if (!GOOGLE_API_KEY) {
-            hint.innerHTML = '⚠️ אין מפתח Google — <a href="#" id="setKeyLink" style="color:var(--rose)">הגדר מפתח API</a> לחיפוש אוטומטי, או מלא פרטים ידנית.';
-            document.getElementById('setKeyLink').onclick = e => {
-                e.preventDefault();
-                const key = prompt('הדבק כאן את מפתח Google Maps API שלך:');
-                if (key) { localStorage.setItem('googleApiKey', key); location.reload(); }
-            };
-        } else {
-            hint.textContent = '';
-        }
-    }
-
-    // Places search (Google or manual)
+    // Nominatim search (free OpenStreetMap)
     let searchTimeout;
     document.getElementById('placesSearchInput').addEventListener('input', function() {
         clearTimeout(searchTimeout);
         const q = this.value.trim();
         if (q.length < 2) { document.getElementById('places-search-results').style.display = 'none'; return; }
-        if (!GOOGLE_API_KEY) {
-            // No API key: just fill the name field automatically
-            document.getElementById('newPlaceName').value = q;
-            return;
-        }
-        searchTimeout = setTimeout(() => searchPlaces(q), 400);
+        searchTimeout = setTimeout(() => searchNominatim(q), 450);
     });
 
-    function searchPlaces(query) {
-        const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&key=${GOOGLE_API_KEY}`;
-        // Use a CORS proxy since we're calling from browser
-        fetch(`https://corsproxy.io/?${encodeURIComponent(url)}`)
+    function searchNominatim(query) {
+        const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query + ' Japan')}&format=json&limit=5&accept-language=he,en`;
+        fetch(url, { headers: { 'Accept-Language': 'he,en' } })
             .then(r => r.json())
-            .then(data => {
-                const results = (data.results || []).slice(0, 5);
+            .then(results => {
                 const container = document.getElementById('places-search-results');
-                if (!results.length) { container.style.display = 'none'; return; }
+                if (!results.length) { container.innerHTML = '<div class="place-result">לא נמצאו תוצאות</div>'; container.style.display = 'block'; return; }
                 container.innerHTML = results.map(p => `
-                    <div class="place-result" data-lat="${p.geometry.location.lat}" data-lng="${p.geometry.location.lng}" data-name="${p.name}" data-addr="${p.formatted_address}">
-                        ${p.name}
-                        <small>${p.formatted_address}</small>
+                    <div class="place-result" data-lat="${p.lat}" data-lng="${p.lon}" data-name="${p.display_name.split(',')[0]}" data-addr="${p.display_name}">
+                        ${p.display_name.split(',')[0]}
+                        <small>${p.display_name.split(',').slice(1, 3).join(',')}</small>
                     </div>`).join('');
                 container.style.display = 'block';
                 container.querySelectorAll('.place-result').forEach(el => {
@@ -1169,47 +1304,33 @@
                         document.getElementById('newPlaceName').value = el.dataset.name;
                         document.getElementById('placesSearchInput').value = el.dataset.name;
                         container.style.display = 'none';
+                        // Preview on map
+                        map.setView([selectedPlace.lat, selectedPlace.lng], 15, { animate: true });
                     });
                 });
-            })
-            .catch(() => {});
+            }).catch(() => {});
     }
 
-    // Confirm: add to itinerary
     document.getElementById('modalConfirm').addEventListener('click', () => {
         const name = document.getElementById('newPlaceName').value.trim();
         const desc = document.getElementById('newPlaceDesc').value.trim();
         const time = document.getElementById('newPlaceTime').value.trim() || '?';
         const dayNum = parseInt(daySelect.value);
         const day = days.find(d => d.day === dayNum);
-
         if (!name) { alert('נא להזין שם מקום'); return; }
+        if (!selectedPlace) { alert('אנא בחר מקום מהרשימה'); return; }
 
-        // If we have coordinates from Places, use them; otherwise ask user to click map
-        const lat = selectedPlace ? selectedPlace.lat : null;
-        const lng = selectedPlace ? selectedPlace.lng : null;
-
-        if (!lat) {
-            alert('לא נמצאו קואורדינטות. אנא חפש מקום ובחר מהרשימה, או הפעל מפתח Google API.');
-            return;
-        }
-
-        // Add to data
-        const newAct = { name, time, desc: desc || '', lat, lng };
+        const newAct = { name, time, desc, lat: selectedPlace.lat, lng: selectedPlace.lng };
         day.activities.push(newAct);
-
-        // Add marker to map
         addMarkerToMap(day, newAct);
 
-        // Add to sidebar card
         const card = document.querySelector(`.day-card[data-day="${dayNum}"]`);
         const activitiesEl = card.querySelector('.activities');
         const notesWrap = card.querySelector('.day-notes-wrap');
         const i = day.activities.length - 1;
         const key = `${dayNum}-${i}`;
         const actDiv = document.createElement('div');
-        actDiv.className = 'activity';
-        actDiv.id = `act-${key}`;
+        actDiv.className = 'activity'; actDiv.id = `act-${key}`;
         actDiv.innerHTML = `
             <input type="checkbox" class="activity-check" data-key="${key}">
             <div class="activity-content">
@@ -1218,20 +1339,11 @@
                 <div class="activity-desc">${desc}</div>
             </div>`;
         activitiesEl.insertBefore(actDiv, notesWrap);
-
-        // Update progress bar
         updateStats();
-
-        // Fly map to new location
-        map.setView([lat, lng], 15, { animate: true });
-
-        // Re-draw path if this day is active
         if (selectedDayNum === dayNum) selectDayOnMap(dayNum);
-
         modalOverlay.classList.remove('open');
         resetModal();
 
-        // Show toast
         const toast = document.getElementById('toast');
         toast.textContent = `✅ ${name} נוסף ליום ${dayNum}!`;
         toast.classList.add('show');
