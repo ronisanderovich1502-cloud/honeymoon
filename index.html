@@ -351,6 +351,27 @@
 
         .activity.done .activity-name { text-decoration: line-through; opacity: 0.6; }
 
+        .activity-actions {
+            display: none;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+
+        .activity:hover .activity-actions { display: flex; }
+
+        .act-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            padding: 2px 4px;
+            border-radius: 4px;
+            opacity: 0.6;
+            transition: opacity 0.15s;
+        }
+
+        .act-btn:hover { opacity: 1; background: var(--gold-light); }
+
         /* NOTES */
         .day-notes-wrap {
             margin-top: 10px;
@@ -1157,6 +1178,10 @@
                         <span class="activity-name"> ${a.name}</span>
                         <div class="activity-desc">${a.desc}</div>
                     </div>
+                    <div class="activity-actions">
+                        <button class="act-btn edit-btn" data-day="${day.day}" data-idx="${i}" title="ערוך">✏️</button>
+                        <button class="act-btn remove-btn" data-day="${day.day}" data-idx="${i}" title="מחק">🗑️</button>
+                    </div>
                 </div>`;
         }).join('');
 
@@ -1531,6 +1556,111 @@
             const [lat, lng] = val.split(',').map(Number);
             calcTransitOptions(lat, lng, toLat, toLng, city);
         }
+    });
+
+    // --- EDIT / REMOVE ACTIVITIES ---
+    document.addEventListener('click', e => {
+        // REMOVE
+        if (e.target.closest('.remove-btn')) {
+            const btn = e.target.closest('.remove-btn');
+            const dayNum = parseInt(btn.dataset.day);
+            const idx = parseInt(btn.dataset.idx);
+            const day = days.find(d => d.day === dayNum);
+            const act = day.activities[idx];
+            if (!confirm(`מחק את "${act.name}"?`)) return;
+
+            // Remove marker from map
+            const marker = dayMarkers[dayNum] && dayMarkers[dayNum][idx];
+            if (marker) { map.removeLayer(marker); dayMarkers[dayNum].splice(idx, 1); }
+            const mIdx = allMarkersList.findIndex(m => m.marker === marker);
+            if (mIdx > -1) allMarkersList.splice(mIdx, 1);
+
+            // Remove from data
+            day.activities.splice(idx, 1);
+
+            // Remove from DOM
+            document.getElementById(`act-${dayNum}-${idx}`)?.remove();
+
+            // Re-draw path
+            if (selectedDayNum === dayNum) selectDayOnMap(dayNum);
+            updateStats();
+            return;
+        }
+
+        // EDIT
+        if (e.target.closest('.edit-btn')) {
+            const btn = e.target.closest('.edit-btn');
+            const dayNum = parseInt(btn.dataset.day);
+            const idx = parseInt(btn.dataset.idx);
+            const day = days.find(d => d.day === dayNum);
+            const act = day.activities[idx];
+
+            // Open the add-place modal pre-filled
+            document.getElementById('newPlaceName').value = act.name;
+            document.getElementById('newPlaceDesc').value = act.desc || '';
+            document.getElementById('newPlaceTime').value = act.time || '';
+            document.getElementById('newPlaceDay').value = dayNum;
+            selectedPlace = { name: act.name, lat: act.lat, lng: act.lng };
+            document.getElementById('placesSearchInput').value = act.name;
+
+            // Change confirm button to "עדכן"
+            const confirmBtn = document.getElementById('modalConfirm');
+            confirmBtn.textContent = 'עדכן ✓';
+            confirmBtn.dataset.editDay = dayNum;
+            confirmBtn.dataset.editIdx = idx;
+
+            modalOverlay.classList.add('open');
+        }
+    });
+
+    // Handle both Add and Edit in modalConfirm
+    const origConfirm = document.getElementById('modalConfirm').onclick;
+    document.getElementById('modalConfirm').addEventListener('click', function() {
+        const editDay = this.dataset.editDay;
+        const editIdx = this.dataset.editIdx;
+        if (editDay === undefined || editDay === '') return; // normal add, handled elsewhere
+
+        const dayNum = parseInt(editDay);
+        const idx = parseInt(editIdx);
+        const day = days.find(d => d.day === dayNum);
+        const act = day.activities[idx];
+
+        const name = document.getElementById('newPlaceName').value.trim();
+        const desc = document.getElementById('newPlaceDesc').value.trim();
+        const time = document.getElementById('newPlaceTime').value.trim() || act.time;
+
+        if (!name) return;
+
+        // Update data
+        act.name = name; act.desc = desc; act.time = time;
+        if (selectedPlace) { act.lat = selectedPlace.lat; act.lng = selectedPlace.lng; }
+
+        // Update DOM
+        const actEl = document.getElementById(`act-${dayNum}-${idx}`);
+        if (actEl) {
+            actEl.querySelector('.activity-name').textContent = ` ${name}`;
+            actEl.querySelector('.activity-desc').textContent = desc;
+            actEl.querySelector('.activity-time').textContent = time;
+        }
+
+        // Update marker position
+        if (selectedPlace && dayMarkers[dayNum] && dayMarkers[dayNum][idx]) {
+            dayMarkers[dayNum][idx].setLatLng([act.lat, act.lng]);
+        }
+
+        if (selectedDayNum === dayNum) selectDayOnMap(dayNum);
+
+        // Reset
+        this.textContent = 'הוסף לתוכנית ✓';
+        delete this.dataset.editDay;
+        delete this.dataset.editIdx;
+        modalOverlay.classList.remove('open');
+        resetModal();
+
+        const toast = document.getElementById('toast');
+        toast.textContent = `✅ ${name} עודכן!`;
+        toast.classList.add('show');
+        setTimeout(() => { toast.classList.remove('show'); toast.textContent = '🔗 הקישור הועתק!'; }, 2500);
     });
 
     // Init
