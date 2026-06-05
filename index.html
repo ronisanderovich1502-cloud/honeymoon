@@ -669,6 +669,75 @@
             color: var(--text-light);
         }
 
+        /* TRANSIT OPTIONS */
+        .transit-section {
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .transit-title {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--gold);
+            margin-bottom: 8px;
+        }
+
+        .transit-from-select {
+            width: 100%;
+            padding: 6px 10px;
+            border: 1px solid var(--gold-light);
+            border-radius: 8px;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Noto Sans Hebrew', sans-serif;
+            font-size: 0.78rem;
+            outline: none;
+            margin-bottom: 8px;
+        }
+
+        .transit-options { display: flex; flex-direction: column; gap: 8px; }
+
+        .transit-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+            text-decoration: none;
+        }
+
+        .transit-option:hover { border-color: var(--rose); background: var(--card-hover); }
+        .transit-option.fastest { border-color: var(--rose); background: var(--card-active); }
+
+        .transit-icon { font-size: 1.3rem; flex-shrink: 0; }
+
+        .transit-info { flex: 1; }
+        .transit-mode { font-size: 0.82rem; font-weight: 600; color: var(--text); }
+        .transit-time { font-size: 0.75rem; color: var(--text-light); }
+
+        .transit-price {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--gold);
+            text-align: left;
+        }
+
+        .fastest-badge {
+            font-size: 0.62rem;
+            background: var(--rose);
+            color: white;
+            padding: 1px 6px;
+            border-radius: 10px;
+            margin-right: 4px;
+        }
+
+        .transit-loading { font-size: 0.78rem; color: var(--text-light); padding: 8px 0; }
+
         @media (max-width: 768px) {
             .container { flex-direction: column; }
             .sidebar { width: 100%; height: 55vh; border-left: none; border-top: 2px solid var(--gold-light); order: 2; }
@@ -1186,6 +1255,9 @@
 
     async function fetchPlaceDetails(act, day) {
         placePanel.classList.add('open');
+        placePanel.dataset.lat  = act.lat;
+        placePanel.dataset.lng  = act.lng;
+        placePanel.dataset.city = day.city;
         panelContent.innerHTML = `<div class="panel-loading">⏳ טוען פרטים...</div>`;
 
         const { lat, lng, name } = act;
@@ -1254,6 +1326,14 @@
                        style="flex:1;text-align:center;padding:9px 6px;background:#34A853;color:white;border-radius:10px;text-decoration:none;font-size:0.78rem;font-weight:600;">
                         🔍 Google
                     </a>
+                </div>
+                <div class="transit-section">
+                    <div class="transit-title">🚦 איך מגיעים לכאן?</div>
+                    <select class="transit-from-select" id="transitFrom">
+                        <option value="">📍 מיקומי הנוכחי</option>
+                        ${days.filter(d => d.city === day.city).flatMap(d => d.activities.filter(a => a.lat !== lat || a.lng !== lng).map(a => `<option value="${a.lat},${a.lng}">${a.name}</option>`)).join('')}
+                    </select>
+                    <div class="transit-options" id="transitOptions"><div class="transit-loading">בחר נקודת מוצא לחישוב מסלולים...</div></div>
                 </div>
             </div>`;
     }
@@ -1362,6 +1442,95 @@
         toast.textContent = `✅ ${name} נוסף ליום ${dayNum}!`;
         toast.classList.add('show');
         setTimeout(() => { toast.classList.remove('show'); toast.textContent = '🔗 הקישור הועתק!'; }, 2500);
+    });
+
+    // --- TRANSIT ROUTING ---
+    function haversineKm(lat1, lng1, lat2, lng2) {
+        const R = 6371, dLat = (lat2-lat1)*Math.PI/180, dLng = (lng2-lng1)*Math.PI/180;
+        const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+
+    function japanTransitPrice(km, city) {
+        // Approximate Japan transit fares
+        if (km < 1) return { train: 'חינם', bus: 'חינם' };
+        const trainFare = city === 'kyoto' || city === 'osaka'
+            ? Math.min(Math.round((180 + km * 30) / 10) * 10, 400)
+            : Math.min(Math.round((170 + km * 28) / 10) * 10, 320); // Tokyo
+        const busFare = city === 'kyoto' ? 230 : city === 'osaka' ? 210 : 210;
+        return { train: `¥${trainFare}`, bus: `¥${busFare}` };
+    }
+
+    function taxiPrice(km, city) {
+        const base = 730, perMeter = 90 / 280; // Tokyo rates
+        return `¥${Math.round(base + km * 1000 * perMeter / 10) * 10}`;
+    }
+
+    async function calcTransitOptions(fromLat, fromLng, toLat, toLng, city) {
+        const container = document.getElementById('transitOptions');
+        if (!container) return;
+        container.innerHTML = '<div class="transit-loading">⏳ מחשב מסלולים...</div>';
+
+        const km = haversineKm(fromLat, fromLng, toLat, toLng);
+        const prices = japanTransitPrice(km, city);
+
+        // Fetch walking route from OSRM
+        let walkMin = Math.round(km / 0.08); // fallback: 5km/h
+        let walkDist = km;
+        try {
+            const osrmRes = await fetch(`https://router.project-osrm.org/route/v1/foot/${fromLng},${fromLat};${toLng},${toLat}?overview=false`);
+            const osrmData = await osrmRes.json();
+            if (osrmData.routes && osrmData.routes[0]) {
+                walkMin = Math.round(osrmData.routes[0].duration / 60);
+                walkDist = (osrmData.routes[0].distance / 1000).toFixed(1);
+            }
+        } catch(e) {}
+
+        const trainMin = Math.round(km < 1 ? 5 : km / 0.55 + 8); // ~33km/h + 8min overhead
+        const busMin  = Math.round(km < 1 ? 6 : km / 0.35 + 10); // ~21km/h + 10min overhead
+        const taxiMin = Math.round(km / 0.55 + 5);
+
+        const options = [
+            { icon: '🚶', mode: 'הליכה', time: walkMin, price: 'חינם', fromLat, fromLng, toLat, toLng, tmode: 'walking' },
+            { icon: '🚃', mode: 'רכבת / מטרו', time: trainMin, price: prices.train, fromLat, fromLng, toLat, toLng, tmode: 'transit' },
+            { icon: '🚌', mode: 'אוטובוס', time: busMin, price: prices.bus, fromLat, fromLng, toLat, toLng, tmode: 'transit' },
+            { icon: '🚕', mode: 'מונית', time: taxiMin, price: taxiPrice(km, city), fromLat, fromLng, toLat, toLng, tmode: 'driving' },
+        ].sort((a, b) => a.time - b.time);
+
+        container.innerHTML = options.map((o, i) => {
+            const gmUrl = `https://www.google.com/maps/dir/${o.fromLat},${o.fromLng}/${o.toLat},${o.toLng}/data=!4m2!4m1!3e${o.tmode === 'walking' ? 2 : o.tmode === 'transit' ? 3 : 0}`;
+            const wazeUrl = `https://waze.com/ul?ll=${o.toLat},${o.toLng}&navigate=yes`;
+            return `
+            <a class="transit-option${i === 0 ? ' fastest' : ''}" href="${o.tmode === 'walking' ? gmUrl : gmUrl}" target="_blank" rel="noopener">
+                <div class="transit-icon">${o.icon}</div>
+                <div class="transit-info">
+                    <div class="transit-mode">${i === 0 ? '<span class="fastest-badge">הכי מהיר</span>' : ''}${o.mode}</div>
+                    <div class="transit-time">~${o.time} דקות · ${typeof walkDist !== 'undefined' && o.mode === 'הליכה' ? walkDist + ' ק"מ' : km.toFixed(1) + ' ק"מ'}</div>
+                </div>
+                <div class="transit-price">${o.price}</div>
+            </a>`;
+        }).join('');
+    }
+
+    // Handle "from" select change inside panel
+    document.addEventListener('change', e => {
+        if (e.target.id !== 'transitFrom') return;
+        const val = e.target.value;
+        const panel = document.getElementById('placePanel');
+        const toLat = parseFloat(panel.dataset.lat);
+        const toLng = parseFloat(panel.dataset.lng);
+        const city  = panel.dataset.city;
+        if (!val) {
+            // Use geolocation
+            navigator.geolocation.getCurrentPosition(pos => {
+                calcTransitOptions(pos.coords.latitude, pos.coords.longitude, toLat, toLng, city);
+            }, () => {
+                document.getElementById('transitOptions').innerHTML = '<div class="transit-loading">לא ניתן לגשת למיקום. בחר נקודת מוצא.</div>';
+            });
+        } else {
+            const [lat, lng] = val.split(',').map(Number);
+            calcTransitOptions(lat, lng, toLat, toLng, city);
+        }
     });
 
     // Init
