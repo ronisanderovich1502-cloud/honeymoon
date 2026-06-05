@@ -1252,11 +1252,42 @@
     let currentPolyline = null;
     let selectedDayNum = null;
 
-    function buildMarkerIcon(day, opacity = 1) {
+    function getPlaceEmoji(act) {
+        const t = (act.name + ' ' + (act.desc || '')).toLowerCase();
+        if (/ראמן|סושי|burger|ramen|sushi|yakitori|yakiniku|wagyu|pancake|gyoza|tonkatsu|takoyaki|okonomiyaki|maguro|nobu|mensho|flipper|restaurant|מסעדה|ארוחה|אוכל|food|eat/i.test(t)) return '🍽️';
+        if (/מקדש|shrine|temple|torii|kinkaku|kiyomizu|senso|meiji|inari|fushimi|todai/i.test(t)) return '⛩️';
+        if (/יער|במבוק|forest|bamboo|park|garden|nature|monkey|arashiyama|minoh/i.test(t)) return '🌿';
+        if (/מלון|hotel|roynet|check.in|check-in/i.test(t)) return '🏨';
+        if (/שוק|market|nishiki|tsukiji|donki|shopping|שופינג/i.test(t)) return '🛍️';
+        if (/shinkansen|שינקנסן|רכבת קליע|airport|שדה תעופה|kix|kansai/i.test(t)) return '✈️';
+        if (/disney|disneysea/i.test(t)) return '🏰';
+        if (/universal|studio/i.test(t)) return '🎡';
+        if (/teamlab/i.test(t)) return '🎨';
+        if (/מפל|waterfall|lake|אגם|onsen|sea/i.test(t)) return '💧';
+        if (/טירה|castle/i.test(t)) return '🏯';
+        if (/hakone|fuji|רכבל|volcano|הר/i.test(t)) return '🗻';
+        if (/sky|observation|תצפית/i.test(t)) return '🌆';
+        if (/akihabara|anime|gaming/i.test(t)) return '🎮';
+        if (/nara|deer|צבאים/i.test(t)) return '🦌';
+        return '📍';
+    }
+
+    function buildMarkerIcon(day, act, opacity = 1) {
+        const emoji = getPlaceEmoji(act);
         return L.divIcon({
             className: 'custom-marker',
-            html: `<div style="width:28px;height:28px;background:${cityColors[day.city]};border:2px solid white;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;opacity:${opacity}">${day.day}</div>`,
-            iconSize: [28, 28], iconAnchor: [14, 14]
+            html: `<div style="
+                width:34px;height:34px;
+                background:${cityColors[day.city]};
+                border:2.5px solid white;
+                border-radius:50%;
+                box-shadow:0 2px 8px rgba(0,0,0,0.35);
+                display:flex;align-items:center;justify-content:center;
+                font-size:15px;
+                opacity:${opacity};
+                transition:opacity 0.3s;
+            ">${emoji}</div>`,
+            iconSize: [34, 34], iconAnchor: [17, 17]
         });
     }
 
@@ -1266,9 +1297,9 @@
         if (!currentPolyline) {} else { map.removeLayer(currentPolyline); currentPolyline = null; }
 
         // Dim/brighten markers
-        allMarkersList.forEach(({ marker, dayNum: dn, day: d }) => {
+        allMarkersList.forEach(({ marker, dayNum: dn, day: d, act: a }) => {
             const opacity = (dn === dayNum) ? 1 : 0.2;
-            marker.setIcon(buildMarkerIcon(d, opacity));
+            marker.setIcon(buildMarkerIcon(d, a, opacity));
         });
 
         // Draw path line for selected day
@@ -1294,22 +1325,22 @@
     days.forEach(day => {
         dayMarkers[day.day] = [];
         day.activities.forEach(act => {
-            const icon = buildMarkerIcon(day, 1);
+            const icon = buildMarkerIcon(day, act, 1);
             const marker = L.marker([act.lat, act.lng], { icon }).addTo(map);
             marker.on('click', () => fetchPlaceDetails(act, day));
             dayMarkers[day.day].push(marker);
-            allMarkersList.push({ marker, dayNum: day.day, day });
+            allMarkersList.push({ marker, dayNum: day.day, day, act });
         });
     });
 
     // Expose for dynamic additions
     function addMarkerToMap(day, act) {
-        const icon = buildMarkerIcon(day, selectedDayNum && selectedDayNum !== day.day ? 0.2 : 1);
+        const icon = buildMarkerIcon(day, act, selectedDayNum && selectedDayNum !== day.day ? 0.2 : 1);
         const marker = L.marker([act.lat, act.lng], { icon }).addTo(map);
         marker.on('click', () => fetchPlaceDetails(act, day));
         if (!dayMarkers[day.day]) dayMarkers[day.day] = [];
         dayMarkers[day.day].push(marker);
-        allMarkersList.push({ marker, dayNum: day.day, day });
+        allMarkersList.push({ marker, dayNum: day.day, day, act });
         return marker;
     }
 
