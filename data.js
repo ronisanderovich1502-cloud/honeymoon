@@ -6,6 +6,7 @@ export const days = [
         weather: '☀️ 24°C',
         activities: [
             { name: 'הגעה למלון Daiwa Roynet', time: 'אחה״צ', desc: 'צ׳ק-אין והתרעננות', lat: 35.6938, lng: 139.6921 },
+            { name: 'Coic Official Cafe Shinjuku', time: '17:00', desc: 'קפה תמאטי מקסים בשינג׳וקו – שתייה ועיצוב ייחודי', lat: 35.6918, lng: 139.7014 },
             { name: 'Omoide Yokocho', time: 'ערב', desc: 'סמטאות ניאון, יאקיטורי ובירה', lat: 35.6934, lng: 139.6984 }
         ]
     },
