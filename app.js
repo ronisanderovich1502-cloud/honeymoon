@@ -521,7 +521,7 @@ document.querySelectorAll('.sidebar-tab').forEach(tab => {
         const isFood = tab.dataset.tab === 'food';
         document.getElementById('itinerary').style.display = isFood ? 'none' : '';
         document.getElementById('itineraryFilter').style.display = isFood ? 'none' : '';
-        document.querySelector('.search-bar').style.display = isFood ? 'none' : '';
+        document.getElementById('searchBar').style.display = isFood ? 'none' : '';
         document.getElementById('foodGuidePanel').style.display = isFood ? 'block' : 'none';
         if (isFood) renderFoodGuide();
     });
