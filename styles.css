@@ -776,11 +776,8 @@ body.dark .map-overlay { background: rgba(31,41,55,0.92); border-color: rgba(255
 /* ── SIDEBAR TABS ── */
 .sidebar-tabs {
     display: flex;
-    border-bottom: 2px solid var(--border);
-    background: var(--sidebar-bg);
-    position: sticky;
-    top: 0;
-    z-index: 9;
+    border-top: 1px solid var(--border);
+    margin-top: 10px;
 }
 
 .sidebar-tab {
@@ -810,7 +807,7 @@ body.dark .map-overlay { background: rgba(31,41,55,0.92); border-color: rgba(255
     border-bottom: 1px solid var(--border);
     background: var(--sidebar-bg);
     position: sticky;
-    top: 40px;
+    top: 0;
     z-index: 8;
 }
 
