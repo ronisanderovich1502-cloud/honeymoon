@@ -38,7 +38,12 @@
                 <input type="text" id="searchInput" data-i18n-ph="search_ph" placeholder="🔍  חפש יום, פעילות או מקום..." />
             </div>
 
-            <div class="city-filter">
+            <div class="sidebar-tabs">
+                <button class="sidebar-tab active" data-tab="itinerary">🗓️ לו״ז</button>
+                <button class="sidebar-tab" data-tab="food">🍜 מדריך אוכל</button>
+            </div>
+
+            <div class="city-filter" id="itineraryFilter">
                 <button class="filter-btn active" data-city="all" data-i18n="filter_all">הכל</button>
                 <button class="filter-btn" data-city="tokyo" data-i18n="filter_tokyo">🗼 טוקיו</button>
                 <button class="filter-btn" data-city="kyoto" data-i18n="filter_kyoto">⛩️ קיוטו</button>
@@ -46,6 +51,7 @@
             </div>
 
             <div id="itinerary"></div>
+            <div id="foodGuidePanel" style="display:none"></div>
         </div>
 
         <div class="map-container">
