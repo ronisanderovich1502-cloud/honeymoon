@@ -2,25 +2,29 @@
 export const days = [
     {
         day: 1, date: '27.9', weekday: 'ראשון', city: 'tokyo',
-        title: 'נחיתה וערב בשינג׳וקו',
+        title: 'נחיתה + סיבוב ספונטני',
         weather: '☀️ 24°C',
         activities: [
-            { name: 'הגעה למלון דאיווה רויינט', time: 'אחה״צ', desc: 'צ׳ק-אין והתרעננות', lat: 35.6938, lng: 139.6921, type: 'attraction' },
-            { name: 'קפה קויק שינג׳וקו', time: '17:00', desc: 'קפה תמאטי מקסים בשינג׳וקו – שתייה ועיצוב ייחודי', lat: 35.6918, lng: 139.7014, type: 'cafe' },
-            { name: 'אומואידה יוקוצ׳ו', time: 'ערב', desc: 'סמטאות ניאון, יאקיטורי ובירה', lat: 35.6934, lng: 139.6984, type: 'restaurant' }
+            { name: 'הגעה למלון דאיווה רויינט', time: '~20:00', desc: 'צ׳ק-אין והתרעננות – ~90 דקות מנאריטה ברכבת NEX / ~50 דקות מהנדה', lat: 35.6938, lng: 139.6921, type: 'attraction' },
+            { name: 'סיבוב ספונטני בשינג׳וקו', time: 'לילה', desc: 'אוכל, ניאון ואווירה – ללא תוכנית קבועה', lat: 35.6934, lng: 139.6984, type: 'attraction' }
         ]
     },
     {
         day: 2, date: '28.9', weekday: 'שני', city: 'tokyo',
-        title: 'הרג׳וקו, שיבויה ווואגיו',
+        title: 'שינג׳וקו, הרג׳וקו ושיבויה',
         weather: '🌤️ 23°C',
         activities: [
-            { name: 'פליפרס – פנקייק סופלה', time: '09:30', desc: 'פנקייקים אווריריים כמו ענן', lat: 35.6912, lng: 139.7046, type: 'cafe' },
-            { name: 'מקדש מייג׳י', time: '11:00', desc: 'יער עבות ושער עץ ענק', lat: 35.6764, lng: 139.6993, type: 'attraction' },
-            { name: 'רחוב טאקשיטה', time: '12:30', desc: 'אופנת רחוב וקרפים', lat: 35.6716, lng: 139.7031, type: 'attraction' },
-            { name: 'ג׳יקאסיי מנשו – ראמן', time: '15:30', desc: 'ראמן מודרני ברמת מישלן', lat: 35.6601, lng: 139.6983, type: 'restaurant' },
-            { name: 'שיבויה סקיי', time: '17:00', desc: 'שקיעה רומנטית מקומה 47', lat: 35.6584, lng: 139.7022, type: 'attraction' },
-            { name: 'האן נו דאידוקורו – יאקיניקו', time: '19:30', desc: 'וואגיו פרימיום על גריל אישי', lat: 35.6564, lng: 139.6961, type: 'restaurant' }
+            { name: 'פארק שינג׳וקו גיון', time: '09:00', desc: 'גנים יפניים מדהימים – דובדבן, אזלייה וטבע שלו', lat: 35.6851, lng: 139.7100, type: 'attraction' },
+            { name: 'ראש הגודזילה – טוהו סינמה', time: '11:00', desc: 'ראש הגודזילה המפורסם על גג הבניין – East Shinjuku / Kabuki-cho', lat: 35.6948, lng: 139.7030, type: 'attraction' },
+            { name: 'פליפרס – פנקייק סופלה', time: '11:30', desc: 'פנקייקים אווריריים כמו ענן – ארוחת בוקר מאוחרת בהרג׳וקו', lat: 35.6912, lng: 139.7046, type: 'cafe' },
+            { name: 'מקדש מייג׳י', time: '13:00', desc: 'יער עבות ושער עץ ענק', lat: 35.6764, lng: 139.6993, type: 'attraction' },
+            { name: 'רחוב טאקשיטה', time: '14:30', desc: 'אופנת רחוב צבעונית, קרפים וחנויות ייחודיות', lat: 35.6716, lng: 139.7031, type: 'attraction' },
+            { name: 'קט סטריט / אומטסנדרו', time: '15:15', desc: 'רחוב קניות אופנתי ויפה – בוטיקים, קפות ועיצוב', lat: 35.6700, lng: 139.7100, type: 'attraction' },
+            { name: 'ראמן יוזו – AFURI הרג׳וקו', time: '16:00', desc: 'ראמן יוזו שיו מיוחד וייחודי – ~¥1,300 למנה, לא יקר ומדהים', lat: 35.6708, lng: 139.7071, type: 'restaurant' },
+            { name: 'מעבר החציה + תצפית סטארבקס', time: '17:00', desc: 'מעבר החציה הסואן בעולם + קפה עם תצפית מקומה 2 של סטארבקס', lat: 35.6597, lng: 139.7003, type: 'cafe' },
+            { name: 'שיבויה סקיי', time: '17:30', desc: 'שקיעה רומנטית מקומה 47', lat: 35.6584, lng: 139.7022, type: 'attraction' },
+            { name: 'דון קיחוטה שיבויה', time: '19:00', desc: 'קניות, חטיפים, קוסמטיקה וכיף ב-8 קומות', lat: 35.6590, lng: 139.6983, type: 'attraction' },
+            { name: 'האן נו דאידוקורו – יאקיניקו', time: '20:00', desc: 'וואגיו פרימיום על גריל אישי', lat: 35.6564, lng: 139.6961, type: 'restaurant' }
         ]
     },
     {
@@ -48,19 +52,25 @@ export const days = [
         title: 'אסאקוסה, גינזה ויוניקלו',
         weather: '☀️ 22°C',
         activities: [
-            { name: 'מקדש סנסו-ג׳י', time: '10:00', desc: 'לנטרנת ענק ורחוב נאקאמיסה', lat: 35.7148, lng: 139.7967, type: 'attraction' },
+            { name: 'מקדש סנסו-ג׳י', time: '09:00', desc: 'לנטרנת ענק ושער הת׳ונדר גייט המפורסם', lat: 35.7148, lng: 139.7967, type: 'attraction' },
+            { name: 'שוק נקמיסה', time: '10:00', desc: 'רחוב קניות מסורתי לאורך 250 מ׳ – מזכרות, מאצ׳ה ומלאכת יד', lat: 35.7147, lng: 139.7965, type: 'attraction' },
+            { name: 'שוק קפבאשי – רחוב כלי המטבח', time: '11:00', desc: 'רחוב כלי בישול ומסעדות יפניים – דגמי אוכל מפלסטיק, סכינים ומלאכת יד', lat: 35.7133, lng: 139.7926, type: 'attraction' },
             { name: 'סיבוב קניות בגינזה – יוניקלו 12 קומות', time: '14:00', desc: 'יוניקלו הגדול בעולם – 12 קומות של אופנה יפנית + סיבוב ברחוב גינזה', lat: 35.6715, lng: 139.7636, type: 'attraction' },
             { name: 'סושי קייטן גינזה אונודרה', time: '19:00', desc: 'סושי קייטן מושלם מבית השף אונודרה – דגים טריים על מסוע', lat: 35.6717, lng: 139.7660, type: 'restaurant' }
         ]
     },
     {
         day: 6, date: '2.10', weekday: 'שישי', city: 'tokyo',
-        title: 'אודאיבה, רופונגי וחגיגת טונה',
+        title: 'יום שלם בשינג׳וקו',
         weather: '⛅ 20°C',
         activities: [
-            { name: 'אודאיבה – האי המלאכותי', time: '10:00', desc: 'גשר הקשת, פסל החירות, קניות ותצפית על מפרץ טוקיו', lat: 35.6267, lng: 139.7754, type: 'attraction' },
-            { name: 'מוזיאום מורי + תצפית טוקיו סיטי ויו', time: '15:00', desc: 'אמנות עכשווית בקומה 53 ותצפית פנורמית על טוקיו', lat: 35.6604, lng: 139.7292, type: 'attraction' },
-            { name: 'מגורו מארט – חגיגת טונה', time: '19:30', desc: 'מגרדים טונה מהעצם לסושי!', lat: 35.7063, lng: 139.6659, type: 'restaurant' }
+            { name: 'פארק שינג׳וקו גיון', time: '09:00', desc: 'גנים יפניים מדהימים – דובדבן, אזלייה וטבע שלו', lat: 35.6851, lng: 139.7100, type: 'attraction' },
+            { name: 'בניין הממשל העירוני – תצפית חינמית', time: '11:00', desc: 'תצפית פנורמית חינמית מקומה 45 על כל טוקיו', lat: 35.6896, lng: 139.6917, type: 'attraction' },
+            { name: 'ראש הגודזילה – טוהו סינמה', time: '12:30', desc: 'ראש הגודזילה המפורסם על גג הבניין באיזור Kabuki-cho', lat: 35.6948, lng: 139.7030, type: 'attraction' },
+            { name: 'קפה קויק שינג׳וקו', time: '13:30', desc: 'קפה תמאטי מקסים בשינג׳וקו – שתייה ועיצוב ייחודי', lat: 35.6918, lng: 139.7014, type: 'cafe' },
+            { name: 'KAKEKOMI – בר גיוזות צמחוני', time: '15:00', desc: 'גיוזות צמחוניות מטוגנות ומאודות – ג׳ם מוסתר בשינג׳וקו', lat: 35.6948, lng: 139.7018, type: 'cafe' },
+            { name: 'אומואידה יוקוצ׳ו', time: '19:00', desc: 'סמטאות ניאון, יאקיטורי ובירה – ארוחת ערב', lat: 35.6934, lng: 139.6984, type: 'restaurant' },
+            { name: 'גולדן גאי – ברי לילה', time: '21:00', desc: 'מבוך של 200 ברים קטנים ומיוחדים – ערב שישי בשינג׳וקו', lat: 35.6934, lng: 139.7030, type: 'restaurant' }
         ]
     },
     {
@@ -146,9 +156,9 @@ export const cityNames = { tokyo: '🗼 טוקיו', kyoto: '⛩️ קיוטו',
 export const cityColors = { tokyo: '#E8A0BF', kyoto: '#9B72AA', osaka: '#F4A460' };
 
 export const dayTitlesEn = {
-    1:'Arrival & Shinjuku Evening', 2:'Harajuku, Shibuya & Wagyu',
+    1:'Arrival + Spontaneous Walk', 2:'Shinjuku, Harajuku & Shibuya',
     3:'Tokyo DisneySea 🌋', 4:'Tsukiji, teamLab & Akihabara',
-    5:'Asakusa, Ginza & Uniqlo', 6:'Odaiba, Roppongi & Tuna Feast',
+    5:'Asakusa, Ginza & Uniqlo', 6:'Full Shinjuku Day',
     7:'Bullet Train & Gion', 8:'Kiyomizu, Golden Temple & Gyoza',
     9:'Arashiyama & teamLab Biovortex Night', 10:'Fushimi Inari & Nishiki Market',
     11:'Mino Falls & Dotonbori', 12:'Universal Studios Japan 🍄🎃',
