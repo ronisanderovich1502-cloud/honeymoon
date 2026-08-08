@@ -120,6 +120,10 @@ function updateAllProgressBars() {
     });
 }
 
+// --- TYPE LABELS ---
+const typeIcons  = { attraction: '🏛️', cafe: '☕', restaurant: '🍽️' };
+const typeLabels = { attraction: 'אטרקציה', cafe: 'בית קפה', restaurant: 'מסעדה' };
+
 // --- SIDEBAR ---
 const itineraryEl = document.getElementById('itinerary');
 let currentCity = '';
@@ -145,6 +149,7 @@ days.forEach(day => {
         const key = `${day.day}-${i}`;
         const isDone = checked[key] ? 'done' : '';
         const isChecked = checked[key] ? 'checked' : '';
+        const typeBadge = a.type ? `<span class="activity-type type-${a.type}">${typeIcons[a.type]} ${typeLabels[a.type]}</span>` : '';
         return `
             <div class="activity ${isDone}" id="act-${key}">
                 <input type="checkbox" class="activity-check" data-key="${key}" ${isChecked}>
@@ -152,6 +157,7 @@ days.forEach(day => {
                     <span class="activity-time">${a.time}</span>
                     <span class="activity-name"> ${a.name}</span>
                     <div class="activity-desc">${a.desc}</div>
+                    ${typeBadge}
                 </div>
                 <div class="activity-actions">
                     <button class="act-btn edit-btn" data-day="${day.day}" data-idx="${i}" title="ערוך">✏️</button>
