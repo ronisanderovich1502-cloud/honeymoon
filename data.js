@@ -1,11 +1,14 @@
 // __FOOD_GUIDE_START__
 export const foodCategories = {
     cafe:     { emoji: '☕', label: 'בתי קפה ומאפיות' },
-    ramen:    { emoji: '🍜', label: 'ראמן' },
+    icecream: { emoji: '🍦', label: 'גלידה ומתוקים' },
+    ramen:    { emoji: '🍜', label: 'ראמן ואודון' },
     sushi:    { emoji: '🍣', label: 'סושי ופירות ים' },
     yakiniku: { emoji: '🔥', label: 'יאקיניקו ובשרים' },
+    katsu:    { emoji: '🥩', label: 'קטסו ובשר מטוגן' },
     gyoza:    { emoji: '🥟', label: 'גיוזות' },
     burger:   { emoji: '🍔', label: 'המבורגרים' },
+    pizza:    { emoji: '🍕', label: 'פיצה' },
     bar:      { emoji: '🍸', label: 'ברים וספיקיזי' },
     street:   { emoji: '🥡', label: 'אוכל רחוב ונשנושים' },
 };
@@ -39,6 +42,27 @@ export const foodGuide = [
     { name: 'גולדן גאי',                    city: 'tokyo', area: 'שינג׳וקו',            category: 'bar',      desc: '200 ברים קטנים ומיוחדים',                             day: 6  },
     { name: "BEE'S KNEES",                  city: 'kyoto', area: 'גיון',                category: 'bar',      desc: "Asia's Best 50 Bars – דלת צהובה נסתרת",               day: 7  },
     { name: 'Tokito – איזאקאיה',            city: 'osaka', area: 'קארהורי',             category: 'bar',      desc: 'בר-מסעדה מוסתר – אווירה ייחודית',                     day: 13 },
+    // ── ICECREAM ──
+    { name: 'Cremia Ice Cream',              city: 'tokyo', area: 'הרג׳וקו / אסאקוסה',     category: 'icecream', desc: 'גלידת קרמה 23% שמנת עם וופל עוגיית חמאה – הגלידה הכי ויראלית ביפן' },
+    // ── RAMEN EXTRAS ──
+    { name: 'Ichiran (איצ׳ירן)',             city: 'tokyo', area: 'שיבויה / שינג׳וקו',     category: 'ramen',    desc: 'ראמן טונקוטסו סולו – מגורה אישית, אפשר לכוונן עוצמת ציר' },
+    { name: 'IPPUDO גינזה',                  city: 'tokyo', area: 'גינזה',                  category: 'ramen',    desc: 'ראמן האקאטה הכי מפורסם ביפן – ציר חזיר קרמי עשיר' },
+    { name: 'RAMEN HAYASHIDA',               city: 'tokyo', area: 'שינג׳וקו',               category: 'ramen',    desc: 'ראמן ציר עמוק – מדורג בין הטובים בשינג׳וקו' },
+    { name: 'ENGINE RAMEN',                  city: 'tokyo', area: 'שינג׳וקו',               category: 'ramen',    desc: 'ראמן עשיר ועמוק – ג׳ם מוסתר בשינג׳וקו' },
+    { name: 'Udon Shin (אודון שין)',          city: 'tokyo', area: 'שינג׳וקו – יויוגי',     category: 'ramen',    desc: 'אודון קרבונרה ייחודי – אחד האודונים הכי מדוברים בטוקיו' },
+    // ── SUSHI EXTRAS ──
+    { name: 'SUSHIRO',                       city: 'tokyo', area: 'רשת – מספר סניפים',      category: 'sushi',    desc: 'רשת קייטן סושי – ~¥100 לצלחת, דגים טריים, הכי פופולרי ביפן' },
+    // ── KATSU ──
+    { name: 'GYUKATSU KYOTO KATSUGYU',      city: 'tokyo', area: 'שיבויה / שינג׳וקו',     category: 'katsu',    desc: 'סטייק בקר מטוגן – צולה עצמי על אבן לבה חמה ליד השולחן' },
+    // ── PIZZA ──
+    { name: 'Savoy Pizza Tokyo',             city: 'tokyo', area: 'אזאבו-ג׳ובן',            category: 'pizza',    desc: 'פיצה נפוליטנית אותנטית – מקום אגדי בטוקיו, חובה הזמנה' },
+    // ── CAFE EXTRAS ──
+    { name: 'MICASADECO & CAFE',             city: 'tokyo', area: 'אומטסנדו',               category: 'cafe',     desc: 'טוסט צרפתי צבעוני ויראלי – מנה מצולמת מאוד' },
+    { name: 'New York Bagel Café',           city: 'tokyo', area: 'הרג׳וקו',               category: 'cafe',     desc: 'בייגלס ניו-יורקיים עם מגוון מלית – מאפה ייחודי בטוקיו' },
+    { name: 'Pokémon Café',                  city: 'tokyo', area: 'ניהונבאשי',              category: 'cafe',     desc: 'קפה ממותג פוקימון – מנות בצורת פיקאצ׳ו, חובה הזמנה מראש' },
+    { name: 'KACTO CAFE',                    city: 'kyoto', area: 'גיון',                   category: 'cafe',     desc: 'קפה אופנתי בלב גיון – משקאות ייחודיים ועיצוב מיוחד' },
+    // ── BAR EXTRAS ──
+    { name: 'KITAN HIBIKI',                  city: 'osaka', area: 'נמבה',                   category: 'yakiniku', desc: 'בשר מיושן על אירורי (קמין יפני) – חוויה ייחודית ומיוחדת' },
     // ── STREET / SNACKS ──
     { name: 'DE FRITES STAAN',               city: 'kyoto', area: 'קיאמאצ׳י',           category: 'street',   desc: 'ציפס הולנדי קריספי ובירות קראפט',                     day: 7  },
     { name: 'Pablo – טארטים',               city: 'osaka', area: 'שינסאיבאשי',          category: 'street',   desc: 'טארט גבינה חם ונוזלי',                                day: 11 },
