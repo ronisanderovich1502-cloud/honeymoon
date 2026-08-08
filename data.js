@@ -103,8 +103,7 @@ export const days = [
         activities: [
             { name: 'יער הבמבוק', time: '08:30', desc: 'קני במבוק ענקיים מתנשאים לגובה', lat: 35.0170, lng: 135.6713, type: 'attraction' },
             { name: 'פארק הקופים איווטאיאמה', time: '10:30', desc: 'קופי מקאק חופשיים – מאכילים מהיד', lat: 35.0098, lng: 135.6770, type: 'attraction' },
-            { name: 'טימלאב ביוברטקס קיוטו', time: '17:30', desc: 'מיצגי אור דיגיטליים בגנים', lat: 34.9881, lng: 135.7480, type: 'attraction' },
-            { name: 'צ׳או צ׳או גיוזה', time: '20:00', desc: 'גיוזות קריספיות במילויים מטורפים', lat: 35.0041, lng: 135.7672, type: 'restaurant' }
+            { name: 'צ׳או צ׳או גיוזה', time: '19:00', desc: 'גיוזות קריספיות במילויים מטורפים', lat: 35.0041, lng: 135.7672, type: 'restaurant' }
         ]
     },
     {
@@ -163,7 +162,7 @@ export const dayTitlesEn = {
     3:'Tokyo DisneySea 🌋', 4:'Tsukiji, teamLab & Akihabara',
     5:'Asakusa, Ginza & Uniqlo', 6:'Full Shinjuku Day',
     7:'Bullet Train & Gion', 8:'Temple Day by Bike 🚲',
-    9:'Arashiyama & teamLab Biovortex Night', 10:'Fushimi Inari & Nishiki Market',
+    9:'Arashiyama & Gyoza Night', 10:'Fushimi Inari & Nishiki Market',
     11:'Mino Falls & Dotonbori', 12:'Universal Studios Japan 🍄🎃',
     13:'Nara, Osaka Castle & Shinsekai', 14:'Shopping & Flight to Bangkok ✈️'
 };
