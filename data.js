@@ -14,14 +14,12 @@ export const days = [
         title: 'שינג׳וקו, הרג׳וקו ושיבויה',
         weather: '🌤️ 23°C',
         activities: [
-            { name: 'פארק שינג׳וקו גיון', time: '09:00', desc: 'גנים יפניים מדהימים – דובדבן, אזלייה וטבע שלו', lat: 35.6851, lng: 139.7100, type: 'attraction' },
-            { name: 'ראש הגודזילה – טוהו סינמה', time: '11:00', desc: 'ראש הגודזילה המפורסם על גג הבניין – East Shinjuku / Kabuki-cho', lat: 35.6948, lng: 139.7030, type: 'attraction' },
-            { name: 'פליפרס – פנקייק סופלה', time: '11:30', desc: 'פנקייקים אווריריים כמו ענן – ארוחת בוקר מאוחרת בהרג׳וקו', lat: 35.6912, lng: 139.7046, type: 'cafe' },
-            { name: 'מקדש מייג׳י', time: '13:00', desc: 'יער עבות ושער עץ ענק', lat: 35.6764, lng: 139.6993, type: 'attraction' },
-            { name: 'רחוב טאקשיטה', time: '14:30', desc: 'אופנת רחוב צבעונית, קרפים וחנויות ייחודיות', lat: 35.6716, lng: 139.7031, type: 'attraction' },
-            { name: 'קט סטריט / אומטסנדרו', time: '15:15', desc: 'רחוב קניות אופנתי ויפה – בוטיקים, קפות ועיצוב', lat: 35.6700, lng: 139.7100, type: 'attraction' },
-            { name: 'ראמן יוזו – AFURI הרג׳וקו', time: '16:00', desc: 'ראמן יוזו שיו מיוחד וייחודי – ~¥1,300 למנה, לא יקר ומדהים', lat: 35.6708, lng: 139.7071, type: 'restaurant' },
-            { name: 'מעבר החציה + תצפית סטארבקס', time: '17:00', desc: 'מעבר החציה הסואן בעולם + קפה עם תצפית מקומה 2 של סטארבקס', lat: 35.6597, lng: 139.7003, type: 'cafe' },
+            { name: 'פליפרס – פנקייק סופלה', time: '09:30', desc: 'פנקייקים אווריריים כמו ענן – ארוחת בוקר בהרג׳וקו', lat: 35.6912, lng: 139.7046, type: 'cafe' },
+            { name: 'מקדש מייג׳י', time: '11:00', desc: 'יער עבות ושער עץ ענק', lat: 35.6764, lng: 139.6993, type: 'attraction' },
+            { name: 'רחוב טאקשיטה', time: '12:30', desc: 'אופנת רחוב צבעונית, קרפים וחנויות ייחודיות', lat: 35.6716, lng: 139.7031, type: 'attraction' },
+            { name: 'קט סטריט / אומטסנדרו', time: '13:30', desc: 'רחוב קניות אופנתי – בוטיקים, קפות ועיצוב', lat: 35.6700, lng: 139.7100, type: 'attraction' },
+            { name: 'ראמן יוזו – AFURI הרג׳וקו', time: '15:00', desc: 'ראמן יוזו שיו מיוחד וייחודי – ~¥1,300 למנה', lat: 35.6708, lng: 139.7071, type: 'restaurant' },
+            { name: 'מעבר החציה + תצפית סטארבקס', time: '16:30', desc: 'מעבר החציה הסואן בעולם + קפה עם תצפית מקומה 2', lat: 35.6597, lng: 139.7003, type: 'cafe' },
             { name: 'שיבויה סקיי', time: '17:30', desc: 'שקיעה רומנטית מקומה 47', lat: 35.6584, lng: 139.7022, type: 'attraction' },
             { name: 'דון קיחוטה שיבויה', time: '19:00', desc: 'קניות, חטיפים, קוסמטיקה וכיף ב-8 קומות', lat: 35.6590, lng: 139.6983, type: 'attraction' },
             { name: 'האן נו דאידוקורו – יאקיניקו', time: '20:00', desc: 'וואגיו פרימיום על גריל אישי', lat: 35.6564, lng: 139.6961, type: 'restaurant' }
@@ -54,7 +52,7 @@ export const days = [
         activities: [
             { name: 'מקדש סנסו-ג׳י', time: '09:00', desc: 'לנטרנת ענק ושער הת׳ונדר גייט המפורסם', lat: 35.7148, lng: 139.7967, type: 'attraction' },
             { name: 'שוק נקמיסה', time: '10:00', desc: 'רחוב קניות מסורתי לאורך 250 מ׳ – מזכרות, מאצ׳ה ומלאכת יד', lat: 35.7147, lng: 139.7965, type: 'attraction' },
-            { name: 'שוק קפבאשי – רחוב כלי המטבח', time: '11:00', desc: 'רחוב כלי בישול ומסעדות יפניים – דגמי אוכל מפלסטיק, סכינים ומלאכת יד', lat: 35.7133, lng: 139.7926, type: 'attraction' },
+            { name: 'שוק קפבאשי – רחוב כלי המטבח', time: '11:00', desc: 'רחוב כלי בישול יפניים – דגמי אוכל מפלסטיק, סכינים ומלאכת יד', lat: 35.7133, lng: 139.7926, type: 'attraction' },
             { name: 'סיבוב קניות בגינזה – יוניקלו 12 קומות', time: '14:00', desc: 'יוניקלו הגדול בעולם – 12 קומות של אופנה יפנית + סיבוב ברחוב גינזה', lat: 35.6715, lng: 139.7636, type: 'attraction' },
             { name: 'סושי קייטן גינזה אונודרה', time: '19:00', desc: 'סושי קייטן מושלם מבית השף אונודרה – דגים טריים על מסוע', lat: 35.6717, lng: 139.7660, type: 'restaurant' }
         ]
@@ -75,12 +73,19 @@ export const days = [
     },
     {
         day: 7, date: '3.10', weekday: 'שבת', city: 'kyoto',
-        title: 'רכבת קליע וגיון',
+        title: 'הגעה לקיוטו – ננזן-ג׳י, גיון ולילה',
         weather: '☀️ 21°C',
         activities: [
             { name: 'שינקנסן לקיוטו', time: '09:30', desc: 'רכבת קליע – שעתיים ו-15 דקות', lat: 35.6812, lng: 139.7671, type: 'attraction' },
-            { name: 'רובע גיון וסמטאות פונטוצ׳ו', time: '17:00', desc: 'בתי עץ, פנסי נייר וגיישות', lat: 35.0037, lng: 135.7756, type: 'attraction' },
-            { name: 'שוגון בורגר – וואגיו', time: '19:30', desc: 'המבורגר 100% וואגיו עם חותם שוגון', lat: 35.0032, lng: 135.7690, type: 'restaurant' }
+            { name: 'צ׳ק-אין מלון סולריה נישיטטסו', time: '14:00', desc: 'מלון בסנג׳ו-קיאמאצ׳י – ממש על נהר הקאמו, 50 מ׳ מפונטוצ׳ו', lat: 35.0097, lng: 135.7722, type: 'attraction' },
+            { name: 'מקדש ננזן-ג׳י', time: '15:00', desc: 'גן זן, שער סנמון ענק ותעלת מים עתיקה מלבנים אדומים', lat: 35.0116, lng: 135.7929, type: 'attraction' },
+            { name: 'Panel Café', time: '17:00', desc: 'קפה קטן ומקסים בסמוך לגיון-שיג׳ו – פנקייקים וקרוופלים', lat: 35.0035, lng: 135.7736, type: 'cafe' },
+            { name: 'רובע גיון וסמטאות פונטוצ׳ו', time: '18:00', desc: 'בתי עץ, פנסי נייר וגיישות', lat: 35.0037, lng: 135.7756, type: 'attraction' },
+            { name: 'DE FRITES STAAN', time: '19:30', desc: 'ציפס הולנדי קריספי עם רטבים מיוחדים ובירות קראפט', lat: 35.0036, lng: 135.7679, type: 'cafe' },
+            { name: 'שוגון בורגר – וואגיו', time: '20:00', desc: 'המבורגר 100% וואגיו עם חותם שוגון (אופציה לארוחה)', lat: 35.0032, lng: 135.7690, type: 'restaurant' },
+            { name: 'Maumu Kiyamachi – יאקיניקו', time: '20:00', desc: 'יאקיניקו קוריאני-יפני על רחוב קיאמאצ׳י – ממש ליד המלון (אופציה לארוחה)', lat: 35.0090, lng: 135.7706, type: 'restaurant' },
+            { name: 'צ׳או צ׳או גיוזה', time: '22:00', desc: 'גיוזות קריספיות במילויים מטורפים – נשנוש לילי בגיון', lat: 35.0041, lng: 135.7672, type: 'restaurant' },
+            { name: "BEE'S KNEES – ספיקיזי בר", time: '23:00', desc: 'בר קוקטיילים נסתר מאחורי דלת צהובה – Asia\'s Best 50 Bars', lat: 35.0041, lng: 135.7665, type: 'restaurant' }
         ]
     },
     {
@@ -88,40 +93,48 @@ export const days = [
         title: 'יום מקדשים על אופניים 🚲',
         weather: '🌤️ 20°C',
         activities: [
-            { name: 'השכרת אופניים', time: '08:00', desc: 'השכרת אופניים ליום שלם – המון חנויות ליד תחנת קיוטו, ~¥1,500 ליום', lat: 34.9858, lng: 135.7588, type: 'attraction' },
+            { name: 'השכרת אופניים', time: '08:00', desc: 'השכרת אופניים ליום שלם – ~¥1,500 ליום, הרבה חנויות ליד תחנת קיוטו', lat: 34.9858, lng: 135.7588, type: 'attraction' },
             { name: 'קיומיזו-דרה', time: '08:30', desc: 'מרפסת עץ מעל צמרות העצים – כניסה לפני ההמון', lat: 34.9949, lng: 135.7850, type: 'attraction' },
             { name: 'סמטאות נינינזאקה', time: '10:30', desc: 'רחובות אבן עתיקים + סטארבקס טטאמי', lat: 34.9981, lng: 135.7806, type: 'attraction' },
             { name: 'פגודת הוקאנגי – יאסקה', time: '11:30', desc: 'פגודה בת 5 קומות משנת 589 – אחד הצילומים הכי אייקוניים של קיוטו', lat: 34.9985, lng: 135.7793, type: 'attraction' },
             { name: 'קינקאקו-ג׳י – מקדש הזהב', time: '13:30', desc: 'רכיבה צפונה ~30 דקות – מקדש מצופה זהב טהור על אגם', lat: 35.0394, lng: 135.7292, type: 'attraction' },
-            { name: 'le 14e – ביסטרו צרפתי', time: '19:00', desc: 'Michelin Selected 2024 – אוכל עונתי אורגני ויין טבעי, ~15 דקות על אופניים מהוקאנגי', lat: 35.0121, lng: 135.7722, type: 'restaurant' }
+            { name: 'le 14e – ביסטרו צרפתי', time: '19:00', desc: 'Michelin Selected 2024 – אוכל עונתי אורגני ויין טבעי', lat: 35.0121, lng: 135.7722, type: 'restaurant' }
         ]
     },
     {
         day: 9, date: '5.10', weekday: 'שני', city: 'kyoto',
-        title: 'ארשייאמה וטימלאב לילי',
+        title: 'ארשייאמה – יער, קופים וגיוזות',
         weather: '☀️ 20°C',
         activities: [
             { name: 'יער הבמבוק', time: '08:30', desc: 'קני במבוק ענקיים מתנשאים לגובה', lat: 35.0170, lng: 135.6713, type: 'attraction' },
-            { name: 'פארק הקופים איווטאיאמה', time: '10:30', desc: 'קופי מקאק חופשיים – מאכילים מהיד', lat: 35.0098, lng: 135.6770, type: 'attraction' },
+            { name: 'מקדש טנריוג׳י', time: '09:30', desc: 'מקדש זן מרהיב עם גן לאומי מסורתי – ממש בכניסה ליער הבמבוק', lat: 35.0167, lng: 135.6752, type: 'attraction' },
+            { name: 'פארק הקופים איווטאיאמה', time: '11:00', desc: 'קופי מקאק חופשיים – מאכילים מהיד', lat: 35.0098, lng: 135.6770, type: 'attraction' },
+            { name: 'שייט סירות חתירה – נהר אוי', time: '14:00', desc: 'השכרת סירת חתירה רומנטית ליד גשר טוגטסו – חוויה מושלמת לירח דבש', lat: 35.0108, lng: 135.6770, type: 'attraction' },
             { name: 'צ׳או צ׳או גיוזה', time: '19:00', desc: 'גיוזות קריספיות במילויים מטורפים', lat: 35.0041, lng: 135.7672, type: 'restaurant' }
         ]
     },
     {
         day: 10, date: '6.10', weekday: 'שלישי', city: 'kyoto',
-        title: 'פושימי אינארי ושוק נישיקי',
+        title: 'פושימי אינארי, נישיקי ויאקיניקו',
         weather: '⛅ 19°C',
         activities: [
-            { name: 'פושימי אינארי – אלף השערים', time: '07:30', desc: 'מנהרות שערים כתומים על ההר', lat: 34.9671, lng: 135.7727, type: 'attraction' },
-            { name: 'שוק נישיקי', time: '11:30', desc: 'שיפודי וואגיו, מוצ׳י ומאצ׳ה', lat: 35.0050, lng: 135.7649, type: 'attraction' }
+            { name: 'פושימי אינארי – אלף השערים', time: '07:30', desc: 'מנהרות שערים כתומים על ההר – לפני ההמון', lat: 34.9671, lng: 135.7727, type: 'attraction' },
+            { name: 'שוק נישיקי', time: '11:30', desc: 'שיפודי וואגיו, מוצ׳י ומאצ׳ה', lat: 35.0050, lng: 135.7649, type: 'attraction' },
+            { name: 'GOSYU – יאקיניקו וואגיו אומי', time: '18:00', desc: 'יאקיניקו עם נוף לגן יפני – נתחי וואגיו נדירים מחווה מיוחדת, חובה הזמנה', lat: 35.0411, lng: 135.7826, type: 'restaurant' }
         ]
     },
     {
         day: 11, date: '7.10', weekday: 'רביעי', city: 'osaka',
-        title: 'מפלי מינו ודוטונבורי',
+        title: 'הגעה לאוסקה – נמבה ודוטונבורי',
         weather: '🌤️ 21°C',
         activities: [
-            { name: 'מפלי מינו', time: '13:00', desc: 'הליכה ביער + עלי מייפל מטוגנים', lat: 34.8387, lng: 135.4705, type: 'attraction' },
-            { name: 'דוטונבורי', time: '18:30', desc: 'ניאון, טאקויאקי ואוקונומיאקי', lat: 34.6687, lng: 135.5013, type: 'restaurant' }
+            { name: 'צ׳ק-אין מלון ניקו אוסקה', time: '14:00', desc: 'מלון יוקרה על שדרת מידוסוג׳י – ממש על תחנת שינסאיבאשי', lat: 34.6721, lng: 135.5003, type: 'attraction' },
+            { name: 'שוק קורמון איציבה', time: '15:00', desc: 'שוק האוכל הגדול של אוסקה – פירות ים טריים, קרפ ויובי', lat: 34.6634, lng: 135.5067, type: 'attraction' },
+            { name: 'Truffle Bakery – נמבה סיטי', time: '16:00', desc: 'מאפיית הטרופל המפורסמת – לחמים ומאפים עם טרופל שחור', lat: 34.6641, lng: 135.5017, type: 'cafe' },
+            { name: 'מקדש נמבה יאסקה שריין', time: '16:45', desc: 'מקדש שינטו עם ראש אריה ענק ומרהיב – אחד הצילומים הכי מיוחדים באוסקה', lat: 34.6618, lng: 135.4978, type: 'attraction' },
+            { name: 'Pablo – טארטים מפורסמים', time: '17:30', desc: 'טארט גבינה חם ונוזלי מבית Pablo – התור שווה', lat: 34.6730, lng: 135.5017, type: 'cafe' },
+            { name: 'Strawberry Mania', time: '18:00', desc: 'חטיפי תות מטורפים – סנדוויצ׳ פרות ותות טבול שוקולד', lat: 34.6687, lng: 135.5013, type: 'cafe' },
+            { name: 'דוטונבורי', time: '19:00', desc: 'ניאון, טאקויאקי ואוקונומיאקי – לב אוסקה בלילה', lat: 34.6687, lng: 135.5013, type: 'restaurant' }
         ]
     },
     {
@@ -134,20 +147,22 @@ export const days = [
     },
     {
         day: 13, date: '9.10', weekday: 'שישי', city: 'osaka',
-        title: 'נארה, טירת אוסקה ושינסקאי',
+        title: 'נארה, טירת אוסקה ושינסאיבאשי',
         weather: '🌤️ 21°C',
         activities: [
             { name: 'פארק נארה – הצבאים', time: '09:00', desc: 'צבאים שמקדים לקבל אוכל + מקדש טודאי-ג׳י', lat: 34.6851, lng: 135.8430, type: 'attraction' },
-            { name: 'טירת אוסקה', time: '14:30', desc: 'טירה מרהיבה עם תצפית', lat: 34.6873, lng: 135.5262, type: 'attraction' },
-            { name: 'רובע שינסקאי – קושיקאטסו', time: '18:30', desc: 'אווירת רטרו + שיפודים מטוגנים', lat: 34.6527, lng: 135.5063, type: 'restaurant' }
+            { name: 'Brooklyn Roasting Co. – קיטאהאמה', time: '14:00', desc: 'קפה ניו-יורקי על נהר אוסקה – הביל הכי יפה לקפה אחה״צ', lat: 34.6902, lng: 135.5142, type: 'cafe' },
+            { name: 'טירת אוסקה', time: '15:00', desc: 'טירה מרהיבה עם תצפית', lat: 34.6873, lng: 135.5262, type: 'attraction' },
+            { name: 'שינסאיבאשי – קניות', time: '17:30', desc: 'רחוב הקניות המרכזי של אוסקה – מותגים, קוסמטיקה ואופנה', lat: 34.6722, lng: 135.5006, type: 'attraction' },
+            { name: 'Tokito – איזאקאיה', time: '20:00', desc: 'בר-מסעדה יפני מוסתר בשכונת קרהורי – אווירה ייחודית ואוכל מדהים', lat: 34.6605, lng: 135.5153, type: 'restaurant' }
         ]
     },
     {
         day: 14, date: '10.10', weekday: 'שבת', city: 'osaka',
-        title: 'שופינג וטיסה לבנגקוק ✈️',
+        title: 'שופינג אחרון וטיסה לבנגקוק ✈️',
         weather: '☀️ 22°C',
         activities: [
-            { name: 'דון קיחוטה דוטונבורי', time: 'בוקר', desc: 'חטיפים, קוסמטיקה ומזכרות', lat: 34.6690, lng: 135.5018, type: 'attraction' },
+            { name: 'שינסאיבאשי + דון קיחוטה דוטונבורי', time: 'בוקר', desc: 'סיבוב קניות אחרון – חטיפים, קוסמטיקה ומזכרות', lat: 34.6690, lng: 135.5018, type: 'attraction' },
             { name: 'שדה תעופה קאנסאי (KIX)', time: 'אחה״צ', desc: 'רכבת ראפ:ט ← טיסה לבנגקוק', lat: 34.4347, lng: 135.2440, type: 'attraction' }
         ]
     }
@@ -161,10 +176,10 @@ export const dayTitlesEn = {
     1:'Arrival + Spontaneous Walk', 2:'Shinjuku, Harajuku & Shibuya',
     3:'Tokyo DisneySea 🌋', 4:'Tsukiji, teamLab & Akihabara',
     5:'Asakusa, Ginza & Uniqlo', 6:'Full Shinjuku Day',
-    7:'Bullet Train & Gion', 8:'Temple Day by Bike 🚲',
-    9:'Arashiyama & Gyoza Night', 10:'Fushimi Inari & Nishiki Market',
-    11:'Mino Falls & Dotonbori', 12:'Universal Studios Japan 🍄🎃',
-    13:'Nara, Osaka Castle & Shinsekai', 14:'Shopping & Flight to Bangkok ✈️'
+    7:'Arrival Kyoto – Nanzenji, Gion & Nightlife', 8:'Temple Day by Bike 🚲',
+    9:'Arashiyama – Bamboo, Monkeys & Gyoza', 10:'Fushimi Inari, Nishiki & Yakiniku',
+    11:'Arrival Osaka – Namba & Dotonbori', 12:'Universal Studios Japan 🍄🎃',
+    13:'Nara, Osaka Castle & Shinsaibashi', 14:'Last Shopping & Flight to Bangkok ✈️'
 };
 
 export const weekdayEn = {
