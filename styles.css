@@ -893,6 +893,7 @@ body.dark .map-overlay { background: rgba(31,41,55,0.92); border-color: rgba(255
 .food-day-tokyo { background: var(--tokyo-color); }
 .food-day-kyoto { background: var(--kyoto-color); }
 .food-day-osaka { background: var(--osaka-color); }
+.food-day-extra { background: #6B7280; }
 
 @media (max-width: 768px) {
     body { overflow: hidden; }
