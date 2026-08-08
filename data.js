@@ -1,3 +1,52 @@
+// __FOOD_GUIDE_START__
+export const foodCategories = {
+    cafe:     { emoji: '☕', label: 'בתי קפה ומאפיות' },
+    ramen:    { emoji: '🍜', label: 'ראמן' },
+    sushi:    { emoji: '🍣', label: 'סושי ופירות ים' },
+    yakiniku: { emoji: '🔥', label: 'יאקיניקו ובשרים' },
+    gyoza:    { emoji: '🥟', label: 'גיוזות' },
+    burger:   { emoji: '🍔', label: 'המבורגרים' },
+    bar:      { emoji: '🍸', label: 'ברים וספיקיזי' },
+    street:   { emoji: '🥡', label: 'אוכל רחוב ונשנושים' },
+};
+
+export const foodGuide = [
+    // ── CAFE / BAKERY ──
+    { name: 'Flippers – פנקייק סופלה',      city: 'tokyo', area: 'הרג׳וקו',             category: 'cafe',     desc: 'פנקייקים אווריריים כמו ענן',                         day: 2  },
+    { name: 'אייג׳י3 – סנדוויץ׳ ויראלי',    city: 'tokyo', area: 'גינזה',               category: 'cafe',     desc: 'לחם מטוגן עם קצפת – הכי ויראלי בטוקיו',             day: 3  },
+    { name: 'Panel Café',                    city: 'kyoto', area: 'גיון-שיג׳ו',          category: 'cafe',     desc: 'פנקייקים וקרוופלים – קפה קטן ומקסים',                day: 7  },
+    { name: 'le 14e – ביסטרו צרפתי',         city: 'kyoto', area: 'סנג׳ו-קיאמאצ׳י',    category: 'cafe',     desc: 'Michelin Selected – אוכל עונתי ויין טבעי',            day: 8  },
+    { name: 'Truffle Bakery',                city: 'osaka', area: 'נמבה',                category: 'cafe',     desc: 'לחמים ומאפים עם טרופל שחור',                          day: 11 },
+    { name: 'Brooklyn Roasting Co.',         city: 'osaka', area: 'קיטאהאמה',            category: 'cafe',     desc: 'קפה ניו-יורקי על נהר אוסקה',                          day: 13 },
+    // ── RAMEN ──
+    { name: 'AFURI – ראמן יוזו',            city: 'tokyo', area: 'הרג׳וקו',             category: 'ramen',    desc: 'ראמן יוזו שיו ייחודי – ~¥1,300',                     day: 2  },
+    // ── SUSHI ──
+    { name: 'שוק צוקיג׳י',                  city: 'tokyo', area: 'צוקיג׳י',             category: 'sushi',    desc: 'סושי טרי, תמנון ואומלט יפני',                         day: 4  },
+    { name: 'נובו טוקיו',                   city: 'tokyo', area: 'טוראנומון-מידטאון',   category: 'sushi',    desc: 'דג הגד שחור במיסו – מסעדת יוקרה',                    day: 4  },
+    { name: 'סושי קייטן גינזה אונודרה',     city: 'tokyo', area: 'גינזה',               category: 'sushi',    desc: 'דגים טריים על מסוע – בית השף אונודרה',               day: 5  },
+    // ── YAKINIKU ──
+    { name: 'האן נו דאידוקורו',             city: 'tokyo', area: 'שיבויה',              category: 'yakiniku', desc: 'וואגיו פרימיום על גריל אישי',                         day: 2  },
+    { name: 'Maumu Kiyamachi',               city: 'kyoto', area: 'קיאמאצ׳י',           category: 'yakiniku', desc: 'יאקיניקו קוריאני-יפני – ממש ליד המלון',              day: 7  },
+    { name: 'GOSYU',                         city: 'kyoto', area: 'צפון קיוטו',          category: 'yakiniku', desc: 'וואגיו אומי עם נוף לגן יפני – חובה הזמנה',           day: 10 },
+    // ── GYOZA ──
+    { name: 'KAKEKOMI גיוזות',              city: 'tokyo', area: 'שינג׳וקו',            category: 'gyoza',    desc: 'גיוזות צמחוניות מטוגנות ומאודות',                     day: 6  },
+    { name: "צ'או צ'או גיוזה",              city: 'kyoto', area: 'גיון',                category: 'gyoza',    desc: 'גיוזות קריספיות במילויים מטורפים – נשנוש לילי',      day: 9  },
+    { name: 'MOTOI גיוזות',                 city: 'kyoto', area: 'קארסומה',             category: 'gyoza',    desc: 'שף בוגר מישלן – גיוזות בוטיק',                        day: 10 },
+    // ── BURGER ──
+    { name: 'שוגון בורגר שינג׳וקו',        city: 'tokyo', area: 'שינג׳וקו – קאבוקי-צ׳ו', category: 'burger', desc: '100% וואגיו – ממש ליד ראש הגודזילה',                  day: 6  },
+    // ── BAR ──
+    { name: 'אומואידה יוקוצ׳ו',            city: 'tokyo', area: 'שינג׳וקו',            category: 'bar',      desc: 'סמטאות ניאון, יאקיטורי ובירה',                        day: 6  },
+    { name: 'גולדן גאי',                    city: 'tokyo', area: 'שינג׳וקו',            category: 'bar',      desc: '200 ברים קטנים ומיוחדים',                             day: 6  },
+    { name: "BEE'S KNEES",                  city: 'kyoto', area: 'גיון',                category: 'bar',      desc: "Asia's Best 50 Bars – דלת צהובה נסתרת",               day: 7  },
+    { name: 'Tokito – איזאקאיה',            city: 'osaka', area: 'קארהורי',             category: 'bar',      desc: 'בר-מסעדה מוסתר – אווירה ייחודית',                     day: 13 },
+    // ── STREET / SNACKS ──
+    { name: 'DE FRITES STAAN',               city: 'kyoto', area: 'קיאמאצ׳י',           category: 'street',   desc: 'ציפס הולנדי קריספי ובירות קראפט',                     day: 7  },
+    { name: 'Pablo – טארטים',               city: 'osaka', area: 'שינסאיבאשי',          category: 'street',   desc: 'טארט גבינה חם ונוזלי',                                day: 11 },
+    { name: 'Strawberry Mania',              city: 'osaka', area: 'נמבה',                category: 'street',   desc: 'סנדוויץ׳ פרות ותות טבול שוקולד',                     day: 11 },
+    { name: 'דוטונבורי',                    city: 'osaka', area: 'דוטונבורי',           category: 'street',   desc: 'טאקויאקי, אוקונומיאקי – לב אוסקה בלילה',             day: 11 },
+];
+// __FOOD_GUIDE_END__
+
 // __ITINERARY_DATA_START__
 export const days = [
     {
