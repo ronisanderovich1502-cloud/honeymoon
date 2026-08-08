@@ -25,21 +25,21 @@ export const days = [
     },
     {
         day: 3, date: '29.9', weekday: 'שלישי', city: 'tokyo',
-        title: 'צוקיג׳י, טימלאב וגינזה',
-        weather: '☀️ 23°C',
+        title: 'טוקיו דיסני סי 🌋',
+        weather: '🌤️ 22°C',
         activities: [
-            { name: 'שוק צוקיג׳י', time: '09:00', desc: 'סושי טרי, תמנון ואומלט יפני', lat: 35.6654, lng: 139.7707 },
-            { name: 'טימלאב פלנטס', time: '12:00', desc: 'מוזיאון חושי יחפים', lat: 35.6427, lng: 139.7837 },
-            { name: 'אייג׳י3 גינזה – סנדוויץ׳ ויראלי', time: '16:00', desc: 'לחם מטוגן עם קצפת מטורפת', lat: 35.6726, lng: 139.7649 },
-            { name: 'סושי קייטן גינזה אונודרה', time: '19:00', desc: 'סושי קייטן מושלם מבית השף אונודרה – דגים טריים על מסוע', lat: 35.6717, lng: 139.7660 }
+            { name: 'טוקיו דיסני סי', time: 'יום שלם', desc: 'הר געש, גונדולה, פנטזי ספרינגס', lat: 35.6267, lng: 139.8851 },
+            { name: 'אייג׳י3 גינזה – סנדוויץ׳ ויראלי', time: '20:00', desc: 'לחם מטוגן עם קצפת מטורפת – תחנת ביניים בדרך חזרה דרך גינזה', lat: 35.6726, lng: 139.7649 }
         ]
     },
     {
         day: 4, date: '30.9', weekday: 'רביעי', city: 'tokyo',
-        title: 'טוקיו דיסנסי 🌋',
-        weather: '🌤️ 22°C',
+        title: 'צוקיג׳י, טימלאב וגינזה',
+        weather: '☀️ 23°C',
         activities: [
-            { name: 'טוקיו דיסנסי', time: 'יום שלם', desc: 'הר געש, גונדולה, פנטזי ספרינגס', lat: 35.6267, lng: 139.8851 }
+            { name: 'שוק צוקיג׳י', time: '09:00', desc: 'סושי טרי, תמנון ואומלט יפני', lat: 35.6654, lng: 139.7707 },
+            { name: 'טימלאב פלנטס', time: '12:00', desc: 'מוזיאום חושי יחפים', lat: 35.6427, lng: 139.7837 },
+            { name: 'סושי קייטן גינזה אונודרה', time: '19:00', desc: 'סושי קייטן מושלם מבית השף אונודרה – דגים טריים על מסוע', lat: 35.6717, lng: 139.7660 }
         ]
     },
     {
@@ -54,11 +54,11 @@ export const days = [
     },
     {
         day: 6, date: '2.10', weekday: 'שישי', city: 'tokyo',
-        title: 'האקונה (הר פוג׳י) וחגיגת טונה',
+        title: 'אודאיבה, רופונגי וחגיגת טונה',
         weather: '⛅ 20°C',
         activities: [
             { name: 'אודאיבה – האי המלאכותי', time: '10:00', desc: 'גשר הקשת, פסל החירות, קניות ותצפית על מפרץ טוקיו', lat: 35.6267, lng: 139.7754 },
-            { name: 'מוזיאון מורי + תצפית טוקיו סיטי ויו', time: '15:00', desc: 'אמנות עכשווית בקומה 53 ותצפית פנורמית על טוקיו', lat: 35.6604, lng: 139.7292 },
+            { name: 'מוזיאום מורי + תצפית טוקיו סיטי ויו', time: '15:00', desc: 'אמנות עכשווית בקומה 53 ותצפית פנורמית על טוקיו', lat: 35.6604, lng: 139.7292 },
             { name: 'מגורו מארט – חגיגת טונה', time: '19:30', desc: 'מגרדים טונה מהעצם לסושי!', lat: 35.7063, lng: 139.6659 }
         ]
     },
@@ -146,8 +146,8 @@ export const cityColors = { tokyo: '#E8A0BF', kyoto: '#9B72AA', osaka: '#F4A460'
 
 export const dayTitlesEn = {
     1:'Arrival & Shinjuku Evening', 2:'Harajuku, Shibuya & Wagyu',
-    3:'Tsukiji, teamLab & Ginza', 4:'Tokyo DisneySea 🌋',
-    5:'Asakusa, Akihabara & NOBU', 6:'Hakone (Mt. Fuji) & Tuna Feast',
+    3:'Tokyo DisneySea 🌋', 4:'Tsukiji, teamLab & Ginza',
+    5:'Asakusa, Akihabara & NOBU', 6:'Odaiba, Roppongi & Tuna Feast',
     7:'Bullet Train & Gion', 8:'Kiyomizu, Golden Temple & Gyoza',
     9:'Arashiyama & teamLab Biovortex Night', 10:'Fushimi Inari & Nishiki Market',
     11:'Mino Falls & Dotonbori', 12:'Universal Studios Japan 🍄🎃',
