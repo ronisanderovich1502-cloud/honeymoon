@@ -85,12 +85,14 @@ export const days = [
     },
     {
         day: 8, date: '4.10', weekday: 'ראשון', city: 'kyoto',
-        title: 'קיומיזו, מקדש הזהב וגיוזות',
+        title: 'יום מקדשים על אופניים 🚲',
         weather: '🌤️ 20°C',
         activities: [
-            { name: 'קיומיזו-דרה', time: '08:30', desc: 'מרפסת עץ מעל צמרות העצים', lat: 34.9949, lng: 135.7850, type: 'attraction' },
+            { name: 'השכרת אופניים', time: '08:00', desc: 'השכרת אופניים ליום שלם – המון חנויות ליד תחנת קיוטו, ~¥1,500 ליום', lat: 34.9858, lng: 135.7588, type: 'attraction' },
+            { name: 'קיומיזו-דרה', time: '08:30', desc: 'מרפסת עץ מעל צמרות העצים – כניסה לפני ההמון', lat: 34.9949, lng: 135.7850, type: 'attraction' },
             { name: 'סמטאות נינינזאקה', time: '10:30', desc: 'רחובות אבן עתיקים + סטארבקס טטאמי', lat: 34.9981, lng: 135.7806, type: 'attraction' },
-            { name: 'קינקאקו-ג׳י – מקדש הזהב', time: '13:30', desc: 'מקדש מצופה זהב טהור על אגם', lat: 35.0394, lng: 135.7292, type: 'attraction' },
+            { name: 'פגודת הוקאנגי – יאסקה', time: '11:30', desc: 'פגודה בת 5 קומות משנת 589 – אחד הצילומים הכי אייקוניים של קיוטו', lat: 34.9985, lng: 135.7793, type: 'attraction' },
+            { name: 'קינקאקו-ג׳י – מקדש הזהב', time: '13:30', desc: 'רכיבה צפונה ~30 דקות – מקדש מצופה זהב טהור על אגם', lat: 35.0394, lng: 135.7292, type: 'attraction' },
             { name: 'צ׳או צ׳או גיוזה', time: '18:30', desc: 'גיוזות קריספיות במילויים מטורפים', lat: 35.0041, lng: 135.7672, type: 'restaurant' }
         ]
     },
@@ -159,7 +161,7 @@ export const dayTitlesEn = {
     1:'Arrival + Spontaneous Walk', 2:'Shinjuku, Harajuku & Shibuya',
     3:'Tokyo DisneySea 🌋', 4:'Tsukiji, teamLab & Akihabara',
     5:'Asakusa, Ginza & Uniqlo', 6:'Full Shinjuku Day',
-    7:'Bullet Train & Gion', 8:'Kiyomizu, Golden Temple & Gyoza',
+    7:'Bullet Train & Gion', 8:'Temple Day by Bike 🚲',
     9:'Arashiyama & teamLab Biovortex Night', 10:'Fushimi Inari & Nishiki Market',
     11:'Mino Falls & Dotonbori', 12:'Universal Studios Japan 🍄🎃',
     13:'Nara, Osaka Castle & Shinsekai', 14:'Shopping & Flight to Bangkok ✈️'
