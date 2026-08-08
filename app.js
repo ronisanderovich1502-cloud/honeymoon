@@ -475,7 +475,7 @@ document.getElementById('modalConfirm').addEventListener('click', function() {
 // --- FOOD GUIDE ---
 const cityLabelsHe = { tokyo: '🗼 טוקיו', kyoto: '⛩️ קיוטו', osaka: '🎡 אוסקה' };
 const cityVars = { tokyo: 'var(--tokyo-color)', kyoto: 'var(--kyoto-color)', osaka: 'var(--osaka-color)' };
-const catOrder = ['cafe', 'ramen', 'sushi', 'yakiniku', 'gyoza', 'burger', 'bar', 'street'];
+const catOrder = ['cafe', 'icecream', 'ramen', 'sushi', 'yakiniku', 'katsu', 'gyoza', 'burger', 'pizza', 'bar', 'street'];
 
 function renderFoodGuide(cityFilter = 'all') {
     const panel = document.getElementById('foodGuidePanel');
@@ -502,7 +502,7 @@ function renderFoodGuide(cityFilter = 'all') {
                     <span class="food-area-chip" style="background:${cv}1A;color:${cv};border-color:${cv}33">${f.area}</span>
                 </div>
                 <div class="food-item-desc">${f.desc}</div>
-                <span class="food-day-badge food-day-${f.city}">יום ${f.day}</span>
+                ${f.day ? `<span class="food-day-badge food-day-${f.city}">יום ${f.day}</span>` : '<span class="food-day-badge food-day-extra">💡 אופציה</span>'}
             </div>`;
         });
         html += '</div>';
