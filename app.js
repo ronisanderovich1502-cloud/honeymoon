@@ -1,4 +1,4 @@
-import { days, cityNames, cityColors, dayTitlesEn, weekdayEn, TR } from './data.js';
+import { days, cityNames, cityColors, dayTitlesEn, weekdayEn, TR, foodGuide, foodCategories } from './data.js';
 import { map, dayMarkers, allMarkersList, selectedDayNum, selectDayOnMap, addMarkerToMap, fetchPlaceDetails, initMap } from './map.js';
 import { ghToken, syncSave, initSync } from './sync.js';
 
@@ -470,6 +470,61 @@ document.getElementById('modalConfirm').addEventListener('click', function() {
     resetModal();
 
     showToast(ghToken ? `✅ ${name} עודכן ומסונכרן!` : `✅ ${name} עודכן מקומית — לא מחובר לסנכרון ☁️`, 3000);
+});
+
+// --- FOOD GUIDE ---
+const cityLabelsHe = { tokyo: '🗼 טוקיו', kyoto: '⛩️ קיוטו', osaka: '🎡 אוסקה' };
+const cityVars = { tokyo: 'var(--tokyo-color)', kyoto: 'var(--kyoto-color)', osaka: 'var(--osaka-color)' };
+const catOrder = ['cafe', 'ramen', 'sushi', 'yakiniku', 'gyoza', 'burger', 'bar', 'street'];
+
+function renderFoodGuide(cityFilter = 'all') {
+    const panel = document.getElementById('foodGuidePanel');
+    const items = cityFilter === 'all' ? foodGuide : foodGuide.filter(f => f.city === cityFilter);
+
+    const grouped = {};
+    items.forEach(f => { (grouped[f.category] = grouped[f.category] || []).push(f); });
+
+    let html = '<div class="food-city-filter">';
+    [['all', 'הכל'], ['tokyo', '🗼 טוקיו'], ['kyoto', '⛩️ קיוטו'], ['osaka', '🎡 אוסקה']].forEach(([c, lbl]) => {
+        html += `<button class="food-city-btn ${cityFilter === c ? 'active' : ''} ${c !== 'all' ? 'city-' + c : ''}" data-city="${c}">${lbl}</button>`;
+    });
+    html += '</div>';
+
+    catOrder.forEach(cat => {
+        if (!grouped[cat]) return;
+        const ci = foodCategories[cat];
+        html += `<div class="food-cat-section"><div class="food-cat-header">${ci.emoji} ${ci.label}</div>`;
+        grouped[cat].forEach(f => {
+            const cv = cityVars[f.city];
+            html += `<div class="food-item">
+                <div class="food-item-row">
+                    <span class="food-item-name">${f.name}</span>
+                    <span class="food-area-chip" style="background:${cv}1A;color:${cv};border-color:${cv}33">${f.area}</span>
+                </div>
+                <div class="food-item-desc">${f.desc}</div>
+                <span class="food-day-badge food-day-${f.city}">יום ${f.day}</span>
+            </div>`;
+        });
+        html += '</div>';
+    });
+
+    panel.innerHTML = html;
+    panel.querySelectorAll('.food-city-btn').forEach(btn => {
+        btn.addEventListener('click', () => renderFoodGuide(btn.dataset.city));
+    });
+}
+
+document.querySelectorAll('.sidebar-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const isFood = tab.dataset.tab === 'food';
+        document.getElementById('itinerary').style.display = isFood ? 'none' : '';
+        document.getElementById('itineraryFilter').style.display = isFood ? 'none' : '';
+        document.querySelector('.search-bar').style.display = isFood ? 'none' : '';
+        document.getElementById('foodGuidePanel').style.display = isFood ? 'block' : 'none';
+        if (isFood) renderFoodGuide();
+    });
 });
 
 // --- INIT ---
