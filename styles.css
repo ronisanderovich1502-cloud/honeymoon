@@ -711,6 +711,8 @@ body.dark .map-overlay { background: rgba(31,41,55,0.92); border-color: rgba(255
     color: var(--text-light);
 }
 
+.panel-back-btn { display: none; }
+
 /* TRANSIT OPTIONS */
 .transit-section {
     margin-top: 14px;
@@ -921,25 +923,34 @@ body.dark .map-overlay { background: rgba(31,41,55,0.92); border-color: rgba(255
 @media (max-width: 768px) {
     body { overflow: hidden; }
 
-    .container { flex-direction: column; }
+    /* Map is full-screen background */
+    .container { display: block; height: 100vh; }
 
     .map-container {
-        height: 42vh;
-        order: 1;
-        /* Safe area top for notch/Dynamic Island */
-        padding-top: env(safe-area-inset-top);
+        position: fixed;
+        inset: 0;
+        height: 100vh !important;
+        z-index: 0;
+        padding-top: 0;
     }
 
+    /* Sidebar is a fixed bottom sheet */
     .sidebar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
         width: 100%;
-        height: calc(58vh - env(safe-area-inset-bottom));
+        height: 58vh;
         border-left: none;
-        border-top: 2px solid var(--gold-light);
-        order: 2;
-        /* Safe area bottom for home indicator */
-        padding-bottom: env(safe-area-inset-bottom);
+        border-top: none;
+        border-radius: 16px 16px 0 0;
+        box-shadow: 0 -4px 24px rgba(0,0,0,0.18);
+        z-index: 50;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
+        transition: height 0.35s cubic-bezier(.4,0,.2,1);
+        padding-bottom: env(safe-area-inset-bottom);
     }
 
     .map-overlay { display: none; }
@@ -994,31 +1005,22 @@ body.dark .map-overlay { background: rgba(31,41,55,0.92); border-color: rgba(255
         border-radius: 20px 20px 0 0;
     }
 
-    /* ── MOBILE TAB BAR (iOS-style) ── */
-    .sidebar-tabs {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        z-index: 500;
-        border-top: 1px solid var(--border);
-        border-bottom: none;
-        box-shadow: 0 -2px 16px rgba(0,0,0,0.10);
-        padding-bottom: env(safe-area-inset-bottom);
-        margin-bottom: 0;
-    }
-    .sidebar-tab {
-        padding: 12px 0 10px;
-        font-size: 0.78rem;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 2px;
-    }
+    /* Tabs back to normal flow inside sidebar */
+    .sidebar-tabs { position: static; box-shadow: none; border-top: none; padding-bottom: 0; }
+    .sidebar-tab { padding: 11px 0; font-size: 0.82rem; }
 
-    /* Compensate for fixed tab bar */
-    .sidebar {
-        padding-bottom: calc(54px + env(safe-area-inset-bottom));
+    /* Panel back button visible on mobile */
+    .panel-back-btn {
+        display: block;
+        background: none;
+        border: none;
+        padding: 4px 14px 8px;
+        font-size: 0.84rem;
+        color: var(--rose);
+        cursor: pointer;
+        font-family: 'Noto Sans Hebrew', sans-serif;
+        font-weight: 600;
+        flex-shrink: 0;
     }
 
     /* Food guide mobile fixes */
