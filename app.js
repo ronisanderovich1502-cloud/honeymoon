@@ -527,6 +527,46 @@ document.querySelectorAll('.sidebar-tab').forEach(tab => {
     });
 });
 
+// --- MOBILE SIDEBAR DRAG ---
+(function() {
+    const bar = document.getElementById('sidebarDragBar');
+    if (!bar) return;
+    const sidebar = document.querySelector('.sidebar');
+    const mapEl   = document.querySelector('.map-container');
+    let startY = 0, startH = 0;
+
+    bar.addEventListener('touchstart', e => {
+        startY = e.touches[0].clientY;
+        startH = sidebar.getBoundingClientRect().height;
+        sidebar.style.transition = 'none';
+        mapEl.style.transition   = 'none';
+    }, { passive: true });
+
+    bar.addEventListener('touchmove', e => {
+        const dy = startY - e.touches[0].clientY;
+        const vh = window.innerHeight;
+        const h  = Math.min(Math.max(startH + dy, vh * 0.22), vh * 0.93);
+        sidebar.style.height = h + 'px';
+        mapEl.style.height   = (vh - h) + 'px';
+    }, { passive: true });
+
+    bar.addEventListener('touchend', () => {
+        const vh = window.innerHeight;
+        const h  = sidebar.getBoundingClientRect().height;
+        sidebar.style.transition = '';
+        mapEl.style.transition   = '';
+        // Snap: up → 88vh, down → default (reset)
+        if (h > vh * 0.67) {
+            sidebar.style.height = (vh * 0.88) + 'px';
+            mapEl.style.height   = (vh * 0.12) + 'px';
+        } else if (h < vh * 0.40) {
+            sidebar.style.height = '';
+            mapEl.style.height   = '';
+        }
+        setTimeout(() => map.invalidateSize(), 320);
+    });
+})();
+
 // --- INIT ---
 initMap();
 initSync();
