@@ -532,40 +532,45 @@ document.querySelectorAll('.sidebar-tab').forEach(tab => {
     const bar = document.getElementById('sidebarDragBar');
     if (!bar) return;
     const sidebar = document.querySelector('.sidebar');
-    const mapEl   = document.querySelector('.map-container');
     let startY = 0, startH = 0;
+    const isMobile = () => window.innerWidth <= 768;
 
     bar.addEventListener('touchstart', e => {
+        if (!isMobile()) return;
         startY = e.touches[0].clientY;
         startH = sidebar.getBoundingClientRect().height;
         sidebar.style.transition = 'none';
-        mapEl.style.transition   = 'none';
     }, { passive: true });
 
     bar.addEventListener('touchmove', e => {
+        if (!isMobile()) return;
         const dy = startY - e.touches[0].clientY;
         const vh = window.innerHeight;
-        const h  = Math.min(Math.max(startH + dy, vh * 0.22), vh * 0.93);
+        const h  = Math.min(Math.max(startH + dy, 44), vh * 0.96);
         sidebar.style.height = h + 'px';
-        mapEl.style.height   = (vh - h) + 'px';
     }, { passive: true });
 
     bar.addEventListener('touchend', () => {
+        if (!isMobile()) return;
         const vh = window.innerHeight;
         const h  = sidebar.getBoundingClientRect().height;
         sidebar.style.transition = '';
-        mapEl.style.transition   = '';
-        // Snap: up → 88vh, down → default (reset)
-        if (h > vh * 0.67) {
-            sidebar.style.height = (vh * 0.88) + 'px';
-            mapEl.style.height   = (vh * 0.12) + 'px';
-        } else if (h < vh * 0.40) {
-            sidebar.style.height = '';
-            mapEl.style.height   = '';
+        // 3 snap points: collapsed 44px / default 58vh / full 92vh
+        if (h < vh * 0.25) {
+            sidebar.style.height = '44px';
+        } else if (h < vh * 0.72) {
+            sidebar.style.height = (vh * 0.58) + 'px';
+        } else {
+            sidebar.style.height = (vh * 0.92) + 'px';
         }
         setTimeout(() => map.invalidateSize(), 320);
     });
 })();
+
+// --- PANEL BACK BUTTON ---
+document.getElementById('panelBackBtn')?.addEventListener('click', () => {
+    document.getElementById('placePanel').classList.remove('open');
+});
 
 // --- INIT ---
 initMap();
