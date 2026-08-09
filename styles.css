@@ -776,8 +776,8 @@ body.dark .map-overlay { background: rgba(31,41,55,0.92); border-color: rgba(255
 /* ── SIDEBAR TABS ── */
 .sidebar-tabs {
     display: flex;
-    border-top: 1px solid var(--border);
-    margin-top: 10px;
+    background: var(--sidebar-bg);
+    border-bottom: 2px solid var(--border);
 }
 
 .sidebar-tab {
@@ -806,10 +806,11 @@ body.dark .map-overlay { background: rgba(31,41,55,0.92); border-color: rgba(255
     padding: 10px 16px;
     border-bottom: 1px solid var(--border);
     background: var(--sidebar-bg);
-    position: sticky;
-    top: 0;
-    z-index: 8;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
 }
+.food-city-filter::-webkit-scrollbar { display: none; }
 
 .food-city-btn {
     padding: 5px 14px;
@@ -954,6 +955,41 @@ body.dark .map-overlay { background: rgba(31,41,55,0.92); border-color: rgba(255
     /* City filter scroll */
     .city-filter { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; padding: 8px 12px; }
     .city-filter::-webkit-scrollbar { display: none; }
+
+    /* ── MOBILE TAB BAR (iOS-style) ── */
+    .sidebar-tabs {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 500;
+        border-top: 1px solid var(--border);
+        border-bottom: none;
+        box-shadow: 0 -2px 16px rgba(0,0,0,0.10);
+        padding-bottom: env(safe-area-inset-bottom);
+        margin-bottom: 0;
+    }
+    .sidebar-tab {
+        padding: 12px 0 10px;
+        font-size: 0.78rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+    }
+
+    /* Compensate for fixed tab bar */
+    .sidebar {
+        padding-bottom: calc(54px + env(safe-area-inset-bottom));
+    }
+
+    /* Food guide mobile fixes */
+    .food-cat-section { border-bottom: 1px solid var(--border); }
+    .food-item { padding: 10px 14px; }
+    .food-item-name { font-size: 0.84rem; }
+    .food-area-chip { font-size: 0.63rem; padding: 1px 7px; }
+    .food-city-filter { padding: 8px 12px; gap: 6px; }
+    .food-city-btn { padding: 5px 12px; font-size: 0.72rem; white-space: nowrap; }
 }
 
 /* iPhone safe area for standalone/PWA mode */
