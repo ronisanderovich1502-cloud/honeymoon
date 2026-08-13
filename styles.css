@@ -839,6 +839,23 @@ body.dark .map-overlay { background: rgba(31,41,55,0.92); border-color: rgba(255
 .food-city-btn.city-kyoto.active  { background: var(--kyoto-color); }
 .food-city-btn.city-osaka.active  { background: var(--osaka-color); }
 
+.food-add-btn {
+    margin-right: auto;
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--rose);
+    font-size: 0.74rem;
+    cursor: pointer;
+    background: none;
+    color: var(--rose);
+    font-family: 'Noto Sans Hebrew', sans-serif;
+    font-weight: 600;
+    transition: all 0.18s;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.food-add-btn:hover { background: var(--rose); color: white; }
+
 .food-cat-section { border-bottom: 1px solid var(--border); }
 
 .food-cat-header {
@@ -970,9 +987,11 @@ body.dark .map-overlay { background: rgba(31,41,55,0.92); border-color: rgba(255
     /* Place panel full height on mobile */
     .place-panel { max-height: 70vh; border-radius: 20px 20px 0 0; }
 
-    /* Add place button above home bar */
+    /* Add place button: fixed above sidebar */
     .add-place-btn {
-        bottom: calc(16px + env(safe-area-inset-bottom));
+        position: fixed;
+        z-index: 55;
+        bottom: calc(58vh + 12px);
         right: 16px;
     }
 
