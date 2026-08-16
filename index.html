@@ -133,6 +133,45 @@
         </div>
     </div>
 
+    <!-- ADD TO FOOD GUIDE MODAL -->
+    <div class="modal-overlay" id="foodModalOverlay">
+        <div class="modal">
+            <h3>🍜 הוסף למדריך אוכל</h3>
+            <label>📛 שם המקום</label>
+            <input type="text" id="foodItemName" placeholder="שם המסעדה / בית הקפה" />
+            <label>🏙️ עיר</label>
+            <select id="foodItemCity">
+                <option value="tokyo">🗼 טוקיו</option>
+                <option value="kyoto">⛩️ קיוטו</option>
+                <option value="osaka">🎡 אוסקה</option>
+            </select>
+            <label>📍 איזור</label>
+            <input type="text" id="foodItemArea" placeholder="שינג׳וקו / גיון / נמבה..." />
+            <label>🍽️ קטגוריה</label>
+            <select id="foodItemCategory">
+                <option value="cafe">☕ קפה</option>
+                <option value="icecream">🍦 גלידה</option>
+                <option value="ramen">🍜 ראמן / נודלס</option>
+                <option value="sushi">🍣 סושי</option>
+                <option value="yakiniku">🥩 יאקיניקו</option>
+                <option value="katsu">🥐 קטסו</option>
+                <option value="gyoza">🥟 גיוזה</option>
+                <option value="burger">🍔 בורגר</option>
+                <option value="pizza">🍕 פיצה</option>
+                <option value="bar">🍺 בר</option>
+                <option value="street">🍡 אוכל רחוב</option>
+            </select>
+            <label>📝 תיאור קצר</label>
+            <input type="text" id="foodItemDesc" placeholder="מה מיוחד במקום?" />
+            <label>📅 יום בלו"ז (אופציונלי)</label>
+            <input type="number" id="foodItemDay" placeholder="השאר ריק = יופיע כ💡 אופציה" min="1" max="14" />
+            <div class="modal-actions">
+                <button class="btn-secondary" id="foodModalCancel">ביטול</button>
+                <button class="btn-primary" id="foodModalConfirm">הוסף למדריך ✓</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module" src="app.js"></script>
 </body>
 </html>
