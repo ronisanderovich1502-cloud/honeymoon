@@ -476,6 +476,7 @@ document.getElementById('modalConfirm').addEventListener('click', function() {
 const cityLabelsHe = { tokyo: '🗼 טוקיו', kyoto: '⛩️ קיוטו', osaka: '🎡 אוסקה' };
 const cityVars = { tokyo: 'var(--tokyo-color)', kyoto: 'var(--kyoto-color)', osaka: 'var(--osaka-color)' };
 const catOrder = ['cafe', 'icecream', 'ramen', 'sushi', 'yakiniku', 'katsu', 'gyoza', 'burger', 'pizza', 'bar', 'street'];
+let _foodGuideCurrentCity = 'all';
 
 function renderFoodGuide(cityFilter = 'all') {
     const panel = document.getElementById('foodGuidePanel');
@@ -488,6 +489,7 @@ function renderFoodGuide(cityFilter = 'all') {
     [['all', 'הכל'], ['tokyo', '🗼 טוקיו'], ['kyoto', '⛩️ קיוטו'], ['osaka', '🎡 אוסקה']].forEach(([c, lbl]) => {
         html += `<button class="food-city-btn ${cityFilter === c ? 'active' : ''} ${c !== 'all' ? 'city-' + c : ''}" data-city="${c}">${lbl}</button>`;
     });
+    html += '<button class="food-add-btn" id="foodAddBtn">＋ הוסף</button>';
     html += '</div>';
 
     catOrder.forEach(cat => {
@@ -510,9 +512,46 @@ function renderFoodGuide(cityFilter = 'all') {
 
     panel.innerHTML = html;
     panel.querySelectorAll('.food-city-btn').forEach(btn => {
-        btn.addEventListener('click', () => renderFoodGuide(btn.dataset.city));
+        btn.addEventListener('click', () => { _foodGuideCurrentCity = btn.dataset.city; renderFoodGuide(btn.dataset.city); });
+    });
+    document.getElementById('foodAddBtn')?.addEventListener('click', () => {
+        document.getElementById('foodModalOverlay').classList.add('open');
+        document.getElementById('foodItemName').focus();
     });
 }
+
+// --- FOOD GUIDE MODAL ---
+document.getElementById('foodModalCancel').addEventListener('click', () => {
+    document.getElementById('foodModalOverlay').classList.remove('open');
+    resetFoodModal();
+});
+document.getElementById('foodModalOverlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('foodModalOverlay')) {
+        document.getElementById('foodModalOverlay').classList.remove('open');
+        resetFoodModal();
+    }
+});
+function resetFoodModal() {
+    ['foodItemName','foodItemArea','foodItemDesc','foodItemDay'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('foodItemCity').value = 'tokyo';
+    document.getElementById('foodItemCategory').value = 'cafe';
+}
+document.getElementById('foodModalConfirm').addEventListener('click', () => {
+    const name = document.getElementById('foodItemName').value.trim();
+    const city = document.getElementById('foodItemCity').value;
+    const area = document.getElementById('foodItemArea').value.trim();
+    const category = document.getElementById('foodItemCategory').value;
+    const desc = document.getElementById('foodItemDesc').value.trim();
+    const dayVal = document.getElementById('foodItemDay').value.trim();
+    if (!name || !area) { showToast('נא למלא שם ואיזור', 2000); return; }
+    const entry = { name, city, area, category, desc };
+    if (dayVal) entry.day = parseInt(dayVal);
+    foodGuide.push(entry);
+    document.getElementById('foodModalOverlay').classList.remove('open');
+    resetFoodModal();
+    renderFoodGuide(_foodGuideCurrentCity);
+    showToast(`✅ ${name} נוסף למדריך האוכל`, 2500);
+});
 
 document.querySelectorAll('.sidebar-tab').forEach(tab => {
     tab.addEventListener('click', () => {
@@ -523,7 +562,7 @@ document.querySelectorAll('.sidebar-tab').forEach(tab => {
         document.getElementById('itineraryFilter').style.display = isFood ? 'none' : '';
         document.getElementById('searchBar').style.display = isFood ? 'none' : '';
         document.getElementById('foodGuidePanel').style.display = isFood ? 'block' : 'none';
-        if (isFood) renderFoodGuide();
+        if (isFood) renderFoodGuide(_foodGuideCurrentCity);
     });
 });
 
