@@ -283,7 +283,12 @@ const addPlaceBtn = document.createElement('button');
 addPlaceBtn.className = 'add-place-btn';
 addPlaceBtn.innerHTML = '+';
 addPlaceBtn.title = 'הוסף מקום לתוכנית';
-document.querySelector('.map-container').appendChild(addPlaceBtn);
+// On mobile: append to body so it's in root stacking context (above sidebar z-index)
+if (window.innerWidth <= 768) {
+    document.body.appendChild(addPlaceBtn);
+} else {
+    document.querySelector('.map-container').appendChild(addPlaceBtn);
+}
 
 addPlaceBtn.addEventListener('click', () => {
     if (selectedDayNum) daySelect.value = selectedDayNum;
