@@ -23,6 +23,7 @@ export const foodGuide = [
     { name: 'Brooklyn Roasting Co.',         city: 'osaka', area: 'קיטאהאמה',            category: 'cafe',     desc: 'קפה ניו-יורקי על נהר אוסקה',                          day: 13 },
     // ── RAMEN ──
     { name: 'AFURI – ראמן יוזו',            city: 'tokyo', area: 'הרג׳וקו',             category: 'ramen',    desc: 'ראמן יוזו שיו ייחודי – ~¥1,300',                     day: 2  },
+    { name: 'Shodai – אודון קרם תפו"א',     city: 'tokyo', area: 'אביסו / שיבויה',      category: 'ramen',    desc: 'White Curry Udon עם קצף תפוח אדמה לבן – ויראלי מאוד' },
     // ── SUSHI ──
     { name: 'שוק צוקיג׳י',                  city: 'tokyo', area: 'צוקיג׳י',             category: 'sushi',    desc: 'סושי טרי, תמנון ואומלט יפני',                         day: 4  },
     { name: 'נובו טוקיו',                   city: 'tokyo', area: 'טוראנומון-מידטאון',   category: 'sushi',    desc: 'דג הגד שחור במיסו – מסעדת יוקרה',                    day: 4  },
