@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>ירח דבש ביפן 🇯🇵</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Noto+Sans+Hebrew:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-drag-bar" id="sidebarDragBar">
+                <div class="sidebar-drag-pill"></div>
+            </div>
+            <div class="header">
+                <div class="header-top">
+                    <div style="width:60px"></div>
+                    <h1 data-i18n="header_title">ירח דבש ביפן 🇯🇵</h1>
+                    <div class="header-actions">
+                        <a href="index.html" class="icon-btn" title="דף הבית" style="text-decoration:none" onclick="localStorage.removeItem('honeymoon-country')">🏠</a>
+                        <a href="thailand.html" class="icon-btn" title="לתאילנד" style="text-decoration:none" onclick="localStorage.setItem('honeymoon-country','thailand')">🇹🇭</a>
+                        <button class="icon-btn" id="langBtn" title="Switch language" style="font-size:0.7rem;font-weight:700;letter-spacing:0.5px">🇺🇸 EN</button>
+                        <button class="icon-btn" id="syncSettingsBtn" title="סנכרון">
+                            <div class="sync-dot" id="syncDot"></div>☁️
+                        </button>
+                        <button class="icon-btn" id="darkToggle" title="מצב לילה">🌙</button>
+                        <button class="icon-btn" id="shareBtn" title="שיתוף">🔗</button>
+                    </div>
+                </div>
+                <div class="subtitle" data-i18n="subtitle">27 בספטמבר – 10 באוקטובר | טוקיו · קיוטו · אוסקה</div>
+                <div class="countdown" id="countdown"></div>
+            </div>
+
+            <div class="stats-bar" id="statsBar"></div>
+
+            <div class="sidebar-tabs">
+                <button class="sidebar-tab active" data-tab="itinerary">🗓️ לו״ז</button>
+                <button class="sidebar-tab" data-tab="food">🍜 מדריך אוכל</button>
+            </div>
+
+            <div class="search-bar" id="searchBar">
+                <input type="text" id="searchInput" data-i18n-ph="search_ph" placeholder="🔍  חפש יום, פעילות או מקום..." />
+            </div>
+
+            <div class="city-filter" id="itineraryFilter">
+                <button class="filter-btn active" data-city="all" data-i18n="filter_all">הכל</button>
+                <button class="filter-btn" data-city="tokyo" data-i18n="filter_tokyo">🗼 טוקיו</button>
+                <button class="filter-btn" data-city="kyoto" data-i18n="filter_kyoto">⛩️ קיוטו</button>
+                <button class="filter-btn" data-city="osaka" data-i18n="filter_osaka">🎡 אוסקה</button>
+            </div>
+
+            <div id="itinerary"></div>
+            <div id="foodGuidePanel" style="display:none"></div>
+        </div>
+
+        <div class="map-container">
+            <div id="map"></div>
+            <div class="place-panel" id="placePanel">
+                <div class="panel-handle"><div class="panel-handle-bar"></div></div>
+                <button class="panel-close" id="panelClose">✕</button>
+                <button class="panel-back-btn" id="panelBackBtn">← חזרה ללו״ז</button>
+                <div id="panelContent"></div>
+            </div>
+            <div class="map-overlay">
+                <div class="map-overlay-title" data-i18n="legend_title">מקרא</div>
+                <div class="map-legend-item"><div class="legend-dot" style="background:#E8A0BF"></div> <span data-i18n="legend_tokyo">טוקיו</span></div>
+                <div class="map-legend-item"><div class="legend-dot" style="background:#9B72AA"></div> <span data-i18n="legend_kyoto">קיוטו</span></div>
+                <div class="map-legend-item"><div class="legend-dot" style="background:#F4A460"></div> <span data-i18n="legend_osaka">אוסקה</span></div>
+                <hr style="margin:8px 0;border-color:#eee">
+                <div id="overlayProgress" style="font-size:0.72rem;color:#6B5153"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">🔗 הקישור הועתק!</div>
+
+    <!-- SYNC SETTINGS MODAL -->
+    <div class="modal-overlay" id="syncModalOverlay">
+        <div class="sync-modal">
+            <h3>🐙 סנכרון GitHub</h3>
+            <p>כל שינוי (הוספה/עריכה/מחיקה) יישמר ישירות ב-GitHub ויעלה לאתר תוך ~30 שניות.</p>
+            <div style="background:var(--gold-light);border-radius:10px;padding:10px 14px;font-size:0.78rem;color:var(--text-light);margin-bottom:4px;line-height:1.6">
+                1. GitHub → Settings → Developer settings → Personal access tokens → <strong>Fine-grained tokens</strong><br>
+                2. Repository access: <strong>ronisanderovich1502-cloud/honeymoon</strong><br>
+                3. Permissions → Contents: <strong>Read and write</strong><br>
+                4. הדבק את ה-token למטה ולחץ שמור
+            </div>
+            <label>🔑 GitHub Token</label>
+            <input type="password" id="ghTokenInput" placeholder="github_pat_..." autocomplete="off" />
+            <div class="sync-status-box" id="syncStatusBox"></div>
+            <div class="modal-actions" style="flex-wrap:wrap;gap:6px;">
+                <button class="btn-secondary" id="syncModalCancel">סגור</button>
+                <button class="btn-secondary" id="syncDisconnect" style="color:#f44336;border-color:#f44336">נתק</button>
+                <button class="btn-primary" id="syncConnect">שמור Token</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD PLACE MODAL -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <h3>➕ הוסף מקום לתוכנית</h3>
+            <label>🔍 חפש מקום (Google Places)</label>
+            <input type="text" id="placesSearchInput" placeholder="לדוגמה: Ramen Ichiran Tokyo" autocomplete="off" />
+            <div id="places-search-results"></div>
+            <div class="api-key-hint" id="apiKeyHint"></div>
+            <label>📛 שם המקום</label>
+            <input type="text" id="newPlaceName" placeholder="שם המקום" />
+            <label>📝 תיאור קצר</label>
+            <input type="text" id="newPlaceDesc" placeholder="מה עושים שם?" />
+            <label>🕐 שעה</label>
+            <input type="text" id="newPlaceTime" placeholder="לדוגמה: 14:00" />
+            <label>📅 יום בתוכנית</label>
+            <select id="newPlaceDay"></select>
+            <div class="modal-actions">
+                <button class="btn-secondary" id="modalCancel">ביטול</button>
+                <button class="btn-primary" id="modalConfirm">הוסף לתוכנית ✓</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD TO FOOD GUIDE MODAL -->
+    <div class="modal-overlay" id="foodModalOverlay">
+        <div class="modal">
+            <h3>🍜 הוסף למדריך אוכל</h3>
+            <label>📛 שם המקום</label>
+            <input type="text" id="foodItemName" placeholder="שם המסעדה / בית הקפה" />
+            <label>🏙️ עיר</label>
+            <select id="foodItemCity">
+                <option value="tokyo">🗼 טוקיו</option>
+                <option value="kyoto">⛩️ קיוטו</option>
+                <option value="osaka">🎡 אוסקה</option>
+            </select>
+            <label>📍 איזור</label>
+            <input type="text" id="foodItemArea" placeholder="שינג׳וקו / גיון / נמבה..." />
+            <label>🍽️ קטגוריה</label>
+            <select id="foodItemCategory">
+                <option value="cafe">☕ קפה</option>
+                <option value="icecream">🍦 גלידה</option>
+                <option value="ramen">🍜 ראמן / נודלס</option>
+                <option value="sushi">🍣 סושי</option>
+                <option value="yakiniku">🥩 יאקיניקו</option>
+                <option value="katsu">🥐 קטסו</option>
+                <option value="gyoza">🥟 גיוזה</option>
+                <option value="burger">🍔 בורגר</option>
+                <option value="pizza">🍕 פיצה</option>
+                <option value="bar">🍺 בר</option>
+                <option value="street">🍡 אוכל רחוב</option>
+            </select>
+            <label>📝 תיאור קצר</label>
+            <input type="text" id="foodItemDesc" placeholder="מה מיוחד במקום?" />
+            <label>📅 יום בלו"ז (אופציונלי)</label>
+            <input type="number" id="foodItemDay" placeholder="השאר ריק = יופיע כ💡 אופציה" min="1" max="14" />
+            <div class="modal-actions">
+                <button class="btn-secondary" id="foodModalCancel">ביטול</button>
+                <button class="btn-primary" id="foodModalConfirm">הוסף למדריך ✓</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
