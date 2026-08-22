@@ -13,15 +13,17 @@ export const thailandDays = [
     },
     {
         day: 2, date: '11.10', weekday: 'ראשון', city: 'bangkok',
-        title: 'בנגקוק – ארמונות, מקדשים ושוק',
+        title: 'בנגקוק – שוק שטות, קפה כלבים וארמונות 🐕',
         hotel: 'Pathumwan Princess Hotel',
         weather: '⛅ 32°C',
         activities: [
-            { name: 'ארמון המלוכה ווואט פרא קאו', time: '08:30', desc: 'המקדש המפורסם בתאילנד – מגיעות מוקדם לפני הקהל! (כרטיס ~500 THB)', lat: 13.7500, lng: 100.4913, type: 'attraction' },
-            { name: 'וואט פו – בודהה השוכב', time: '10:30', desc: 'ענק, מרשים ועתיק – ממש ליד הארמון (~100 THB)', lat: 13.7465, lng: 100.4927, type: 'attraction' },
-            { name: 'Khao San Road – צהריים', time: '12:30', desc: 'אוכל רחוב, שייקים טרופיים ואנרגיה של נסיעה', lat: 13.7580, lng: 100.4974, type: 'restaurant' },
-            { name: 'IconSiam – קניון על הנהר', time: '15:00', desc: 'קניות ברמה גבוהה + שוק צף בתוך הקניון. מגיעות בסירה מהצד השני', lat: 13.7270, lng: 100.5108, type: 'attraction' },
-            { name: 'Asiatique The Riverfront', time: '18:30', desc: 'שוק לילי יפהפה על נהר Chao Phraya – אוכל, מוזיקה וגלגל ענק', lat: 13.7036, lng: 100.5104, type: 'attraction' },
+            { name: 'Chatuchak Weekend Market', time: '08:00', desc: 'השוק הגדול בתאילנד – רק בסוף שבוע! 15,000 דוכנים: ביגוד, עיצוב, אוכל ופריטי וינטג. תחנת BTS Mo Chit', lat: 13.7999, lng: 100.5503, type: 'attraction' },
+            { name: 'Dog in Town Café', time: '10:30', desc: 'קפה עם כלבים ענקיים – הוסקי, סמויד ושאר גזעים. חובה לאוהבי כלבים! (~150 THB כניסה)', lat: 13.7244, lng: 100.5293, type: 'cafe' },
+            { name: 'Corgi in the Garden', time: '11:30', desc: 'קפה קורגים מדופן – לשבת על הדשא עם קורגים מתגלגלים. נמצא ליד Chatuchak', lat: 13.8042, lng: 100.5560, type: 'cafe' },
+            { name: 'ארמון המלוכה ווואט פרא קאו', time: '13:30', desc: 'המקדש המפורסם בתאילנד – תלבושת צנועה חובה! (כרטיס ~500 THB)', lat: 13.7500, lng: 100.4913, type: 'attraction' },
+            { name: 'וואט פו – בודהה השוכב', time: '15:30', desc: 'ענק, מרשים ועתיק – ממש ליד הארמון (~100 THB)', lat: 13.7465, lng: 100.4927, type: 'attraction' },
+            { name: 'Yaowarat – Chinatown בנגקוק', time: '18:00', desc: 'רחוב Chinatown עם אוכל רחוב מהמם – בשרים, פירות ים, קינוחים סיניים. חיה בלילה!', lat: 13.7403, lng: 100.5094, type: 'restaurant' },
+            { name: 'Patpong Night Market / Asiatique', time: '20:30', desc: 'Patpong – שוק לילה מפורסם (ממש ליד Silom BTS) | או Asiatique על הנהר עם גלגל ענק – בחרו לפי מצב הרוח!', lat: 13.7245, lng: 100.5292, type: 'attraction' },
         ]
     },
     // ── קו סמוי ──
@@ -34,8 +36,8 @@ export const thailandDays = [
             { name: 'טיסה DMK → USM', time: '09:00', desc: 'Don Mueang → Koh Samui, ~1.5 שעות (Bangkok Airways). מגיעות כ-11:00', lat: 13.9126, lng: 100.6067, type: 'attraction' },
             { name: 'Sareeraya Villas & Suites – צ׳ק-אין', time: '12:00', desc: 'מלון בוטיק בצ׳אוונג – ממש ליד החוף הראשי', lat: 9.5268, lng: 100.0613, type: 'attraction' },
             { name: 'Chaweng Beach – טבילה ראשונה', time: '14:30', desc: 'החוף הראשי של סמוי – 8 ק"מ חול לבן ומים טורקיז', lat: 9.5302, lng: 100.0614, type: 'attraction' },
-            { name: 'Chi Beach Club', time: '17:00', desc: 'Beach club על שפת הים – שקיעה עם קוקטייל ביד. מומלץ!', lat: 9.5310, lng: 100.0630, type: 'cafe' },
-            { name: 'Chaweng Walking Street', time: '19:30', desc: 'שוק לילי עם אוכל מקומי, ביגוד ואנרגיה – הכניסה ממש מהחוף', lat: 9.5280, lng: 100.0590, type: 'restaurant' },
+            { name: 'Chi Beach Club / Arkbar Beach Club', time: '17:00', desc: 'שני ה-Beach clubs הכי טובים בסמוי – Chi (שקט ולוקסוס) או Arkbar (Fire Show אגדי כל ערב!). שניהם על Chaweng', lat: 9.5310, lng: 100.0630, type: 'cafe' },
+            { name: 'Chaweng Walking Street', time: '20:00', desc: 'שוק לילי עם אוכל מקומי, ביגוד ואנרגיה – הכניסה ממש מהחוף', lat: 9.5280, lng: 100.0590, type: 'restaurant' },
         ]
     },
     {
@@ -46,7 +48,8 @@ export const thailandDays = [
         activities: [
             { name: 'Big Buddha Temple (Wat Phra Yai)', time: '09:00', desc: 'פסל בודהה ענק של 12 מ׳ – אייקון האי, נוף מדהים מהגבעה', lat: 9.5482, lng: 100.0637, type: 'attraction' },
             { name: 'Pig Island (Koh Matsum) – טיול יום', time: '11:00', desc: 'אי קטן ושקט עם חזירים על החוף + שנורקלינג. לוקחות Long Tail Boat מחוף בן–ין (~600 THB)', lat: 9.4358, lng: 100.0447, type: 'attraction' },
-            { name: 'Nomad Beach Bar – ארוחת ערב + Fire Show', time: '18:30', desc: 'Fire Show מדהים ב-18:30 בדיוק! הגיעו מוקדם לתפוס מקום על הים. באזור Chaweng', lat: 9.5295, lng: 100.0610, type: 'restaurant' },
+            { name: 'Nomad Beach Bar – Fire Show', time: '18:30', desc: 'Fire Show מדהים ב-18:30 בדיוק! הגיעו מוקדם לתפוס מקום. | אלטרנטיבה: Arkbar Fire Show גם כל ערב באותה שעה', lat: 9.5295, lng: 100.0610, type: 'restaurant' },
+            { name: 'The Cocoon Samui', time: '21:00', desc: 'הקלאב הכי מדובר בסמוי – מוזיקה, תאורה ואווירה. לסיום הלילה אחרי ה-Fire Show', lat: 9.5272, lng: 100.0582, type: 'restaurant' },
         ]
     },
     {
@@ -93,7 +96,7 @@ export const thailandDays = [
             { name: 'טיסה / מעבורת USM → KBV', time: '09:00', desc: 'Koh Samui → Krabi: טיסה ~50 דק׳ (Bangkok Airways) או מעבורת Lomprayah 4.5 שעות', lat: 9.5478, lng: 100.0620, type: 'attraction' },
             { name: 'BlueSotel SMART Krabi – צ׳ק-אין', time: '13:00', desc: 'מלון מעוצב באאו נאנג – הבסיס המושלם לקראבי', lat: 8.0373, lng: 98.8188, type: 'attraction' },
             { name: 'Ao Nang Beach – ראשון בקראבי', time: '15:00', desc: 'חוף פנורמי עם קירות גיר ירוקים – פשוט יפהפה', lat: 8.0373, lng: 98.8188, type: 'attraction' },
-            { name: 'Bamboo Beach Club – שקיעה', time: '17:00', desc: 'Beach Club הכי מומלץ באאו נאנג – שקיעה עם קוקטייל ורגליים בחול', lat: 8.0330, lng: 98.8210, type: 'cafe' },
+            { name: 'Reeve Beach Club / Bamboo Beach Club', time: '17:00', desc: 'Reeve – Beach Club מגניב עם בריכה ושקיעה | Bamboo – ישירות על הים עם חול. שניהם באאו נאנג, בחרו לפי מצב הרוח!', lat: 8.0330, lng: 98.8210, type: 'cafe' },
             { name: 'Landmark Night Market', time: '19:30', desc: 'שוק לילה באאו נאנג – פד תאי, סטיקס ואוכל רחוב מכל הסוגים', lat: 8.0388, lng: 98.8176, type: 'restaurant' },
         ]
     },
@@ -105,9 +108,10 @@ export const thailandDays = [
         activities: [
             { name: 'Railay Beach – Long Tail Boat', time: '09:00', desc: 'החוף הנגיש רק בסירה – Railay West ו-East, Phra Nang Cave. ~100 THB לנפש', lat: 8.0118, lng: 98.8373, type: 'attraction' },
             { name: 'Phra Nang Cave Beach', time: '11:00', desc: 'אחד החופים הכי יפים בתאילנד – מערה, מים ירוקים וסלעים מרשימים', lat: 8.0072, lng: 98.8352, type: 'attraction' },
-            { name: 'Much & Mellow Café – צהריים', time: '13:30', desc: 'Acai bowls וסמוזי'ז טרופיים – קפה הכי טרנדי באאו נאנג', lat: 8.0378, lng: 98.8191, type: 'cafe' },
-            { name: 'Tiger Cave Temple (Wat Tham Seua)', time: '16:00', desc: '1,237 מדרגות לתצפית פנורמית על קראבי ← שווה כל צעד! לצאת לפני השקיעה', lat: 8.0944, lng: 98.9104, type: 'attraction' },
-            { name: 'Umberto\'s Italian Restaurant', time: '20:00', desc: 'איטלקי מומלץ מאוד בקראבי – פסטה טרייה, פיצה ואווירה אירופית', lat: 8.0365, lng: 98.8183, type: 'restaurant' },
+            { name: 'Much & Mellow Café – צהריים', time: '13:30', desc: 'Acai bowls וסמוזים טרופיים – קפה הכי טרנדי באאו נאנג', lat: 8.0378, lng: 98.8191, type: 'cafe' },
+            { name: 'Monkey Trail – שביל הקופים', time: '15:00', desc: 'טיול רגלי קצר בג׳ונגל ליד אאו נאנג עם קופים פרים על הדרך! ~45 דק׳, קל יחסית', lat: 8.0510, lng: 98.8310, type: 'attraction' },
+            { name: 'Tiger Cave Temple (Wat Tham Seua)', time: '16:30', desc: '1,237 מדרגות לתצפית פנורמית על קראבי ← שווה כל צעד! לצאת לפני השקיעה', lat: 8.0944, lng: 98.9104, type: 'attraction' },
+            { name: 'Sababa – מסעדה ישראלית', time: '20:00', desc: 'כן, ישראלית בקראבי! פלאפל, חומוס ומנות מזרח תיכוניות – לגעגוע הביתה. באאו נאנג', lat: 8.0370, lng: 98.8182, type: 'restaurant' },
         ]
     },
     {
@@ -170,7 +174,7 @@ export const thailandDays = [
         activities: [
             { name: 'מעבורת Phi Phi → Phuket (Rassada Pier)', time: '10:00', desc: '~2 שעות. ~400 THB. Grab Car ממזח ראסאדה למלון', lat: 7.7404, lng: 98.7784, type: 'attraction' },
             { name: 'Crest Resort & Pool Villas – צ׳ק-אין', time: '13:00', desc: 'מלון בבריכה בפאטונג – לצנוח אחרי שבוע של אי לאי', lat: 7.8967, lng: 98.2967, type: 'attraction' },
-            { name: 'Patong Beach – ראשון בפוקט', time: '15:00', desc: '3 ק"מ חול וגלים – החוף הראשי של פוקט', lat: 7.8967, lng: 98.2967, type: 'attraction' },
+            { name: 'Patong Beach – ראשון בפוקט', time: '15:00', desc: '3 ק"מ חול וגלים – החוף הראשי של פוקט. שכרו אופנועי ים (Jet Ski) על החוף – ~800 THB לחצי שעה!', lat: 7.8967, lng: 98.2967, type: 'attraction' },
             { name: 'Carpe Diem Beach Club', time: '17:00', desc: 'Beach Club בפאטונג עם DJ, בריכה ים שקיעה – לחגוג שישי!', lat: 7.8975, lng: 98.2940, type: 'cafe' },
             { name: 'Bangla Road – לילה ראשון', time: '21:00', desc: 'רחוב הבידור הגדול של פוקט – מוזיקה חי, ברים ועולם לעצמו', lat: 7.8966, lng: 98.2947, type: 'restaurant' },
         ]
@@ -184,6 +188,7 @@ export const thailandDays = [
             { name: 'Big Buddha Phuket', time: '09:00', desc: 'פסל בודהה לבן ענק 45 מ׳ על גבעה – נוף 360° על פוקט ואיים סביב. Free entry', lat: 7.8278, lng: 98.3089, type: 'attraction' },
             { name: 'Raga Coffee – קפה + פייר דזרט', time: '11:00', desc: 'קפה מיוחד עם קינוחי אש (flambé) – חוויה ייחודית בפוקט. בעיר העתיקה', lat: 7.8820, lng: 98.3900, type: 'cafe' },
             { name: 'Phuket Old Town', time: '12:00', desc: 'בתים פורטוגלים-סיניים צבעוניים, קפה בוטיק ואמנות רחוב – הכי Instagrammable בפוקט', lat: 7.8836, lng: 98.3923, type: 'attraction' },
+            { name: 'Central Phuket (Floresta)', time: '13:30', desc: 'הקניון הכי גדול בפוקט – קניות, מסעדות ואפילו קיר טיפוס. מושלם לאחר הצהריים הלוהט', lat: 7.9012, lng: 98.3406, type: 'attraction' },
             { name: 'Number 6 Restaurant', time: '14:00', desc: 'מסעדת פירות ים מומלצת מאוד בפוקט טאון – מנות ים עשירות במחיר מקומי', lat: 7.8840, lng: 98.3920, type: 'restaurant' },
             { name: 'Naka Weekend Market', time: '17:00', desc: 'השוק הלילי הכי גדול בפוקט (שישי-שבת) – בגדים, אוכל, מוזיקה חי. ~2 ק"מ מהעיר העתיקה', lat: 7.8880, lng: 98.3760, type: 'attraction' },
         ]
@@ -205,7 +210,8 @@ export const thailandDays = [
         hotel: 'Crest Resort & Pool Villas Patong',
         weather: '☀️ 30°C',
         activities: [
-            { name: 'Andamanda Phuket – פארק מים', time: '09:30', desc: 'פארק המים הכי גדול בתאילנד! מגלשות ענקיות, בריכות גלים ומתחמי אדרנלין. ~1,400 THB', lat: 8.0900, lng: 98.3800, type: 'attraction' },
+            { name: 'Hanuman World Zipline', time: '09:00', desc: 'ציפלין הכי גדול בפוקט – 32 פלטפורמות בג׳ונגל, גשרים ורוכבים בין עצים. ~2,500 THB. הזמינו מראש!', lat: 8.0380, lng: 98.3570, type: 'attraction' },
+            { name: 'Andamanda Phuket – פארק מים', time: '13:00', desc: 'פארק המים הכי גדול בתאילנד! מגלשות ענקיות, בריכות גלים ואדרנלין. ~1,400 THB', lat: 8.0900, lng: 98.3800, type: 'attraction' },
             { name: 'Café Viewpoint Phuket', time: '14:00', desc: 'קפה בנקודת תצפית על כלל פוקט – קפה, קינוח ונוף שיישאר אתכן לתמיד', lat: 7.8200, lng: 98.3000, type: 'cafe' },
             { name: 'Fira Beach Club – Happy Hour', time: '16:30', desc: 'Beach club מלוקסוס ב-Kata – בריכת אינפיניטי, ספות לבנות ושקיעה אחרונה בתאילנד', lat: 7.8180, lng: 98.2980, type: 'cafe' },
             { name: 'Yona Party Boat', time: '19:00', desc: 'ספינת המסיבות של פוקט – DJ, ים פתוח, אנשים ואנרגיה! יוצאת מנמל ראסאדה (~1,800 THB)', lat: 7.8670, lng: 98.3990, type: 'restaurant' },
