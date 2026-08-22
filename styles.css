@@ -1055,3 +1055,162 @@ body.dark .map-overlay { background: rgba(31,41,55,0.92); border-color: rgba(255
 @supports (padding-top: env(safe-area-inset-top)) {
     .header { padding-top: max(20px, env(safe-area-inset-top)); }
 }
+
+/* ── DESTINATION SELECTOR PAGE ── */
+body.selector-page {
+    overflow: auto;
+    height: auto;
+    background: linear-gradient(135deg, #FFF5F7 0%, #FEF9F0 50%, #F3F0FF 100%);
+    min-height: 100vh;
+}
+
+.destination-selector {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 20px 40px;
+}
+
+.selector-header {
+    text-align: center;
+    margin-bottom: 44px;
+}
+
+.selector-hearts {
+    font-size: 2rem;
+    color: var(--rose);
+    margin-bottom: 10px;
+    animation: pulse 2s infinite;
+}
+
+.selector-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.4rem;
+    color: var(--text);
+    margin-bottom: 10px;
+    letter-spacing: -0.5px;
+}
+
+.selector-header p {
+    color: var(--text-light);
+    font-size: 0.88rem;
+    letter-spacing: 0.2px;
+}
+
+.selector-cards {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 680px;
+    width: 100%;
+    margin-bottom: 40px;
+}
+
+.selector-card {
+    flex: 1;
+    min-width: 260px;
+    max-width: 300px;
+    padding: 36px 24px 28px;
+    border-radius: 28px;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    transition: transform 0.28s cubic-bezier(.4,0,.2,1), box-shadow 0.28s;
+    border: 1.5px solid transparent;
+    position: relative;
+}
+
+.selector-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 24px 56px rgba(0,0,0,0.13);
+}
+
+.selector-japan {
+    background: linear-gradient(150deg, #FFF0F3 0%, #FBE8EF 100%);
+    border-color: rgba(224,92,122,0.18);
+}
+
+.selector-thailand {
+    background: linear-gradient(150deg, #FFF8F0 0%, #FDECD8 100%);
+    border-color: rgba(255,107,53,0.18);
+}
+
+.selector-card-flag {
+    font-size: 4rem;
+    line-height: 1;
+    margin-bottom: 6px;
+}
+
+.selector-card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.selector-card-dates {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--rose);
+    background: rgba(224,92,122,0.1);
+    padding: 3px 14px;
+    border-radius: 20px;
+    margin-top: 2px;
+}
+
+.selector-thailand .selector-card-dates {
+    color: #FF6B35;
+    background: rgba(255,107,53,0.1);
+}
+
+.selector-card-cities {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    margin-top: 2px;
+}
+
+.selector-card-days {
+    font-size: 0.72rem;
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+.selector-card-cta {
+    margin-top: 20px;
+    padding: 9px 24px;
+    border-radius: 20px;
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: white;
+    background: var(--rose);
+    transition: background 0.18s, transform 0.18s;
+    letter-spacing: 0.2px;
+}
+
+.selector-thailand .selector-card-cta { background: #FF6B35; }
+
+.selector-card:hover .selector-card-cta { transform: scale(1.04); }
+
+.selector-footer {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    text-align: center;
+}
+
+@media (max-width: 600px) {
+    .selector-cards { flex-direction: column; align-items: center; }
+    .selector-card { min-width: min(88vw, 320px); max-width: 88vw; }
+    .selector-header h1 { font-size: 1.8rem; }
+}
+
+/* ── THAILAND CITY FILTER COLORS ── */
+.filter-btn[data-city="bangkok"].active  { background: #FF6B35; }
+.filter-btn[data-city="phuket"].active   { background: #00B4D8; }
+.filter-btn[data-city="chiangmai"].active{ background: #2D6A4F; }
+.filter-btn[data-city="samui"].active    { background: #F9C74F; }
+.filter-btn[data-city="krabi"].active    { background: #7209B7; }
