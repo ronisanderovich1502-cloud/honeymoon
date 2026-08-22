@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>ירח דבש בתאילנד 🇹🇭</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Noto+Sans+Hebrew:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-drag-bar" id="sidebarDragBar">
+                <div class="sidebar-drag-pill"></div>
+            </div>
+            <div class="header">
+                <div class="header-top">
+                    <div style="width:60px"></div>
+                    <h1>ירח דבש בתאילנד 🇹🇭</h1>
+                    <div class="header-actions">
+                        <a href="index.html" class="icon-btn" title="דף הבית" style="text-decoration:none" onclick="localStorage.removeItem('honeymoon-country')">🏠</a>
+                        <a href="japan.html" class="icon-btn" title="לפרק יפן" style="text-decoration:none" onclick="localStorage.setItem('honeymoon-country','japan')">🇯🇵</a>
+                        <button class="icon-btn" id="darkToggle" title="מצב לילה">🌙</button>
+                        <button class="icon-btn" id="shareBtn" title="שיתוף">🔗</button>
+                    </div>
+                </div>
+                <div class="subtitle">10 – 24 באוקטובר | בנגקוק · ...</div>
+                <div class="countdown" id="countdown"></div>
+            </div>
+
+            <div class="stats-bar" id="statsBar"></div>
+
+            <div class="sidebar-tabs">
+                <button class="sidebar-tab active" data-tab="itinerary">🗓️ לו״ז</button>
+                <button class="sidebar-tab" data-tab="food">🍜 מדריך אוכל</button>
+            </div>
+
+            <div class="search-bar" id="searchBar">
+                <input type="text" id="searchInput" placeholder="🔍  חפש יום, פעילות או מקום..." />
+            </div>
+
+            <div class="city-filter" id="itineraryFilter">
+                <button class="filter-btn active" data-city="all">הכל</button>
+                <button class="filter-btn" data-city="bangkok" style="--city-active:#FF6B35">🏙️ בנגקוק</button>
+                <button class="filter-btn" data-city="phuket" style="--city-active:#00B4D8">🏖️ פוקט</button>
+                <button class="filter-btn" data-city="chiangmai" style="--city-active:#2D6A4F">⛰️ צ׳יאנג מאי</button>
+                <button class="filter-btn" data-city="samui" style="--city-active:#F9C74F">🌴 קו סמוי</button>
+                <button class="filter-btn" data-city="krabi" style="--city-active:#7209B7">🤿 קראבי</button>
+            </div>
+
+            <div id="itinerary"></div>
+            <div id="foodGuidePanel" style="display:none"></div>
+        </div>
+
+        <div class="map-container">
+            <div id="map"></div>
+            <div class="place-panel" id="placePanel">
+                <div class="panel-handle"><div class="panel-handle-bar"></div></div>
+                <button class="panel-close" id="panelClose">✕</button>
+                <button class="panel-back-btn" id="panelBackBtn">← חזרה ללו״ז</button>
+                <div id="panelContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <!-- ADD PLACE MODAL -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <h3>➕ הוסף מקום לתוכנית</h3>
+            <label>🔍 חפש מקום</label>
+            <input type="text" id="placesSearchInput" placeholder="לדוגמה: Wat Phra Kaew Bangkok" autocomplete="off" />
+            <div id="places-search-results"></div>
+            <div class="api-key-hint" id="apiKeyHint"></div>
+            <label>📛 שם המקום</label>
+            <input type="text" id="newPlaceName" placeholder="שם המקום" />
+            <label>📝 תיאור קצר</label>
+            <input type="text" id="newPlaceDesc" placeholder="מה עושים שם?" />
+            <label>🕐 שעה</label>
+            <input type="text" id="newPlaceTime" placeholder="לדוגמה: 14:00" />
+            <label>📅 יום בתוכנית</label>
+            <select id="newPlaceDay"></select>
+            <div class="modal-actions">
+                <button class="btn-secondary" id="modalCancel">ביטול</button>
+                <button class="btn-primary" id="modalConfirm">הוסף לתוכנית ✓</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD TO FOOD GUIDE MODAL -->
+    <div class="modal-overlay" id="foodModalOverlay">
+        <div class="modal">
+            <h3>🍜 הוסף למדריך אוכל – תאילנד</h3>
+            <label>📛 שם המקום</label>
+            <input type="text" id="foodItemName" placeholder="שם המסעדה / בית הקפה" />
+            <label>🏙️ עיר</label>
+            <select id="foodItemCity">
+                <option value="bangkok">🏙️ בנגקוק</option>
+                <option value="phuket">🏖️ פוקט</option>
+                <option value="chiangmai">⛰️ צ׳יאנג מאי</option>
+                <option value="samui">🌴 קו סמוי</option>
+                <option value="krabi">🤿 קראבי</option>
+            </select>
+            <label>📍 איזור</label>
+            <input type="text" id="foodItemArea" placeholder="סיאם / סוקומווית / אולד סיטי..." />
+            <label>🍽️ קטגוריה</label>
+            <select id="foodItemCategory">
+                <option value="thai">🍜 אוכל תאי מסורתי</option>
+                <option value="seafood">🦐 פירות ים</option>
+                <option value="street">🛺 אוכל רחוב</option>
+                <option value="rooftop">🌆 מסעדת גג</option>
+                <option value="cafe">☕ קפה</option>
+                <option value="bar">🍹 בר / קוקטיילים</option>
+            </select>
+            <label>📝 תיאור קצר</label>
+            <input type="text" id="foodItemDesc" placeholder="מה מיוחד במקום?" />
+            <label>📅 יום בלו"ז (אופציונלי)</label>
+            <input type="number" id="foodItemDay" placeholder="השאר ריק = יופיע כ💡 אופציה" min="1" max="14" />
+            <div class="modal-actions">
+                <button class="btn-secondary" id="foodModalCancel">ביטול</button>
+                <button class="btn-primary" id="foodModalConfirm">הוסף למדריך ✓</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="thailand-app.js"></script>
+</body>
+</html>
