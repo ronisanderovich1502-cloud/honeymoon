@@ -1,4 +1,5 @@
 import { days, cityNames, cityColors, dayTitlesEn, weekdayEn, TR, foodGuide, foodCategories } from './data.js';
+localStorage.setItem('honeymoon-country', 'japan');
 import { map, dayMarkers, allMarkersList, selectedDayNum, selectDayOnMap, addMarkerToMap, fetchPlaceDetails, initMap } from './map.js';
 import { ghToken, syncSave, initSync } from './sync.js';
 
