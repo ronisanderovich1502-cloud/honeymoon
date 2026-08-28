@@ -194,6 +194,7 @@ export const days = [
             { name: 'פושימי אינארי – אלף השערים', time: '07:30', desc: 'מנהרות שערים כתומים על ההר – לפני ההמון', lat: 34.9671, lng: 135.7727, type: 'attraction' },
             { name: 'שוק נישיקי', time: '11:30', desc: 'שיפודי וואגיו, מוצ׳י ומאצ׳ה', lat: 35.0050, lng: 135.7649, type: 'attraction' },
             { name: 'MOTOI – גיוזות של שף מישלן', time: '13:30', desc: 'מסעדת גיוזות בוטיק – שף בוגר מישלן, גיוזות מטורפות ב-Karasuma ממש ליד נישיקי', lat: 35.0053, lng: 135.7609, type: 'restaurant' },
+            { name: 'teamLab Biovortex Kyoto', time: '15:30', desc: 'מוזיאון אמנות דיגיטלית אימרסיבי – 8 דק׳ הליכה מתחנת קיוטו (יציאת Hachijo). 21-5 Higashikujo Higashiiwamotocho, Minami Ward. הזמינו כרטיסים מראש!', lat: 34.9810, lng: 135.7640, type: 'attraction' },
             { name: 'GOSYU – יאקיניקו וואגיו אומי', time: '18:00', desc: 'יאקיניקו עם נוף לגן יפני – נתחי וואגיו נדירים מחווה מיוחדת, חובה הזמנה', lat: 35.0411, lng: 135.7826, type: 'restaurant' }
         ]
     },
