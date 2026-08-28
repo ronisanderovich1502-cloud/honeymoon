@@ -15,7 +15,7 @@ export const foodCategories = {
 
 export const foodGuide = [
     // ── CAFE / BAKERY ──
-    { name: 'Flippers – פנקייק סופלה',      city: 'tokyo', area: 'הרג׳וקו',             category: 'cafe',     desc: 'פנקייקים אווריריים כמו ענן',                         day: 2  },
+    { name: 'Flippers – פנקייק סופלה',      city: 'tokyo', area: 'שינג׳וקו',            category: 'cafe',     desc: 'פנקייקים אווריריים כמו ענן – סניף Takashimaya שינג׳וקו', day: 6  },
     { name: 'אייג׳י3 – סנדוויץ׳ ויראלי',    city: 'tokyo', area: 'גינזה',               category: 'cafe',     desc: 'לחם מטוגן עם קצפת – הכי ויראלי בטוקיו',             day: 3  },
     { name: 'Panel Café',                    city: 'kyoto', area: 'גיון-שיג׳ו',          category: 'cafe',     desc: 'פנקייקים וקרוופלים – קפה קטן ומקסים',                day: 7  },
     { name: 'le 14e – ביסטרו צרפתי',         city: 'kyoto', area: 'סנג׳ו-קיאמאצ׳י',    category: 'cafe',     desc: 'Michelin Selected – אוכל עונתי ויין טבעי',            day: 8  },
@@ -79,7 +79,7 @@ export const days = [
         title: 'נחיתה + סיבוב ספונטני',
         weather: '☀️ 24°C',
         activities: [
-            { name: 'הגעה למלון דאיווה רויינט', time: '~20:00', desc: 'צ׳ק-אין והתרעננות – ~90 דקות מנאריטה ברכבת NEX / ~50 דקות מהנדה', lat: 35.6938, lng: 139.6921, type: 'attraction' },
+            { name: 'הגעה למלון Hotel Sunroute Shinjuku', time: '~20:00', desc: 'צ׳ק-אין והתרעננות – ~90 דקות מנאריטה ברכבת NEX / ~50 דקות מהנדה. המלון ממוקם ממש ליד תחנת שינג׳וקו', lat: 35.6938, lng: 139.6921, type: 'attraction' },
             { name: 'סיבוב ספונטני בשינג׳וקו', time: 'לילה', desc: 'אוכל, ניאון ואווירה – ללא תוכנית קבועה', lat: 35.6934, lng: 139.6984, type: 'attraction' }
         ]
     },
@@ -88,8 +88,8 @@ export const days = [
         title: 'שינג׳וקו, הרג׳וקו ושיבויה',
         weather: '🌤️ 23°C',
         activities: [
-            { name: 'פליפרס – פנקייק סופלה', time: '09:30', desc: 'פנקייקים אווריריים כמו ענן – ארוחת בוקר בהרג׳וקו', lat: 35.6912, lng: 139.7046, type: 'cafe' },
-            { name: 'מקדש מייג׳י', time: '11:00', desc: 'יער עבות ושער עץ ענק', lat: 35.6764, lng: 139.6993, type: 'attraction' },
+            { name: 'Egg Slut – ארוחת בוקר', time: '09:00', desc: 'כריכים מטורפים מרשת LA – סניף NEWoMan Shinjuku, 2 דק׳ הליכה מהמלון. חובה!', lat: 35.6895, lng: 139.7006, type: 'cafe' },
+            { name: 'מקדש מייג׳י', time: '10:30', desc: 'יער עבות ושער עץ ענק', lat: 35.6764, lng: 139.6993, type: 'attraction' },
             { name: 'רחוב טאקשיטה', time: '12:30', desc: 'אופנת רחוב צבעונית, קרפים וחנויות ייחודיות', lat: 35.6716, lng: 139.7031, type: 'attraction' },
             { name: 'קט סטריט / אומטסנדרו', time: '13:30', desc: 'רחוב קניות אופנתי – בוטיקים, קפות ועיצוב', lat: 35.6700, lng: 139.7100, type: 'attraction' },
             { name: 'ראמן יוזו – AFURI הרג׳וקו', time: '15:00', desc: 'ראמן יוזו שיו מיוחד וייחודי – ~¥1,300 למנה', lat: 35.6708, lng: 139.7071, type: 'restaurant' },
@@ -136,7 +136,8 @@ export const days = [
         title: 'יום שלם בשינג׳וקו',
         weather: '⛅ 20°C',
         activities: [
-            { name: 'פארק שינג׳וקו גיון', time: '09:00', desc: 'גנים יפניים מדהימים – דובדבן, אזלייה וטבע שלו', lat: 35.6851, lng: 139.7100, type: 'attraction' },
+            { name: 'פליפרס – פנקייק סופלה', time: '08:30', desc: 'פנקייקים אווריריים כמו ענן – סניף Takashimaya Times Square שינג׳וקו, ממש ליד המלון', lat: 35.6886, lng: 139.6996, type: 'cafe' },
+            { name: 'פארק שינג׳וקו גיון', time: '10:00', desc: 'גנים יפניים מדהימים – דובדבן, אזלייה וטבע שלו', lat: 35.6851, lng: 139.7100, type: 'attraction' },
             { name: 'בניין הממשל העירוני – תצפית חינמית', time: '11:00', desc: 'תצפית פנורמית חינמית מקומה 45 על כל טוקיו', lat: 35.6896, lng: 139.6917, type: 'attraction' },
             { name: 'ראש הגודזילה – טוהו סינמה', time: '12:30', desc: 'ראש הגודזילה המפורסם על גג הבניין באיזור Kabuki-cho', lat: 35.6948, lng: 139.7030, type: 'attraction' },
             { name: 'שוגון בורגר שינג׳וקו', time: '13:30', desc: 'המבורגר 100% וואגיו בקאבוקי-צ׳ו – ממש ליד ראש הגודזילה', lat: 35.6952, lng: 139.7038, type: 'restaurant' },
