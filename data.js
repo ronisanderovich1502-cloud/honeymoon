@@ -8,13 +8,15 @@ export const foodCategories = {
     katsu:    { emoji: '🥩', label: 'קטסו ובשר מטוגן' },
     gyoza:    { emoji: '🥟', label: 'גיוזות' },
     burger:   { emoji: '🍔', label: 'המבורגרים' },
-    pizza:    { emoji: '🍕', label: 'פיצה' },
+    pizza:    { emoji: '🍕', label: 'פיצה ואיטלקי' },
+    pasta:    { emoji: '🍝', label: 'פסטה' },
     bar:      { emoji: '🍸', label: 'ברים וספיקיזי' },
     street:   { emoji: '🥡', label: 'אוכל רחוב ונשנושים' },
 };
 
 export const foodGuide = [
     // ── CAFE / BAKERY ──
+    { name: 'Egg Slut',                      city: 'tokyo', area: 'שינג׳וקו – NEWoMan',  category: 'street',   desc: 'כריכי ביצים מטורפים – רשת LA בתוך NEWoMan Shinjuku, 2 דק׳ מהמלון', day: 2 },
     { name: 'Flippers – פנקייק סופלה',      city: 'tokyo', area: 'שינג׳וקו',            category: 'cafe',     desc: 'פנקייקים אווריריים כמו ענן – סניף Takashimaya שינג׳וקו', day: 6  },
     { name: 'אייג׳י3 – סנדוויץ׳ ויראלי',    city: 'tokyo', area: 'גינזה',               category: 'cafe',     desc: 'לחם מטוגן עם קצפת – הכי ויראלי בטוקיו',             day: 3  },
     { name: 'Panel Café',                    city: 'kyoto', area: 'גיון-שיג׳ו',          category: 'cafe',     desc: 'פנקייקים וקרוופלים – קפה קטן ומקסים',                day: 7  },
@@ -22,13 +24,19 @@ export const foodGuide = [
     { name: 'Truffle Bakery',                city: 'osaka', area: 'נמבה',                category: 'cafe',     desc: 'לחמים ומאפים עם טרופל שחור',                          day: 11 },
     { name: 'Brooklyn Roasting Co.',         city: 'osaka', area: 'קיטאהאמה',            category: 'cafe',     desc: 'קפה ניו-יורקי על נהר אוסקה',                          day: 13 },
     // ── RAMEN ──
+    { name: 'Jikasei Mensho',                city: 'tokyo', area: 'טוקיו',                category: 'ramen',    desc: 'ראמן צמחוני מטורף – אחד המדורגים ביותר בטוקיו. אופציה ל-AFURI' },
     { name: 'AFURI – ראמן יוזו',            city: 'tokyo', area: 'הרג׳וקו',             category: 'ramen',    desc: 'ראמן יוזו שיו ייחודי – ~¥1,300',                     day: 2  },
     { name: 'Shodai – אודון קרם תפו"א',     city: 'tokyo', area: 'אביסו / שיבויה',      category: 'ramen',    desc: 'White Curry Udon עם קצף תפוח אדמה לבן – ויראלי מאוד' },
     // ── SUSHI ──
+    { name: 'Yoshida Sushi',                 city: 'tokyo', area: 'טוקיו',                category: 'sushi',    desc: 'סושי עם צרוב – חוויה שונה מקייטן קלאסי, מומלץ מאוד' },
+    { name: 'Sushi Sha',                     city: 'kyoto', area: 'קיוטו',                category: 'sushi',    desc: 'מסעדת סושי מטורפת בקיוטו', day: 9 },
     { name: 'שוק צוקיג׳י',                  city: 'tokyo', area: 'צוקיג׳י',             category: 'sushi',    desc: 'סושי טרי, תמנון ואומלט יפני',                         day: 4  },
     { name: 'נובו טוקיו',                   city: 'tokyo', area: 'טוראנומון-מידטאון',   category: 'sushi',    desc: 'דג הגד שחור במיסו – מסעדת יוקרה',                    day: 4  },
     { name: 'סושי קייטן גינזה אונודרה',     city: 'tokyo', area: 'גינזה',               category: 'sushi',    desc: 'דגים טריים על מסוע – בית השף אונודרה',               day: 5  },
     // ── YAKINIKU ──
+    { name: 'Yakiniku Marutomi',             city: 'kyoto', area: 'קיוטו',                category: 'yakiniku', desc: 'מסעדת ואגיו בקיוטו – אלטרנטיבה ל-GOSYU או Maumu', day: 10 },
+    { name: 'Ichigyu Dotonbori Namba',       city: 'osaka', area: 'דוטונבורי',            category: 'yakiniku', desc: 'ואגיו חולני ממש באזור דוטונבורי – מומלץ מאוד', day: 11 },
+    { name: 'Coco Nemaru Ginza',             city: 'osaka', area: 'גינזה אוסקה',          category: 'yakiniku', desc: 'מסעדת ואגיו מומלצת באוסקה', day: 13 },
     { name: 'האן נו דאידוקורו',             city: 'tokyo', area: 'שיבויה',              category: 'yakiniku', desc: 'וואגיו פרימיום על גריל אישי',                         day: 2  },
     { name: 'Maumu Kiyamachi',               city: 'kyoto', area: 'קיאמאצ׳י',           category: 'yakiniku', desc: 'יאקיניקו קוריאני-יפני – ממש ליד המלון',              day: 7  },
     { name: 'GOSYU',                         city: 'kyoto', area: 'צפון קיוטו',          category: 'yakiniku', desc: 'וואגיו אומי עם נוף לגן יפני – חובה הזמנה',           day: 10 },
@@ -37,6 +45,7 @@ export const foodGuide = [
     { name: "צ'או צ'או גיוזה",              city: 'kyoto', area: 'גיון',                category: 'gyoza',    desc: 'גיוזות קריספיות במילויים מטורפים – נשנוש לילי',      day: 9  },
     { name: 'MOTOI גיוזות',                 city: 'kyoto', area: 'קארסומה',             category: 'gyoza',    desc: 'שף בוגר מישלן – גיוזות בוטיק',                        day: 10 },
     // ── BURGER ──
+    { name: 'Shougun Kyoto',                 city: 'kyoto', area: 'קיוטו',                category: 'burger',   desc: 'המבורגר ואגיו עם כבד אווז – חוויה ייחודית וחולנית בקיוטו', day: 8 },
     { name: 'שוגון בורגר שינג׳וקו',        city: 'tokyo', area: 'שינג׳וקו – קאבוקי-צ׳ו', category: 'burger', desc: '100% וואגיו – ממש ליד ראש הגודזילה',                  day: 6  },
     // ── BAR ──
     { name: 'אומואידה יוקוצ׳ו',            city: 'tokyo', area: 'שינג׳וקו',            category: 'bar',      desc: 'סמטאות ניאון, יאקיטורי ובירה',                        day: 6  },
@@ -54,8 +63,10 @@ export const foodGuide = [
     // ── SUSHI EXTRAS ──
     { name: 'SUSHIRO',                       city: 'tokyo', area: 'רשת – מספר סניפים',      category: 'sushi',    desc: 'רשת קייטן סושי – ~¥100 לצלחת, דגים טריים, הכי פופולרי ביפן' },
     // ── KATSU ──
+    { name: 'De Frites Staan Harajuku',      city: 'tokyo', area: 'הרג׳וקו',              category: 'katsu',    desc: 'סטייק / פילה בקר – ארוחת צהריים עד 20:00 בלבד. ממש על מסלול יום הרג׳וקו', day: 2 },
     { name: 'GYUKATSU KYOTO KATSUGYU',      city: 'tokyo', area: 'הרג׳וקו',               category: 'katsu',    desc: 'שניצל ואגיו / פילה בקר – צולה עצמי על אבן לבה חמה ליד השולחן', day: 2 },
     // ── PIZZA ──
+    { name: 'Shogun Pizza',                  city: 'tokyo', area: 'טוקיו',                category: 'pizza',    desc: 'פיצה מטורפת בטוקיו – מומלצת מאוד' },
     { name: 'Savoy Pizza Tokyo',             city: 'tokyo', area: 'אזאבו-ג׳ובן',            category: 'pizza',    desc: 'פיצה נפוליטנית אותנטית – מקום אגדי בטוקיו, חובה הזמנה' },
     // ── CAFE EXTRAS ──
     { name: 'MICASADECO & CAFE',             city: 'tokyo', area: 'אומטסנדו',               category: 'cafe',     desc: 'טוסט צרפתי צבעוני ויראלי – מנה מצולמת מאוד' },
@@ -64,7 +75,10 @@ export const foodGuide = [
     { name: 'KACTO CAFE',                    city: 'kyoto', area: 'גיון',                   category: 'cafe',     desc: 'קפה אופנתי בלב גיון – משקאות ייחודיים ועיצוב מיוחד' },
     // ── BAR EXTRAS ──
     { name: 'KITAN HIBIKI',                  city: 'osaka', area: 'נמבה',                   category: 'yakiniku', desc: 'בשר מיושן על אירורי (קמין יפני) – חוויה ייחודית ומיוחדת' },
+    // ── PASTA ──
+    { name: 'Alto Tritone',                  city: 'osaka', area: 'אוסקה',                category: 'pasta',    desc: 'פסטה מטורפת – חובה להזמין מקום מראש! מסעדה מבוקשת מאוד', day: 13 },
     // ── STREET / SNACKS ──
+    { name: 'American – Ginza',              city: 'tokyo', area: 'גינזה',                category: 'street',   desc: 'כריך סלט ביצים קלאסי ונדיר – לב גינזה, חווייה אמריקאית בלב טוקיו', day: 5 },
     { name: 'DE FRITES STAAN',               city: 'kyoto', area: 'קיאמאצ׳י',           category: 'street',   desc: 'ציפס הולנדי קריספי ובירות קראפט',                     day: 7  },
     { name: 'Pablo – טארטים',               city: 'osaka', area: 'שינסאיבאשי',          category: 'street',   desc: 'טארט גבינה חם ונוזלי',                                day: 11 },
     { name: 'Strawberry Mania',              city: 'osaka', area: 'נמבה',                category: 'street',   desc: 'סנדוויץ׳ פרות ותות טבול שוקולד',                     day: 11 },
