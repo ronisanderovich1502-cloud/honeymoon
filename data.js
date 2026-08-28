@@ -54,7 +54,7 @@ export const foodGuide = [
     // ── SUSHI EXTRAS ──
     { name: 'SUSHIRO',                       city: 'tokyo', area: 'רשת – מספר סניפים',      category: 'sushi',    desc: 'רשת קייטן סושי – ~¥100 לצלחת, דגים טריים, הכי פופולרי ביפן' },
     // ── KATSU ──
-    { name: 'GYUKATSU KYOTO KATSUGYU',      city: 'tokyo', area: 'שיבויה / שינג׳וקו',     category: 'katsu',    desc: 'סטייק בקר מטוגן – צולה עצמי על אבן לבה חמה ליד השולחן' },
+    { name: 'GYUKATSU KYOTO KATSUGYU',      city: 'tokyo', area: 'הרג׳וקו',               category: 'katsu',    desc: 'שניצל ואגיו / פילה בקר – צולה עצמי על אבן לבה חמה ליד השולחן', day: 2 },
     // ── PIZZA ──
     { name: 'Savoy Pizza Tokyo',             city: 'tokyo', area: 'אזאבו-ג׳ובן',            category: 'pizza',    desc: 'פיצה נפוליטנית אותנטית – מקום אגדי בטוקיו, חובה הזמנה' },
     // ── CAFE EXTRAS ──
@@ -92,7 +92,8 @@ export const days = [
             { name: 'מקדש מייג׳י', time: '10:30', desc: 'יער עבות ושער עץ ענק', lat: 35.6764, lng: 139.6993, type: 'attraction' },
             { name: 'רחוב טאקשיטה', time: '12:30', desc: 'אופנת רחוב צבעונית, קרפים וחנויות ייחודיות', lat: 35.6716, lng: 139.7031, type: 'attraction' },
             { name: 'קט סטריט / אומטסנדרו', time: '13:30', desc: 'רחוב קניות אופנתי – בוטיקים, קפות ועיצוב', lat: 35.6700, lng: 139.7100, type: 'attraction' },
-            { name: 'ראמן יוזו – AFURI הרג׳וקו', time: '15:00', desc: 'ראמן יוזו שיו מיוחד וייחודי – ~¥1,300 למנה', lat: 35.6708, lng: 139.7071, type: 'restaurant' },
+            { name: 'Gyukatsu Kyoto Katsugyu – הרג׳וקו', time: '14:30', desc: 'שניצל בקר ואגיו / פילה – צולות עצמי על אבן לבה חמה ליד השולחן. חוויה ייחודית! סניף הרג׳וקו', lat: 35.6710, lng: 139.7030, type: 'restaurant' },
+            { name: 'ראמן יוזו – AFURI הרג׳וקו', time: '17:00', desc: 'ראמן יוזו שיו מיוחד וייחודי – ~¥1,300 למנה', lat: 35.6708, lng: 139.7071, type: 'restaurant' },
             { name: 'מעבר החציה + תצפית סטארבקס', time: '16:30', desc: 'מעבר החציה הסואן בעולם + קפה עם תצפית מקומה 2', lat: 35.6597, lng: 139.7003, type: 'cafe' },
             { name: 'שיבויה סקיי', time: '17:30', desc: 'שקיעה רומנטית מקומה 47', lat: 35.6584, lng: 139.7022, type: 'attraction' },
             { name: 'דון קיחוטה שיבויה', time: '19:00', desc: 'קניות, חטיפים, קוסמטיקה וכיף ב-8 קומות', lat: 35.6590, lng: 139.6983, type: 'attraction' },
