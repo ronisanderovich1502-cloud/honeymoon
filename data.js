@@ -123,11 +123,10 @@ export const days = [
     },
     {
         day: 4, date: '30.9', weekday: 'רביעי', city: 'tokyo',
-        title: 'צוקיג׳י, טימלאב ואקיהברה',
+        title: 'צוקיג׳י, גינזה ואקיהברה',
         weather: '☀️ 23°C',
         activities: [
             { name: 'שוק צוקיג׳י', time: '09:00', desc: 'סושי טרי, תמנון ואומלט יפני', lat: 35.6654, lng: 139.7707, type: 'attraction' },
-            { name: 'טימלאב פלנטס', time: '12:00', desc: 'מוזיאום חושי יחפים', lat: 35.6427, lng: 139.7837, type: 'attraction' },
             { name: 'אקיהברה', time: '16:00', desc: 'גיימינג, אנימה וארקיידים', lat: 35.7023, lng: 139.7745, type: 'attraction' },
             { name: 'נובו טוקיו', time: '19:30', desc: 'ארוחת יוקרה – דג הגד שחור במיסו', lat: 35.6657, lng: 139.7497, type: 'restaurant' }
         ]
