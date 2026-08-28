@@ -31,8 +31,8 @@ export const foodGuide = [
     { name: 'Yoshida Sushi',                 city: 'tokyo', area: 'טוקיו',                category: 'sushi',    desc: 'סושי עם צרוב – חוויה שונה מקייטן קלאסי, מומלץ מאוד' },
     { name: 'Sushi Sha',                     city: 'kyoto', area: 'קיוטו',                category: 'sushi',    desc: 'מסעדת סושי מטורפת בקיוטו', day: 9 },
     { name: 'שוק צוקיג׳י',                  city: 'tokyo', area: 'צוקיג׳י',             category: 'sushi',    desc: 'סושי טרי, תמנון ואומלט יפני',                         day: 4  },
-    { name: 'נובו טוקיו',                   city: 'tokyo', area: 'טוראנומון-מידטאון',   category: 'sushi',    desc: 'דג הגד שחור במיסו – מסעדת יוקרה',                    day: 4  },
-    { name: 'סושי קייטן גינזה אונודרה',     city: 'tokyo', area: 'גינזה',               category: 'sushi',    desc: 'דגים טריים על מסוע – בית השף אונודרה',               day: 5  },
+    { name: 'נובו טוקיו',                   city: 'tokyo', area: 'טוראנומון-מידטאון',   category: 'sushi',    desc: 'דג הגד שחור במיסו – מסעדת יוקרה. ממש ליד גינזה',     day: 5  },
+    { name: 'סושי קייטן גינזה אונודרה',     city: 'tokyo', area: 'גינזה',               category: 'sushi',    desc: 'דגים טריים על מסוע – בית השף אונודרה. צהריים ביום גינזה', day: 5  },
     // ── YAKINIKU ──
     { name: 'Yakiniku Marutomi',             city: 'kyoto', area: 'קיוטו',                category: 'yakiniku', desc: 'מסעדת ואגיו בקיוטו – אלטרנטיבה ל-GOSYU או Maumu', day: 10 },
     { name: 'Ichigyu Dotonbori Namba',       city: 'osaka', area: 'דוטונבורי',            category: 'yakiniku', desc: 'ואגיו חולני ממש באזור דוטונבורי – מומלץ מאוד', day: 11 },
@@ -128,7 +128,6 @@ export const days = [
         activities: [
             { name: 'שוק צוקיג׳י', time: '09:00', desc: 'סושי טרי, תמנון ואומלט יפני', lat: 35.6654, lng: 139.7707, type: 'attraction' },
             { name: 'אקיהברה', time: '16:00', desc: 'גיימינג, אנימה וארקיידים', lat: 35.7023, lng: 139.7745, type: 'attraction' },
-            { name: 'נובו טוקיו', time: '19:30', desc: 'ארוחת יוקרה – דג הגד שחור במיסו', lat: 35.6657, lng: 139.7497, type: 'restaurant' }
         ]
     },
     {
@@ -139,8 +138,9 @@ export const days = [
             { name: 'מקדש סנסו-ג׳י', time: '09:00', desc: 'לנטרנת ענק ושער הת׳ונדר גייט המפורסם', lat: 35.7148, lng: 139.7967, type: 'attraction' },
             { name: 'שוק נקמיסה', time: '10:00', desc: 'רחוב קניות מסורתי לאורך 250 מ׳ – מזכרות, מאצ׳ה ומלאכת יד', lat: 35.7147, lng: 139.7965, type: 'attraction' },
             { name: 'שוק קפבאשי – רחוב כלי המטבח', time: '11:00', desc: 'רחוב כלי בישול יפניים – דגמי אוכל מפלסטיק, סכינים ומלאכת יד', lat: 35.7133, lng: 139.7926, type: 'attraction' },
-            { name: 'סיבוב קניות בגינזה – יוניקלו 12 קומות', time: '14:00', desc: 'יוניקלו הגדול בעולם – 12 קומות של אופנה יפנית + סיבוב ברחוב גינזה', lat: 35.6715, lng: 139.7636, type: 'attraction' },
-            { name: 'סושי קייטן גינזה אונודרה', time: '19:00', desc: 'סושי קייטן מושלם מבית השף אונודרה – דגים טריים על מסוע', lat: 35.6717, lng: 139.7660, type: 'restaurant' }
+            { name: 'סושי קייטן גינזה אונודרה – צהריים', time: '13:00', desc: 'סושי קייטן מושלם מבית השף אונודרה – דגים טריים על מסוע. ממש בגינזה', lat: 35.6717, lng: 139.7660, type: 'restaurant' },
+            { name: 'סיבוב קניות בגינזה – יוניקלו 12 קומות', time: '15:00', desc: 'יוניקלו הגדול בעולם – 12 קומות של אופנה יפנית + סיבוב ברחוב גינזה', lat: 35.6715, lng: 139.7636, type: 'attraction' },
+            { name: 'נובו טוקיו', time: '19:30', desc: 'ארוחת ערב יוקרה – דג הגד שחור במיסו. טוראנומון מידטאון, 10 דק׳ מגינזה', lat: 35.6657, lng: 139.7497, type: 'restaurant' }
         ]
     },
     {
