@@ -42,14 +42,14 @@ export const thailandDays = [
     },
     {
         day: 4, date: '13.10', weekday: 'שלישי', city: 'samui',
-        title: 'קו סמוי – Big Buddha, פיג׳ אילנד וסמוי ♥',
+        title: 'קו סמוי – פיג׳ אילנד וערב מדהים ♥',
         hotel: 'Sareeraya Villas & Suites Chaweng',
         weather: '🌧️ 29°C',
         activities: [
-            { name: 'Big Buddha Temple (Wat Phra Yai)', time: '09:00', desc: 'פסל בודהה ענק של 12 מ׳ – אייקון האי, נוף מדהים מהגבעה', lat: 9.5482, lng: 100.0637, type: 'attraction' },
-            { name: 'Pig Island (Koh Matsum) – טיול יום', time: '11:00', desc: 'אי קטן ושקט עם חזירים על החוף + שנורקלינג. לוקחות Long Tail Boat מחוף בן–ין (~600 THB)', lat: 9.4358, lng: 100.0447, type: 'attraction' },
+            { name: 'Pig Island (Koh Matsum) – טיול יום', time: '09:00', desc: 'אי קטן ושקט עם חזירים על החוף + שנורקלינג. לוקחות Long Tail Boat מחוף בן–ין (~600 THB). חזרה בשעות אחר הצהריים', lat: 9.4358, lng: 100.0447, type: 'attraction' },
             { name: 'Nomad Beach Bar – Fire Show', time: '18:30', desc: 'Fire Show מדהים ב-18:30 בדיוק! הגיעו מוקדם לתפוס מקום. | אלטרנטיבה: Arkbar Fire Show גם כל ערב באותה שעה', lat: 9.5295, lng: 100.0610, type: 'restaurant' },
-            { name: 'The Cocoon Samui', time: '21:00', desc: 'הקלאב הכי מדובר בסמוי – מוזיקה, תאורה ואווירה. לסיום הלילה אחרי ה-Fire Show', lat: 9.5272, lng: 100.0582, type: 'restaurant' },
+            { name: "Cocotam's", time: '20:00', desc: "מסעדה מפורסמת בצ'אוונג – תאי מסורתי עם ריהוט מגניב ואווירה ייחודית. הזמינו מראש!", lat: 9.5275, lng: 100.0605, type: 'restaurant' },
+            { name: 'The Cocoon Samui', time: '22:00', desc: 'הקלאב הכי מדובר בסמוי – מוזיקה, תאורה ואווירה. לסיום הלילה', lat: 9.5272, lng: 100.0582, type: 'restaurant' },
         ]
     },
     {
@@ -58,8 +58,8 @@ export const thailandDays = [
         hotel: 'Sareeraya Villas & Suites Chaweng',
         weather: '⛅ 29°C',
         activities: [
-            { name: 'יום שייט Ang Thong Marine Park', time: '08:00', desc: 'פארק ימי לאומי עם 42 איים! קיאקינג, שנורקלינג ועמוד מרשים שמוצל בסרט "הים". סיור מאורגן ~1,200 THB', lat: 9.7580, lng: 100.0160, type: 'attraction' },
-            { name: 'חזרה לאי + Cocotam\'s', time: '17:30', desc: 'ארוחת ערב מפורסמת ב-Cocotam\'s – תאי מסורתי עם ריהוט מגניב. בצ׳אוונג, הזמינו מראש!', lat: 9.5275, lng: 100.0605, type: 'restaurant' },
+            { name: 'יום שייט Ang Thong Marine Park', time: '08:00', desc: 'פארק ימי לאומי עם 42 איים! קיאקינג, שנורקלינג ועמוד מרשים שמוצל בסרט "הים". סיור מאורגן ~1,200 THB. יוצאים 08:00, חוזרים ~17:00', lat: 9.7580, lng: 100.0160, type: 'attraction' },
+            { name: 'שוק כפר הדייגים – בופוט', time: '19:00', desc: 'Fisherman\'s Village בבופוט – כפר דייגים קסום עם בתים קולוניאליים, שוק ואוכל על שפת הים. אווירה שונה לגמרי מצ׳אוונג', lat: 9.5527, lng: 100.0074, type: 'restaurant' },
         ]
     },
     {
