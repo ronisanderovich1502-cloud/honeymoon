@@ -74,6 +74,8 @@ export const foodGuide = [
     { name: 'New York Bagel Café',           city: 'tokyo', area: 'הרג׳וקו',               category: 'cafe',     desc: 'בייגלס ניו-יורקיים עם מגוון מלית – מאפה ייחודי בטוקיו' },
     { name: 'Pokémon Café',                  city: 'tokyo', area: 'ניהונבאשי',              category: 'cafe',     desc: 'קפה ממותג פוקימון – מנות בצורת פיקאצ׳ו, חובה הזמנה מראש' },
     { name: 'KACTO CAFE',                    city: 'kyoto', area: 'גיון',                   category: 'cafe',     desc: 'קפה אופנתי בלב גיון – משקאות ייחודיים ועיצוב מיוחד' },
+    { name: "Amam Dacotan Kyoto",            city: 'kyoto', area: 'נאקג׳ו – Karasuma-Oike', category: 'cafe',     desc: 'מאפייה בוטיק מפורסמת מפוקואוקה – לחמים, קרואסונים ועוגות. 8 דק׳ הליכה מהמלון!' },
+    { name: "I'm Donut",                     city: 'tokyo', area: 'נקמגורו / דאיקניאמה',   category: 'cafe',     desc: 'דונאטס ויראליים מפורסמים – הבצק הכי רך שתאכלו בחייכן. תור קצר בבוקר מוקדם' },
     // ── BAR EXTRAS ──
     { name: 'KITAN HIBIKI',                  city: 'osaka', area: 'נמבה',                   category: 'yakiniku', desc: 'בשר מיושן על אירורי (קמין יפני) – חוויה ייחודית ומיוחדת' },
     // ── PASTA ──
