@@ -6,24 +6,20 @@ export const thailandDays = [
         hotel: 'Pathumwan Princess Hotel',
         weather: '🌤️ 32°C',
         activities: [
-            { name: 'נחיתה – שדה תעופה סוברנאבהומי (BKK)', time: '~16:00', desc: 'הגעה מאוסקה / KIX – לוקחות Grab Car למלון (כ-40 דק׳, ~350 THB)', lat: 13.6811, lng: 100.7476, type: 'attraction' },
-            { name: 'Pathumwan Princess Hotel – צ׳ק-אין', time: '18:30', desc: 'ממוקם צמוד ל-MBK Center ו-Siam Paragon – לב בנגקוק', lat: 13.7468, lng: 100.5312, type: 'attraction' },
-            { name: 'Siam Square / MBK – ארוחת ערב ראשונה', time: '20:00', desc: 'Pad Thai, מנגו עם אורז דביק, ומשקה קוקוס – ברוכות הבאות לתאילנד!', lat: 13.7469, lng: 100.5330, type: 'restaurant' },
+            { name: 'נחיתה – שדה תעופה דון מואנג (DMK)', time: '14:30', desc: 'הגעה מאוסקה / KIX – לוקחות Grab Car למלון (כ-40 דק׳, ~350 THB)', lat: 13.9126, lng: 100.6067, type: 'attraction' },
+            { name: 'Pathumwan Princess Hotel – צ׳ק-אין', time: '16:30', desc: 'ממוקם צמוד ל-MBK Center ו-Siam Paragon – לב בנגקוק', lat: 13.7468, lng: 100.5312, type: 'attraction' },
+            { name: 'Banthat Thong Road – אוכל רחוב', time: '20:30', desc: 'רחוב קולינרי תוסס עם אוכל רחוב וקינוחים, במרחק נסיעה קצרה מהמלון. ארוחת ערב ראשונה בתאילנד!', lat: 13.7380, lng: 100.5240, type: 'restaurant' },
         ]
     },
     {
         day: 2, date: '11.10', weekday: 'ראשון', city: 'bangkok',
-        title: 'בנגקוק – שוק שטות, קפה כלבים וארמונות 🐕',
+        title: 'בנגקוק – שוק ענק, קניונים וצ׳יינה טאון 🛍️',
         hotel: 'Pathumwan Princess Hotel',
         weather: '⛅ 32°C',
         activities: [
             { name: 'Chatuchak Weekend Market', time: '08:00', desc: 'השוק הגדול בתאילנד – רק בסוף שבוע! 15,000 דוכנים: ביגוד, עיצוב, אוכל ופריטי וינטג. תחנת BTS Mo Chit', lat: 13.7999, lng: 100.5503, type: 'attraction' },
-            { name: 'Dog in Town Café', time: '10:30', desc: 'קפה עם כלבים ענקיים – הוסקי, סמויד ושאר גזעים. חובה לאוהבי כלבים! (~150 THB כניסה)', lat: 13.7244, lng: 100.5293, type: 'cafe' },
-            { name: 'Corgi in the Garden', time: '11:30', desc: 'קפה קורגים מדופן – לשבת על הדשא עם קורגים מתגלגלים. נמצא ליד Chatuchak', lat: 13.8042, lng: 100.5560, type: 'cafe' },
-            { name: 'ארמון המלוכה ווואט פרא קאו', time: '13:30', desc: 'המקדש המפורסם בתאילנד – תלבושת צנועה חובה! (כרטיס ~500 THB)', lat: 13.7500, lng: 100.4913, type: 'attraction' },
-            { name: 'וואט פו – בודהה השוכב', time: '15:30', desc: 'ענק, מרשים ועתיק – ממש ליד הארמון (~100 THB)', lat: 13.7465, lng: 100.4927, type: 'attraction' },
-            { name: 'Yaowarat – Chinatown בנגקוק', time: '18:00', desc: 'רחוב Chinatown עם אוכל רחוב מהמם – בשרים, פירות ים, קינוחים סיניים. חיה בלילה!', lat: 13.7403, lng: 100.5094, type: 'restaurant' },
-            { name: 'Patpong Night Market / Asiatique', time: '20:30', desc: 'Patpong – שוק לילה מפורסם (ממש ליד Silom BTS) | או Asiatique על הנהר עם גלגל ענק – בחרו לפי מצב הרוח!', lat: 13.7245, lng: 100.5292, type: 'attraction' },
+            { name: 'MBK Center + CentralWorld', time: '12:00', desc: 'MBK – קניון אייקוני עם כל מה שצריך. ממשיכות ב-Skywalk ל-CentralWorld. ארוחת צהריים: Kozuri Modern Handroll Bar או Din Tai Fung', lat: 13.7469, lng: 100.5330, type: 'attraction' },
+            { name: 'Yaowarat – Chinatown בנגקוק', time: '21:30', desc: 'שוק אוכל הלילה בצ׳יינה טאון – שיא ביום ראשון! בשרים, פירות ים וקינוחים סיניים. בשני רוב הדוכנים סגורים – תזמון מושלם', lat: 13.7403, lng: 100.5094, type: 'restaurant' },
         ]
     },
     // ── קו סמוי ──
