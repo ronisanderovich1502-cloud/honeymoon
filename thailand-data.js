@@ -177,40 +177,33 @@ export const thailandDays = [
     },
     {
         day: 15, date: '24.10', weekday: 'שבת', city: 'phuket',
-        title: 'פוקט – Big Buddha, עיר עתיקה ושוק לילה',
+        title: 'פוקט – שייט 4 האיים ושוק נאקה 🏝️',
         hotel: 'Crest Resort & Pool Villas Patong',
         weather: '☀️ 31°C',
         activities: [
-            { name: 'Big Buddha Phuket', time: '09:00', desc: 'פסל בודהה לבן ענק 45 מ׳ על גבעה – נוף 360° על פוקט ואיים סביב. Free entry', lat: 7.8278, lng: 98.3089, type: 'attraction' },
-            { name: 'Raga Coffee – קפה + פייר דזרט', time: '11:00', desc: 'קפה מיוחד עם קינוחי אש (flambé) – חוויה ייחודית בפוקט. בעיר העתיקה', lat: 7.8820, lng: 98.3900, type: 'cafe' },
-            { name: 'Phuket Old Town', time: '12:00', desc: 'בתים פורטוגלים-סיניים צבעוניים, קפה בוטיק ואמנות רחוב – הכי Instagrammable בפוקט', lat: 7.8836, lng: 98.3923, type: 'attraction' },
-            { name: 'Central Phuket (Floresta)', time: '13:30', desc: 'הקניון הכי גדול בפוקט – קניות, מסעדות ואפילו קיר טיפוס. מושלם לאחר הצהריים הלוהט', lat: 7.9012, lng: 98.3406, type: 'attraction' },
-            { name: 'Number 6 Restaurant', time: '14:00', desc: 'מסעדת פירות ים מומלצת מאוד בפוקט טאון – מנות ים עשירות במחיר מקומי', lat: 7.8840, lng: 98.3920, type: 'restaurant' },
-            { name: 'Naka Weekend Market', time: '17:00', desc: 'השוק הלילי הכי גדול בפוקט (שישי-שבת) – בגדים, אוכל, מוזיקה חי. ~2 ק"מ מהעיר העתיקה', lat: 7.8880, lng: 98.3760, type: 'attraction' },
+            { name: 'סיור 4 האיים – Coral Island & Friends', time: '08:00', desc: 'שייט יום שלם! קורל איילנד (Koh Hae), Koh Bon, Koh Racha Yai – שנורקלינג, חולות לבנים ומים טורקיז. יוצאים מנמל צ׳אלונג, ~1,500 THB', lat: 7.7760, lng: 98.3640, type: 'attraction' },
+            { name: 'Naka Weekend Market', time: '17:00', desc: 'השוק הלילי הכי גדול בפוקט (שישי-שבת בלבד!) – בגדים, אוכל, מוזיקה חי. תזמון מושלם אחרי יום האיים', lat: 7.8880, lng: 98.3760, type: 'attraction' },
         ]
     },
     {
         day: 16, date: '25.10', weekday: 'ראשון', city: 'phuket',
-        title: 'פוקט – ג׳יימס בונד, קיאק שקוף ו-Café del Mar 🚣',
+        title: 'פוקט – אופנועי ים ו-Bangla Road 🛥️',
         hotel: 'Crest Resort & Pool Villas Patong',
         weather: '☀️ 31°C',
         activities: [
-            { name: 'Phang Nga Bay – James Bond Island + Transparent Kayak', time: '08:00', desc: 'סיור יום שלם! James Bond Island (The Man with the Golden Gun), קיאק שקוף בלגונות, כפר על מים. ~2,500 THB', lat: 8.2760, lng: 98.5040, type: 'attraction' },
-            { name: 'Café del Mar Phuket', time: '17:00', desc: 'Beach Club אגדי מ-Ibiza – עכשיו גם בפוקט! DJ, בריכה ושקיעה מושלמת. באזור Kamala Beach', lat: 7.9540, lng: 98.2750, type: 'cafe' },
-            { name: 'Sushi Box', time: '20:00', desc: 'סושי מפורסם ובלתי רשמי בפוקט – סטלות מפתיעות במחיר שמח', lat: 7.8950, lng: 98.2960, type: 'restaurant' },
+            { name: 'טיול חצי יום באופנועי ים (Jet Ski)', time: '09:00', desc: 'חצי יום של אדרנלין על אופנועי ים בחופי פוקט – ~800 THB לחצי שעה, שכרו ישירות על Patong Beach', lat: 7.8967, lng: 98.2967, type: 'attraction' },
+            { name: 'Bangla Road', time: '21:00', desc: 'רחוב הבידור הגדול של פוקט – מוזיקה חי, ברים, תוכניות ואנרגיה שאין כמוה', lat: 7.8966, lng: 98.2947, type: 'restaurant' },
         ]
     },
     {
         day: 17, date: '26.10', weekday: 'שני', city: 'phuket',
-        title: 'פוקט – Andamanda, Yona Party Boat & Café Viewpoint 🎉',
+        title: 'פוקט – פילים, עיר עתיקה ושוק Kata 🐘',
         hotel: 'Crest Resort & Pool Villas Patong',
         weather: '☀️ 30°C',
         activities: [
-            { name: 'Hanuman World Zipline', time: '09:00', desc: 'ציפלין הכי גדול בפוקט – 32 פלטפורמות בג׳ונגל, גשרים ורוכבים בין עצים. ~2,500 THB. הזמינו מראש!', lat: 8.0380, lng: 98.3570, type: 'attraction' },
-            { name: 'Andamanda Phuket – פארק מים', time: '13:00', desc: 'פארק המים הכי גדול בתאילנד! מגלשות ענקיות, בריכות גלים ואדרנלין. ~1,400 THB', lat: 8.0900, lng: 98.3800, type: 'attraction' },
-            { name: 'Café Viewpoint Phuket', time: '14:00', desc: 'קפה בנקודת תצפית על כלל פוקט – קפה, קינוח ונוף שיישאר אתכן לתמיד', lat: 7.8200, lng: 98.3000, type: 'cafe' },
-            { name: 'Fira Beach Club – Happy Hour', time: '16:30', desc: 'Beach club מלוקסוס ב-Kata – בריכת אינפיניטי, ספות לבנות ושקיעה אחרונה בתאילנד', lat: 7.8180, lng: 98.2980, type: 'cafe' },
-            { name: 'Yona Party Boat', time: '19:00', desc: 'ספינת המסיבות של פוקט – DJ, ים פתוח, אנשים ואנרגיה! יוצאת מנמל ראסאדה (~1,800 THB)', lat: 7.8670, lng: 98.3990, type: 'restaurant' },
+            { name: 'חווה טיפולית לפילים', time: '08:00', desc: 'מקלט אתי לפילים בפוקט – צועדות, מאכילות ורוחצות עם הפילים בג׳ונגל. הזמינו מראש! ~2,000 THB', lat: 8.0380, lng: 98.3570, type: 'attraction' },
+            { name: 'Phuket Old Town', time: '13:00', desc: 'בתים פורטוגלים-סיניים צבעוניים, קפה בוטיק ואמנות רחוב – הכי Instagrammable בפוקט', lat: 7.8836, lng: 98.3923, type: 'attraction' },
+            { name: 'Kata Night Market', time: '18:00', desc: 'שוק לילה קסום בקטה – אוכל מקומי, בגדים וקינוחים. אווירה מקומית אותנטית רחוק מהמולת פאטונג', lat: 7.8180, lng: 98.2985, type: 'restaurant' },
         ]
     },
     {
