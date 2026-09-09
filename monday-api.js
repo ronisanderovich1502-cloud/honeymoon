@@ -1,5 +1,6 @@
 import { MONDAY_BOARD } from './monday-config.js';
 import { normalizeTimeToSlot, suggestEndTime, sortActivitiesByTime } from './time-options.js';
+import { normalizePlaceType } from './validate.js';
 
 const API = 'https://api.monday.com/v2';
 const C = MONDAY_BOARD.columns;
@@ -147,7 +148,7 @@ export function buildDataFromItems(items, country) {
         desc: a.desc || '',
         lat: a.lat,
         lng: a.lng,
-        type: a.placeType || 'attraction',
+        type: normalizePlaceType(a.placeType, 'attraction'),
         sortOrder: a.sortOrder ?? day.activities.length,
       });
     });
@@ -335,7 +336,7 @@ export async function createActivityItem(token, country, dayNum, city, activity,
     colVal('desc', activity.desc, 'long_text'),
     colVal('lat', activity.lat),
     colVal('lng', activity.lng),
-    colVal('place_type', activity.type || 'attraction', 'status'),
+    colVal('place_type', normalizePlaceType(activity.type, 'attraction'), 'status'),
     colVal('sort_order', sortOrder),
   );
   const data = await mondayQuery(token,
@@ -357,12 +358,12 @@ export async function updateActivityItem(token, itemId, activity, { dayNum, city
     colVal('desc', activity.desc, 'long_text'),
     colVal('lat', activity.lat),
     colVal('lng', activity.lng),
-    colVal('place_type', activity.type || 'attraction', 'status'),
+    colVal('place_type', normalizePlaceType(activity.type, 'attraction'), 'status'),
     activity.sortOrder != null ? colVal('sort_order', activity.sortOrder) : null,
   );
   await mondayQuery(token,
     `mutation($itemId:ID!,$boardId:ID!,$cols:JSON!) {
-      change_multiple_column_values(item_id:$itemId, board_id:$boardId, column_values:$cols) { id }
+      change_multiple_column_values(item_id:$itemId, board_id:$boardId, column_values:$cols, create_labels_if_missing:true) { id }
     }`,
     { itemId: String(itemId), boardId: String(MONDAY_BOARD.boardId), cols },
   );

@@ -1,11 +1,24 @@
 /** Shared form validation for honeymoon app */
 
 import { isValidTimeSlot, normalizeTimeToSlot, parseTimeToMinutes } from './time-options.js';
+import { MONDAY_BOARD } from './monday-config.js';
 
 const NAME_MAX = 120;
 const DESC_MAX = 400;
 const AREA_MAX = 80;
 const API_KEY_MIN = 20;
+
+export const PLACE_TYPE_VALUES = Object.keys(MONDAY_BOARD.placeTypes);
+
+export function normalizePlaceType(raw, fallback = 'attraction') {
+  const s = String(raw || '').trim().toLowerCase();
+  if (PLACE_TYPE_VALUES.includes(s)) return s;
+  // Monday status text sometimes mirrors the English label
+  if (s.includes('cafe') || s.includes('קפה')) return 'cafe';
+  if (s.includes('restaurant') || s.includes('מסעד')) return 'restaurant';
+  if (s.includes('attraction') || s.includes('אטרק')) return 'attraction';
+  return PLACE_TYPE_VALUES.includes(fallback) ? fallback : 'attraction';
+}
 
 export function clearFieldErrors(root = document) {
   root.querySelectorAll('.field-error').forEach(el => el.remove());
@@ -92,6 +105,7 @@ export function validatePlaceForm({ isEdit = false, daysList = [], selectedPlace
 
   const nameEl = document.getElementById('newPlaceName');
   const descEl = document.getElementById('newPlaceDesc');
+  const typeEl = document.getElementById('newPlaceType');
   const timeEl = document.getElementById('newPlaceTime');
   const timeEndEl = document.getElementById('newPlaceTimeEnd');
   const dayEl = document.getElementById('newPlaceDay');
@@ -99,6 +113,10 @@ export function validatePlaceForm({ isEdit = false, daysList = [], selectedPlace
 
   const name = nameEl?.value.trim() || '';
   const desc = descEl?.value.trim() || '';
+  const type = normalizePlaceType(
+    typeEl?.value || (isEdit ? existingAct?.type : 'attraction'),
+    'attraction',
+  );
   const timeRaw = timeEl?.value.trim() || '';
   const timeEndRaw = timeEndEl?.value.trim() || '';
   const time = timeRaw || (isEdit ? normalizeTimeToSlot(existingAct?.time, { emptyAs: '' }) : '');
@@ -111,6 +129,11 @@ export function validatePlaceForm({ isEdit = false, daysList = [], selectedPlace
 
   const descErr = optDesc(desc);
   if (descErr) { setFieldError(descEl, descErr); ok = false; }
+
+  if (typeEl && !PLACE_TYPE_VALUES.includes(typeEl.value)) {
+    setFieldError(typeEl, 'נא לבחור סוג מקום');
+    ok = false;
+  }
 
   if (!timeRaw) {
     setFieldError(timeEl, 'נא לבחור שעת התחלה');
@@ -162,6 +185,7 @@ export function validatePlaceForm({ isEdit = false, daysList = [], selectedPlace
     values: {
       name,
       desc,
+      type,
       time: timeRaw || time,
       timeEnd: timeEndRaw || timeEnd,
       dayNum,

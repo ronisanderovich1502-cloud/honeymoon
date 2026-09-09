@@ -26,7 +26,7 @@ document.getElementById('newPlaceTime')?.addEventListener('change', () => {
   }
 });
 bindClearOnInput([
-  'placesSearchInput', 'newPlaceName', 'newPlaceDesc', 'newPlaceTime', 'newPlaceTimeEnd', 'newPlaceDay',
+  'placesSearchInput', 'newPlaceName', 'newPlaceDesc', 'newPlaceType', 'newPlaceTime', 'newPlaceTimeEnd', 'newPlaceDay',
   'foodItemName', 'foodItemArea', 'foodItemCity', 'foodItemCategory', 'foodItemDesc', 'foodItemDay',
   'mondayKeyInput',
 ]);
@@ -374,6 +374,7 @@ function resetModal() {
     document.getElementById('placesSearchInput').value = '';
     document.getElementById('newPlaceName').value = '';
     document.getElementById('newPlaceDesc').value = '';
+    document.getElementById('newPlaceType').value = 'attraction';
     setTimeSelectValue(document.getElementById('newPlaceTime'), '');
     setTimeSelectValue(document.getElementById('newPlaceTimeEnd'), '');
     document.getElementById('places-search-results').style.display = 'none';
@@ -425,11 +426,11 @@ document.getElementById('modalConfirm').addEventListener('click', () => {
     if (!requireMonday()) return;
     const checked = validatePlaceForm({ isEdit: false, daysList: days, selectedPlace });
     if (!checked.ok) { shakeModal('modalOverlay'); return; }
-    const { name, desc, time, timeEnd, dayNum, lat, lng } = checked.values;
+    const { name, desc, time, timeEnd, dayNum, lat, lng, type } = checked.values;
     const day = days.find(d => d.day === dayNum);
     if (!day) { shakeModal('modalOverlay'); return; }
 
-    const newAct = { name, time, timeEnd, desc, lat, lng };
+    const newAct = { name, time, timeEnd, desc, lat, lng, type };
     day.activities.push(newAct);
     sortActivitiesByTime(day.activities);
     const keepDay = selectedDayNum;
@@ -503,6 +504,7 @@ document.addEventListener('click', e => {
 
         document.getElementById('newPlaceName').value = act.name;
         document.getElementById('newPlaceDesc').value = act.desc || '';
+        document.getElementById('newPlaceType').value = act.type || 'attraction';
         setTimeSelectValue(document.getElementById('newPlaceTime'), act.time || '');
         setTimeSelectValue(document.getElementById('newPlaceTimeEnd'), act.timeEnd || suggestEndTime(act.time));
         document.getElementById('newPlaceDay').value = dayNum;
@@ -532,7 +534,8 @@ document.getElementById('modalConfirm').addEventListener('click', function() {
     const act = fromDay.activities[idx];
     const snapshot = {
       name: act.name, desc: act.desc, time: act.time, timeEnd: act.timeEnd,
-      lat: act.lat, lng: act.lng, fromDayNum, fromIdx: idx, fromCity: fromDay.city,
+      lat: act.lat, lng: act.lng, type: act.type,
+      fromDayNum, fromIdx: idx, fromCity: fromDay.city,
     };
 
     const checked = validatePlaceForm({
@@ -542,12 +545,12 @@ document.getElementById('modalConfirm').addEventListener('click', function() {
       existingAct: act,
     });
     if (!checked.ok) { shakeModal('modalOverlay'); return; }
-    const { name, desc, time, timeEnd, lat, lng, dayNum: toDayNum } = checked.values;
+    const { name, desc, time, timeEnd, lat, lng, type, dayNum: toDayNum } = checked.values;
     const toDay = days.find(d => d.day === toDayNum);
     if (!toDay) { shakeModal('modalOverlay'); return; }
 
     act.name = name; act.desc = desc; act.time = time; act.timeEnd = timeEnd;
-    act.lat = lat; act.lng = lng;
+    act.lat = lat; act.lng = lng; act.type = type;
 
     if (toDayNum !== fromDayNum) {
       fromDay.activities.splice(idx, 1);
@@ -587,7 +590,7 @@ document.getElementById('modalConfirm').addEventListener('click', function() {
       }
       Object.assign(act, {
         name: snapshot.name, desc: snapshot.desc, time: snapshot.time,
-        timeEnd: snapshot.timeEnd, lat: snapshot.lat, lng: snapshot.lng,
+        timeEnd: snapshot.timeEnd, lat: snapshot.lat, lng: snapshot.lng, type: snapshot.type,
       });
       sortActivitiesByTime(fromDay.activities);
       if (toDayNum !== fromDayNum) sortActivitiesByTime(toDay.activities);

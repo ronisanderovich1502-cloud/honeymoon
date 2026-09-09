@@ -28,4 +28,10 @@ export const MONDAY_BOARD = {
   },
   recordTypes: { day: 'Day', activity: 'Activity', food: 'Food' },
   countries: { japan: 'Japan', thailand: 'Thailand' },
+  /** Status labels on place_type column (must match board / create_labels_if_missing) */
+  placeTypes: {
+    attraction: { value: 'attraction', label: '🏛️ אטרקציה' },
+    cafe: { value: 'cafe', label: '☕ בית קפה' },
+    restaurant: { value: 'restaurant', label: '🍽️ מסעדה' },
+  },
 };

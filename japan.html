@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Noto+Sans+Hebrew:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="styles.css?v=20260909c">
+    <link rel="stylesheet" href="styles.css?v=20260909d">
 </head>
 <body>
     <div class="container">
@@ -116,6 +116,12 @@
             <input type="text" id="newPlaceName" placeholder="שם המקום" />
             <label>📝 תיאור קצר</label>
             <input type="text" id="newPlaceDesc" placeholder="מה עושים שם?" />
+            <label>🏷️ סוג מקום</label>
+            <select id="newPlaceType">
+                <option value="attraction">🏛️ אטרקציה</option>
+                <option value="cafe">☕ בית קפה</option>
+                <option value="restaurant">🍽️ מסעדה</option>
+            </select>
             <label>🕐 שעת התחלה</label>
             <select id="newPlaceTime"></select>
             <label>🕐 שעת סיום</label>
@@ -168,6 +174,6 @@
         </div>
     </div>
 
-    <script type="module" src="app.js?v=20260909c"></script>
+    <script type="module" src="app.js?v=20260909d"></script>
 </body>
 </html>
