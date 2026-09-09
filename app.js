@@ -14,6 +14,7 @@ import {
 } from './validate.js';
 import { fillTimeSelect, setTimeSelectValue, suggestEndTime, formatTimeRange, sortActivitiesByTime } from './time-options.js';
 import { searchPlaces, placeSearchEmptyHtml } from './place-search.js';
+import { initSidekick } from './sidekick.js';
 
 if (localStorage.getItem('mondayCache_japan')) hidePaneSkeletons();
 fillTimeSelect(document.getElementById('newPlaceTime'));
@@ -774,6 +775,18 @@ async function boot() {
   initMap();
   initResize(() => map.invalidateSize());
   initSync('japan', { autoLoad: false });
+  initSidekick({
+    country: 'japan',
+    getDays: () => days,
+    getFoodGuide: () => foodGuide,
+    onBoardChanged: async () => {
+      try {
+        await refreshFromMonday(true);
+      } catch (e) {
+        console.error('Sidekick refresh:', e);
+      }
+    },
+  });
   updateEditAccess();
   try {
     await refreshFromMonday(false);

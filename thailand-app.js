@@ -13,6 +13,7 @@ import {
 } from './validate.js';
 import { fillTimeSelect, setTimeSelectValue, suggestEndTime, formatTimeRange, sortActivitiesByTime } from './time-options.js';
 import { searchPlaces, placeSearchEmptyHtml } from './place-search.js';
+import { initSidekick } from './sidekick.js';
 
 if (localStorage.getItem('mondayCache_thailand')) hidePaneSkeletons();
 fillTimeSelect(document.getElementById('newPlaceTime'));
@@ -682,6 +683,18 @@ async function boot() {
   initMap();
   initResize(() => map.invalidateSize());
   initSync('thailand', { autoLoad: false });
+  initSidekick({
+    country: 'thailand',
+    getDays: () => thailandDays,
+    getFoodGuide: () => thailandFoodGuide,
+    onBoardChanged: async () => {
+      try {
+        await refreshFromMonday(true);
+      } catch (e) {
+        console.error('Sidekick refresh:', e);
+      }
+    },
+  });
   updateEditAccess();
   try {
     await refreshFromMonday(false);
