@@ -7,6 +7,8 @@ import {
 import { initResize } from './resize.js';
 import { searchSkeleton, showPaneSkeletons, hidePaneSkeletons } from './skeleton.js';
 
+if (localStorage.getItem('mondayCache_thailand')) hidePaneSkeletons();
+
 if (!isConnected()) {
   location.replace('index.html');
 }
