@@ -120,30 +120,30 @@ export function fetchPlaceDetails(act, day) {
     const optionsHtml = sameCityOpts.map(a => `<option value="${a.lat},${a.lng}">${a.name}</option>`).join('');
 
     panelContent.innerHTML = `
-        <div id="panelPhotoArea" class="skeleton-box skeleton-photo"></div>
+        <div id="panelPhotoArea" class="panel-photo-area"></div>
         <div class="panel-body">
-            <div class="panel-title">${name}</div>
-            <span class="panel-day-badge" style="background:${cityColors[day.city]}">יום ${day.day} · ${act.time}</span>
+            <div class="panel-head">
+                <div class="panel-emoji">${cityEmoji[day.city] || '📍'}</div>
+                <div class="panel-head-text">
+                    <div class="panel-title">${name}</div>
+                    <span class="panel-day-badge" style="background:${cityColors[day.city]}">יום ${day.day} · ${act.time}</span>
+                </div>
+            </div>
             <div class="panel-details" id="panelDetails">
                 ${act.desc ? `<div class="panel-row"><span class="panel-row-icon">📝</span><span class="panel-row-val">${act.desc}</span></div>` : ''}
-                <span class="skeleton-box skeleton-line w60"></span>
-                <span class="skeleton-box skeleton-line w40"></span>
             </div>
-            <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;">
-                <a href="https://www.google.com/maps?q=${lat},${lng}" target="_blank" rel="noopener"
-                   style="flex:1;text-align:center;padding:9px 6px;background:#4285F4;color:white;border-radius:10px;text-decoration:none;font-size:0.78rem;font-weight:600;">🗺️ Google Maps</a>
-                <a href="https://waze.com/ul?ll=${lat},${lng}&navigate=yes" target="_blank" rel="noopener"
-                   style="flex:1;text-align:center;padding:9px 6px;background:#05C3DE;color:white;border-radius:10px;text-decoration:none;font-size:0.78rem;font-weight:600;">🚗 Waze</a>
-                <a href="https://www.google.com/search?q=${encodeURIComponent(name + ' Thailand')}" target="_blank" rel="noopener"
-                   style="flex:1;text-align:center;padding:9px 6px;background:#34A853;color:white;border-radius:10px;text-decoration:none;font-size:0.78rem;font-weight:600;">🔍 Google</a>
+            <div class="panel-actions">
+                <a class="panel-action" href="https://www.google.com/maps?q=${lat},${lng}" target="_blank" rel="noopener">🗺️ Maps</a>
+                <a class="panel-action" href="https://waze.com/ul?ll=${lat},${lng}&navigate=yes" target="_blank" rel="noopener">🚗 Waze</a>
+                <a class="panel-action" href="https://www.google.com/search?q=${encodeURIComponent(name + ' Thailand')}" target="_blank" rel="noopener">🔍 Google</a>
             </div>
             <div class="transit-section">
-                <div class="transit-title">🚦 איך מגיעים לכאן?</div>
+                <div class="transit-title">איך מגיעים?</div>
                 <select class="transit-from-select" id="transitFrom">
-                    <option value="">📍 מיקומי הנוכחי</option>
+                    <option value="">מיקום נוכחי</option>
                     ${optionsHtml}
                 </select>
-                <div class="transit-options" id="transitOptions"><div class="transit-loading">בחר נקודת מוצא לחישוב מסלולים...</div></div>
+                <div class="transit-options" id="transitOptions"><div class="transit-loading">בחר נקודת מוצא...</div></div>
             </div>
         </div>`;
 
@@ -154,17 +154,17 @@ export function fetchPlaceDetails(act, day) {
 
     const panelKey = `${lat},${lng}`;
 
-    fetch(`https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(name.split('–')[0].trim())}&prop=pageimages&format=json&pithumbsize=600&origin=*`)
-        .then(r => r.json()).catch(() => null)
+        fetch(`https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(name.split('–')[0].trim())}&prop=pageimages&format=json&pithumbsize=600&origin=*`)
+        .then(r => r.json())
+        .catch(() => null)
         .then(data => {
             if (`${placePanel.dataset.lat},${placePanel.dataset.lng}` !== panelKey) return;
             const photoEl = document.getElementById('panelPhotoArea');
             if (!photoEl) return;
-            const page = data?.query?.pages && Object.values(data.query.pages)[0];
-            if (page?.thumbnail) {
-                photoEl.outerHTML = `<img class="panel-photo" src="${page.thumbnail.source}" alt="${name}" onerror="this.style.display='none'">`;
-            } else {
-                photoEl.outerHTML = `<div class="panel-photo-placeholder">${cityEmoji[day.city] || '📍'}</div>`;
+            const pages = data && data.query && data.query.pages;
+            const page = pages && Object.values(pages)[0];
+            if (page && page.thumbnail) {
+                photoEl.innerHTML = `<img class="panel-photo is-visible" src="${page.thumbnail.source}" alt="${name}" onerror="this.parentElement.innerHTML=''">`;
             }
         });
 
@@ -175,7 +175,6 @@ export function fetchPlaceDetails(act, day) {
             if (`${placePanel.dataset.lat},${placePanel.dataset.lng}` !== panelKey) return;
             const detailsEl = document.getElementById('panelDetails');
             if (!detailsEl) return;
-            detailsEl.querySelectorAll('.skeleton-box').forEach(el => el.remove());
             const t = (ovData?.elements?.[0]?.tags) || {};
             const rows = [
                 t.opening_hours && `<div class="panel-row"><span class="panel-row-icon">🕐</span><span class="panel-row-val">${t.opening_hours}</span></div>`,
@@ -249,7 +248,7 @@ export function initMap() {
     });
 
     document.getElementById('panelClose').addEventListener('click', () => document.getElementById('placePanel').classList.remove('open'));
-    document.querySelector('.panel-handle').addEventListener('click', () => document.getElementById('placePanel').classList.remove('open'));
+    // panel-handle is used for resize — close only via ✕ / back
 
     document.addEventListener('change', e => {
         if (e.target.id !== 'transitFrom') return;

@@ -7,12 +7,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Noto+Sans+Hebrew:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-    <script>
-        // If a country was already chosen, redirect immediately
-        const last = localStorage.getItem('honeymoon-country');
-        if (last === 'japan') location.replace('japan.html');
-        else if (last === 'thailand') location.replace('thailand.html');
-    </script>
 </head>
 <body class="selector-page">
     <div class="destination-selector">
@@ -22,29 +16,48 @@
             <p>27 ספטמבר – 24 באוקטובר · 28 ימים של הרפתקה</p>
         </div>
 
-        <div class="selector-cards">
-            <a href="japan.html" class="selector-card selector-japan"
-               onclick="localStorage.setItem('honeymoon-country','japan')">
-                <div class="selector-card-flag">🇯🇵</div>
-                <div class="selector-card-title">יפן</div>
-                <div class="selector-card-dates">27.09 – 10.10.2026</div>
-                <div class="selector-card-cities">טוקיו · קיוטו · אוסקה</div>
-                <div class="selector-card-days">14 ימים</div>
-                <div class="selector-card-cta">פתחי לו״ז ←</div>
-            </a>
+        <!-- LOGIN -->
+        <div class="login-card" id="loginCard">
+            <h2>📋 התחברות ל-Monday</h2>
+            <p class="login-sub">הלו״ז נטען מלוח Monday. הדביקי API key כדי להמשיך.</p>
+            <div class="login-hint">
+                <a href="https://shahar-monday.monday.com/apps/manage/tokens" target="_blank" rel="noopener"><strong>קבל API key מ-Monday ←</strong></a>
+            </div>
+            <label>🔑 Monday API Key</label>
+            <input type="password" id="loginKeyInput" placeholder="API token..." autocomplete="off" />
+            <div class="sync-status-box" id="loginStatusBox"></div>
+            <button class="btn-primary login-submit" id="loginSubmit">התחברי וטעני לו״ז</button>
+        </div>
 
-            <a href="thailand.html" class="selector-card selector-thailand"
-               onclick="localStorage.setItem('honeymoon-country','thailand')">
-                <div class="selector-card-flag">🇹🇭</div>
-                <div class="selector-card-title">תאילנד</div>
-                <div class="selector-card-dates">10.10 – 24.10.2026</div>
-                <div class="selector-card-cities">בנגקוק · ...</div>
-                <div class="selector-card-days">14 ימים</div>
-                <div class="selector-card-cta">פתחי לו״ז ←</div>
-            </a>
+        <!-- DESTINATIONS (after login) -->
+        <div id="destinationsPanel" style="display:none;width:100%;max-width:720px">
+            <div class="login-ready-bar">
+                <span id="loginReadyLabel">✅ מחובר ל-Monday</span>
+                <button class="btn-secondary" id="loginDisconnect" style="color:#f44336;border-color:#f44336;padding:6px 12px;font-size:0.78rem">נתק</button>
+            </div>
+            <div class="selector-cards">
+                <a href="japan.html" class="selector-card selector-japan" id="gotoJapan">
+                    <div class="selector-card-flag">🇯🇵</div>
+                    <div class="selector-card-title">יפן</div>
+                    <div class="selector-card-dates">27.09 – 10.10.2026</div>
+                    <div class="selector-card-cities">טוקיו · קיוטו · אוסקה</div>
+                    <div class="selector-card-days" id="japanDaysCount">טוען…</div>
+                    <div class="selector-card-cta">פתחי לו״ז ←</div>
+                </a>
+                <a href="thailand.html" class="selector-card selector-thailand" id="gotoThailand">
+                    <div class="selector-card-flag">🇹🇭</div>
+                    <div class="selector-card-title">תאילנד</div>
+                    <div class="selector-card-dates">10.10 – 24.10.2026</div>
+                    <div class="selector-card-cities">בנגקוק · סמוי · קראבי · פיפי · פוקט</div>
+                    <div class="selector-card-days" id="thailandDaysCount">טוען…</div>
+                    <div class="selector-card-cta">פתחי לו״ז ←</div>
+                </a>
+            </div>
         </div>
 
         <div class="selector-footer">✈️ בנינו ביחד את הטיול שתמיד חלמנו עליו ♥</div>
     </div>
+
+    <script type="module" src="login.js"></script>
 </body>
 </html>

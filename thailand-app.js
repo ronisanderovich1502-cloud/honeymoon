@@ -4,6 +4,11 @@ import {
   isConnected, requireMonday, initSync, loadMondayData,
   syncActivityCreate, syncActivityUpdate, syncActivityDelete, syncFoodCreate,
 } from './sync.js';
+import { initResize } from './resize.js';
+
+if (!isConnected()) {
+  location.replace('index.html');
+}
 
 function replaceArray(target, source) {
   target.length = 0;
@@ -156,7 +161,23 @@ function renderItinerary() {
     });
 }
 
-renderItinerary();
+function showItineraryLoading(msg = '⏳ טוען לו״ז מ-Monday...') {
+  const el = document.getElementById('itinerary');
+  if (el) el.innerHTML = `<div class="boot-loading">${msg}</div>`;
+}
+
+function rebuildDaySelect() {
+  if (!daySelect) return;
+  const prev = daySelect.value;
+  daySelect.innerHTML = '';
+  thailandDays.forEach(d => {
+    const opt = document.createElement('option');
+    opt.value = d.day;
+    opt.textContent = `יום ${d.day} – ${d.title.replace(/[🛬🏖️⛰️🌴🤿🏙️]/gu,'').trim().substring(0,22)} (${d.date})`;
+    daySelect.appendChild(opt);
+  });
+  if (prev && [...daySelect.options].some(o => o.value === prev)) daySelect.value = prev;
+}
 
 // Activity click → map
 document.addEventListener('click', e => {
@@ -224,13 +245,6 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 let selectedPlace = null;
 const modalOverlay = document.getElementById('modalOverlay');
 const daySelect    = document.getElementById('newPlaceDay');
-
-thailandDays.forEach(d => {
-    const opt = document.createElement('option');
-    opt.value = d.day;
-    opt.textContent = `יום ${d.day} – ${d.title.replace(/[🛬🏖️⛰️🌴🤿🏙️]/gu,'').trim().substring(0,22)} (${d.date})`;
-    daySelect.appendChild(opt);
-});
 
 document.getElementById('apiKeyHint').textContent = '🗺️ חיפוש חופשי באמצעות OpenStreetMap';
 
@@ -517,40 +531,25 @@ document.querySelectorAll('.sidebar-tab').forEach(tab => {
     });
 });
 
-// --- MOBILE SIDEBAR DRAG ---
-(function() {
-    const bar = document.getElementById('sidebarDragBar');
-    if (!bar) return;
-    const sidebar = document.querySelector('.sidebar');
-    let startY = 0, startH = 0;
-    const isMobile = () => window.innerWidth <= 768;
-    bar.addEventListener('touchstart', e => { if (!isMobile()) return; startY = e.touches[0].clientY; startH = sidebar.getBoundingClientRect().height; sidebar.style.transition = 'none'; }, { passive: true });
-    bar.addEventListener('touchmove', e => { if (!isMobile()) return; const dy = startY - e.touches[0].clientY; const vh = window.innerHeight; sidebar.style.height = Math.min(Math.max(startH + dy, 44), vh * 0.96) + 'px'; }, { passive: true });
-    bar.addEventListener('touchend', () => {
-        if (!isMobile()) return;
-        const vh = window.innerHeight, h = sidebar.getBoundingClientRect().height;
-        sidebar.style.transition = '';
-        if (h < vh * 0.25) sidebar.style.height = '44px';
-        else if (h < vh * 0.72) sidebar.style.height = (vh * 0.58) + 'px';
-        else sidebar.style.height = (vh * 0.92) + 'px';
-        setTimeout(() => map.invalidateSize(), 320);
-    });
-})();
-
 // Panel back button
 document.getElementById('panelBackBtn')?.addEventListener('click', () => document.getElementById('placePanel').classList.remove('open'));
 
 async function refreshFromMonday(force = false) {
   const data = await loadMondayData('thailand', { force });
-  if (!data?.days?.length) return;
+  if (!data?.days?.length) {
+    showItineraryLoading('⚠️ לא נמצאו ימים ב-Monday. בדקו את הלוח או רעננו.');
+    return;
+  }
   replaceArray(thailandDays, data.days);
   replaceArray(thailandFoodGuide, data.foodGuide);
+  rebuildDaySelect();
   renderItinerary();
   rebuildMap();
   updateStats();
   updateEditAccess();
   document.querySelector('.day-card')?.classList.add('active');
   selectDayOnMap(thailandDays[0]?.day || 1);
+  setTimeout(() => map.invalidateSize(), 80);
   if (data.fromCache) showToast(data.stale ? '⚠️ נטען ממטמון (שגיאת Monday)' : '✅ נטען מהמטמון', 2500);
   else showToast('✅ נטען מ-Monday', 2500);
 }
@@ -559,9 +558,18 @@ window.addEventListener('monday-connected', (e) => refreshFromMonday(!!e.detail?
 window.addEventListener('monday-disconnected', () => updateEditAccess());
 
 // --- INIT ---
-initMap();
-initSync('thailand');
-updateEditAccess();
-document.querySelector('.day-card')?.classList.add('active');
-selectDayOnMap(1);
-updateStats();
+async function boot() {
+  showItineraryLoading();
+  initMap();
+  initResize(() => map.invalidateSize());
+  initSync('thailand', { autoLoad: false });
+  updateEditAccess();
+  try {
+    await refreshFromMonday(false);
+  } catch (e) {
+    showItineraryLoading(`❌ שגיאה בטעינה: ${e.message || e}`);
+    showToast('❌ לא ניתן לטעון מ-Monday', 3500);
+  }
+  updateStats();
+}
+if (isConnected()) boot();

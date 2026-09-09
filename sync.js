@@ -103,6 +103,9 @@ export function disconnectMonday() {
   mondayToken = '';
   setSyncDot('');
   window.dispatchEvent(new CustomEvent('monday-disconnected'));
+  if (/japan\.html|thailand\.html/.test(location.pathname)) {
+    location.replace('index.html');
+  }
 }
 
 /** @param {{ force?: boolean }} opts force=true bypasses cache (hard refresh) */
@@ -222,7 +225,7 @@ export async function syncFoodCreate(entry) {
   }
 }
 
-export function initSync(country = 'japan') {
+export function initSync(country = 'japan', { autoLoad = true } = {}) {
   currentCountry = country;
   const overlay = document.getElementById('syncModalOverlay');
   if (!overlay) return;
@@ -267,7 +270,7 @@ export function initSync(country = 'japan') {
 
   setSyncDot(mondayToken ? 'synced' : '');
   updateCacheStatusLabel();
-  if (mondayToken) {
+  if (autoLoad && mondayToken) {
     window.dispatchEvent(new CustomEvent('monday-connected', { detail: { force: false } }));
   }
 }
