@@ -231,18 +231,21 @@ function haversineKm(lat1, lng1, lat2, lng2) {
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
 
+const WALKABLE_KM = 0.8; // under ~10 min walk — transit is not practical
+const WALKABLE_NOTE = 'מרחק הליכה';
+
 function japanTransitPrice(km, city) {
-    if (km < 1) return { train: 'חינם', bus: 'חינם' };
+    if (km < WALKABLE_KM) return { train: WALKABLE_NOTE, bus: WALKABLE_NOTE, walkable: true };
     const trainFare = city === 'kyoto' || city === 'osaka'
         ? Math.min(Math.round((180 + km * 30) / 10) * 10, 400)
         : Math.min(Math.round((170 + km * 28) / 10) * 10, 320);
     const busFare = city === 'kyoto' ? 230 : 210;
-    return { train: `¥${trainFare}`, bus: `¥${busFare}` };
+    return { train: `¥${trainFare}`, bus: `¥${busFare}`, walkable: false };
 }
 
 function taxiPrice(km) {
     const base = 730, perMeter = 90 / 280;
-    return `¥${Math.round(base + km * 1000 * perMeter / 10) * 10}`;
+    return `¥${Math.round((base + km * 1000 * perMeter) / 10) * 10}`;
 }
 
 export async function calcTransitOptions(fromLat, fromLng, toLat, toLng, city) {
@@ -264,27 +267,33 @@ export async function calcTransitOptions(fromLat, fromLng, toLat, toLng, city) {
         }
     } catch(e) {}
 
-    const trainMin = Math.round(km < 1 ? 5 : km / 0.55 + 8);
-    const busMin   = Math.round(km < 1 ? 6 : km / 0.35 + 10);
+    const trainMin = Math.round(prices.walkable ? Math.max(walkMin + 8, 12) : km / 0.55 + 8);
+    const busMin   = Math.round(prices.walkable ? Math.max(walkMin + 10, 14) : km / 0.35 + 10);
     const taxiMin  = Math.round(km / 0.55 + 5);
 
     const options = [
-        { icon: '🚶', mode: 'הליכה',       time: walkMin,  price: 'חינם',          tmode: 'walking' },
-        { icon: '🚃', mode: 'רכבת / מטרו', time: trainMin, price: prices.train,    tmode: 'transit' },
-        { icon: '🚌', mode: 'אוטובוס',      time: busMin,   price: prices.bus,      tmode: 'transit' },
-        { icon: '🚕', mode: 'מונית',         time: taxiMin,  price: taxiPrice(km),   tmode: 'driving' },
-    ].sort((a, b) => a.time - b.time);
+        { icon: '🚶', mode: 'הליכה',       time: walkMin,  price: 'חינם',          tmode: 'walking', unavailable: false },
+        { icon: '🚃', mode: 'רכבת / מטרו', time: trainMin, price: prices.train,    tmode: 'transit', unavailable: prices.walkable },
+        { icon: '🚌', mode: 'אוטובוס',      time: busMin,   price: prices.bus,      tmode: 'transit', unavailable: prices.walkable },
+        { icon: '🚕', mode: 'מונית',         time: taxiMin,  price: taxiPrice(km),   tmode: 'driving', unavailable: false },
+    ].sort((a, b) => {
+        if (a.unavailable !== b.unavailable) return a.unavailable ? 1 : -1;
+        return a.time - b.time;
+    });
 
     container.innerHTML = options.map((o, i) => {
         const gmUrl = `https://www.google.com/maps/dir/${fromLat},${fromLng}/${toLat},${toLng}/data=!4m2!4m1!3e${o.tmode === 'walking' ? 2 : o.tmode === 'transit' ? 3 : 0}`;
+        const fastest = !o.unavailable && options.findIndex(x => !x.unavailable) === i;
         return `
-        <a class="transit-option${i === 0 ? ' fastest' : ''}" href="${gmUrl}" target="_blank" rel="noopener">
+        <a class="transit-option${fastest ? ' fastest' : ''}${o.unavailable ? ' unavailable' : ''}" href="${gmUrl}" target="_blank" rel="noopener">
             <div class="transit-icon">${o.icon}</div>
             <div class="transit-info">
-                <div class="transit-mode">${i === 0 ? '<span class="fastest-badge">הכי מהיר</span>' : ''}${o.mode}</div>
-                <div class="transit-time">~${o.time} דקות · ${o.mode === 'הליכה' ? walkDist + ' ק"מ' : km.toFixed(1) + ' ק"מ'}</div>
+                <div class="transit-mode">${fastest ? '<span class="fastest-badge">הכי מהיר</span>' : ''}${o.mode}</div>
+                <div class="transit-time">${o.unavailable
+                    ? 'קרוב מדי לתחבורה ציבורית — עדיף ברגל'
+                    : `~${o.time} דקות · ${o.mode === 'הליכה' ? walkDist + ' ק"מ' : km.toFixed(1) + ' ק"מ'}`}</div>
             </div>
-            <div class="transit-price">${o.price}</div>
+            <div class="transit-price${o.unavailable ? ' note' : ''}">${o.price}</div>
         </a>`;
     }).join('');
 }

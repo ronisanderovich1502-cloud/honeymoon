@@ -1019,6 +1019,11 @@ body.dark .sk-inline-chip {
     border-color: color-mix(in srgb, var(--rose) 45%, var(--border));
     background: color-mix(in srgb, var(--rose) 6%, var(--bg));
 }
+.transit-option.unavailable {
+    opacity: 0.62;
+    background: transparent;
+}
+.transit-option.unavailable:hover { border-color: var(--border); }
 
 .transit-icon { font-size: 1rem; flex-shrink: 0; }
 

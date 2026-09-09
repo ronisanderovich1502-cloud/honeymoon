@@ -201,6 +201,7 @@ export async function calcTransitOptions(fromLat, fromLng, toLat, toLng) {
     if (!container) return;
     container.innerHTML = transitSkeleton();
     const km = haversineKm(fromLat, fromLng, toLat, toLng);
+    const walkable = km < 0.8;
 
     let walkMin = Math.round(km / 0.08);
     try {
@@ -210,21 +211,27 @@ export async function calcTransitOptions(fromLat, fromLng, toLat, toLng) {
     } catch(e) {}
 
     const options = [
-        { icon: '🚶', mode: 'הליכה',     time: walkMin,                           price: 'חינם',                          tmode: 'walking' },
-        { icon: '🚇', mode: 'BTS / MRT', time: Math.round(km / 0.5 + 10),        price: km < 2 ? '฿16' : km < 8 ? '฿26' : '฿59', tmode: 'transit' },
-        { icon: '🛵', mode: 'מוטו-סיי',  time: Math.round(km / 0.4 + 5),         price: `฿${Math.round(km*15+40)}`,      tmode: 'driving' },
-        { icon: '🚗', mode: 'Grab Car',  time: Math.round(km / 0.55 + 8),        price: `฿${Math.round(50 + km * 20)}`,  tmode: 'driving' },
-    ].sort((a, b) => a.time - b.time);
+        { icon: '🚶', mode: 'הליכה',     time: walkMin,                           price: 'חינם',                          tmode: 'walking', unavailable: false },
+        { icon: '🚇', mode: 'BTS / MRT', time: Math.round(walkable ? walkMin + 10 : km / 0.5 + 10), price: walkable ? 'מרחק הליכה' : (km < 2 ? '฿16' : km < 8 ? '฿26' : '฿59'), tmode: 'transit', unavailable: walkable },
+        { icon: '🛵', mode: 'מוטו-סיי',  time: Math.round(km / 0.4 + 5),         price: `฿${Math.round(km*15+40)}`,      tmode: 'driving', unavailable: false },
+        { icon: '🚗', mode: 'Grab Car',  time: Math.round(km / 0.55 + 8),        price: `฿${Math.round(50 + km * 20)}`,  tmode: 'driving', unavailable: false },
+    ].sort((a, b) => {
+        if (a.unavailable !== b.unavailable) return a.unavailable ? 1 : -1;
+        return a.time - b.time;
+    });
 
     container.innerHTML = options.map((o, i) => {
         const gmUrl = `https://www.google.com/maps/dir/${fromLat},${fromLng}/${toLat},${toLng}/data=!4m2!4m1!3e${o.tmode === 'walking' ? 2 : o.tmode === 'transit' ? 3 : 0}`;
-        return `<a class="transit-option${i === 0 ? ' fastest' : ''}" href="${gmUrl}" target="_blank" rel="noopener">
+        const fastest = !o.unavailable && options.findIndex(x => !x.unavailable) === i;
+        return `<a class="transit-option${fastest ? ' fastest' : ''}${o.unavailable ? ' unavailable' : ''}" href="${gmUrl}" target="_blank" rel="noopener">
             <div class="transit-icon">${o.icon}</div>
             <div class="transit-info">
-                <div class="transit-mode">${i === 0 ? '<span class="fastest-badge">הכי מהיר</span>' : ''}${o.mode}</div>
-                <div class="transit-time">~${o.time} דקות · ${km.toFixed(1)} ק"מ</div>
+                <div class="transit-mode">${fastest ? '<span class="fastest-badge">הכי מהיר</span>' : ''}${o.mode}</div>
+                <div class="transit-time">${o.unavailable
+                    ? 'קרוב מדי לתחבורה ציבורית — עדיף ברגל'
+                    : `~${o.time} דקות · ${km.toFixed(1)} ק"מ`}</div>
             </div>
-            <div class="transit-price">${o.price}</div>
+            <div class="transit-price${o.unavailable ? ' note' : ''}">${o.price}</div>
         </a>`;
     }).join('');
 }
