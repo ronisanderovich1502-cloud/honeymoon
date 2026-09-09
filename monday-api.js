@@ -316,6 +316,7 @@ export async function createActivityItem(token, country, dayNum, city, activity,
 
 export async function updateActivityItem(token, itemId, activity) {
   const cols = mergeCols(
+    activity.name ? { name: activity.name } : null,
     colVal('time', activityTimeForBoard(activity.time)),
     colVal('time_end', activityTimeForBoard(activity.timeEnd)),
     colVal('desc', activity.desc, 'long_text'),
@@ -329,18 +330,6 @@ export async function updateActivityItem(token, itemId, activity) {
     }`,
     { itemId: String(itemId), boardId: String(MONDAY_BOARD.boardId), cols },
   );
-  if (activity.name) {
-    await mondayQuery(token,
-      `mutation($itemId:ID!,$boardId:ID!,$name:String!) {
-        change_simple_column_value(item_id:$itemId, board_id:$boardId, column_id:"name", value:$name) { id }
-      }`,
-      {
-        itemId: String(itemId),
-        boardId: String(MONDAY_BOARD.boardId),
-        name: activity.name,
-      },
-    );
-  }
 }
 
 export async function deleteItem(token, itemId) {
