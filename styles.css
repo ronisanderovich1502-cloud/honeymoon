@@ -946,24 +946,23 @@ body.dark .map-overlay { background: rgba(31,41,55,0.92); border-color: rgba(255
 .pane-skeleton {
     position: absolute;
     inset: 0;
-    z-index: 1200; /* above Leaflet tiles/controls */
+    z-index: 1200;
     overflow: hidden;
-    transition: opacity 0.25s ease, visibility 0.25s;
 }
-.pane-skeleton[hidden],
-body:not(.app-loading) .pane-skeleton {
-    display: block !important;
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
+/* Hard-hide when data is ready — opacity/visibility was leaving them stuck */
+body:not(.app-loading) .pane-skeleton,
+.pane-skeleton[hidden] {
+    display: none !important;
 }
-body.app-loading .pane-skeleton {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
+body.app-loading .sidebar-skeleton {
+    display: flex;
+    flex-direction: column;
+}
+body.app-loading .map-skeleton {
+    display: block;
 }
 
-/* Hide real sidebar chrome while overlay is up — prevents double skeleton stack */
+/* Hide real sidebar chrome while overlay is up */
 body.app-loading .sidebar > :not(#sidebarSkeleton):not(.sidebar-drag-bar) {
     visibility: hidden;
     pointer-events: none;
@@ -972,13 +971,8 @@ body.app-loading .map-container > :not(#mapSkeleton) {
     visibility: hidden;
     pointer-events: none;
 }
-body.app-loading #mapSkeleton {
-    visibility: visible;
-}
 
 .sidebar-skeleton {
-    display: flex;
-    flex-direction: column;
     padding: 18px 0 12px;
     background: var(--sidebar-bg);
 }

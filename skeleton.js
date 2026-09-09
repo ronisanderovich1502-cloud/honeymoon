@@ -82,18 +82,25 @@ export function statsSkeleton() {
 /** Show shimmer overlays on sidebar + map panes */
 export function showPaneSkeletons() {
   document.body.classList.add('app-loading');
-  const side = document.getElementById('sidebarSkeleton');
-  const mapSk = document.getElementById('mapSkeleton');
-  if (side) side.hidden = false;
-  if (mapSk) mapSk.hidden = false;
+  for (const id of ['sidebarSkeleton', 'mapSkeleton']) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    el.hidden = false;
+    el.removeAttribute('hidden');
+    el.style.display = '';
+    el.setAttribute('aria-busy', 'true');
+  }
 }
 
-/** Hide pane shimmer overlays after data/map are ready */
+/** Close skeletons as soon as cache/Monday data is ready */
 export function hidePaneSkeletons() {
   document.body.classList.remove('app-loading');
-  const side = document.getElementById('sidebarSkeleton');
-  const mapSk = document.getElementById('mapSkeleton');
-  if (side) side.hidden = true;
-  if (mapSk) mapSk.hidden = true;
+  for (const id of ['sidebarSkeleton', 'mapSkeleton']) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    el.hidden = true;
+    el.setAttribute('hidden', '');
+    el.style.display = 'none';
+    el.setAttribute('aria-busy', 'false');
+  }
 }
-

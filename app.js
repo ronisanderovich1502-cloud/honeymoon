@@ -691,6 +691,7 @@ document.getElementById('panelBackBtn')?.addEventListener('click', () => {
 });
 
 function applyItineraryData(data, { toast } = {}) {
+  hidePaneSkeletons(); // close skeleton as soon as we have cache/Monday data
   replaceArray(days, data.days);
   replaceArray(foodGuide, data.foodGuide);
   rebuildDaySelect();
@@ -711,27 +712,33 @@ async function refreshFromMonday(force = false) {
   if (!hadCache) {
     showPaneSkeletons();
     showItineraryLoading();
-  }
-  const data = await loadMondayData('japan', { force });
-  if (!data?.days?.length) {
+  } else {
     hidePaneSkeletons();
-    showItineraryLoading('⚠️ לא נמצאו ימים ב-Monday. בדקו את הלוח או רעננו.');
-    return;
   }
-  applyItineraryData(data, {
-    toast: force
-      ? '✅ נטען מ-Monday'
-      : (data.fromCache
-        ? (data.stale ? '⚡ מטמון · בודק עדכונים…' : '⚡ נטען מהמטמון')
-        : '✅ נטען מ-Monday'),
-  });
-  hidePaneSkeletons();
-
-  if (!force && data.fromCache) {
-    revalidateMondayData('japan').then(fresh => {
-      if (!fresh?.days?.length) return;
-      applyItineraryData(fresh, { toast: '🔄 עודכן מ-Monday — יש שינויים בלוח' });
+  try {
+    const data = await loadMondayData('japan', { force });
+    if (!data?.days?.length) {
+      hidePaneSkeletons();
+      showItineraryLoading('⚠️ לא נמצאו ימים ב-Monday. בדקו את הלוח או רעננו.');
+      return;
+    }
+    applyItineraryData(data, {
+      toast: force
+        ? '✅ נטען מ-Monday'
+        : (data.fromCache
+          ? (data.stale ? '⚡ מטמון · בודק עדכונים…' : '⚡ נטען מהמטמון')
+          : '✅ נטען מ-Monday'),
     });
+
+    if (!force && data.fromCache) {
+      revalidateMondayData('japan').then(fresh => {
+        if (!fresh?.days?.length) return;
+        applyItineraryData(fresh, { toast: '🔄 עודכן מ-Monday — יש שינויים בלוח' });
+      });
+    }
+  } catch (e) {
+    hidePaneSkeletons();
+    throw e;
   }
 }
 

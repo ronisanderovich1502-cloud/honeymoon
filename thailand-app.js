@@ -572,6 +572,7 @@ document.querySelectorAll('.sidebar-tab').forEach(tab => {
 document.getElementById('panelBackBtn')?.addEventListener('click', () => document.getElementById('placePanel').classList.remove('open'));
 
 function applyItineraryData(data, { toast } = {}) {
+  hidePaneSkeletons(); // close skeleton as soon as we have cache/Monday data
   replaceArray(thailandDays, data.days);
   replaceArray(thailandFoodGuide, data.foodGuide);
   rebuildDaySelect();
@@ -592,27 +593,33 @@ async function refreshFromMonday(force = false) {
   if (!hadCache) {
     showPaneSkeletons();
     showItineraryLoading();
-  }
-  const data = await loadMondayData('thailand', { force });
-  if (!data?.days?.length) {
+  } else {
     hidePaneSkeletons();
-    showItineraryLoading('⚠️ לא נמצאו ימים ב-Monday. בדקו את הלוח או רעננו.');
-    return;
   }
-  applyItineraryData(data, {
-    toast: force
-      ? '✅ נטען מ-Monday'
-      : (data.fromCache
-        ? (data.stale ? '⚡ מטמון · בודק עדכונים…' : '⚡ נטען מהמטמון')
-        : '✅ נטען מ-Monday'),
-  });
-  hidePaneSkeletons();
-
-  if (!force && data.fromCache) {
-    revalidateMondayData('thailand').then(fresh => {
-      if (!fresh?.days?.length) return;
-      applyItineraryData(fresh, { toast: '🔄 עודכן מ-Monday — יש שינויים בלוח' });
+  try {
+    const data = await loadMondayData('thailand', { force });
+    if (!data?.days?.length) {
+      hidePaneSkeletons();
+      showItineraryLoading('⚠️ לא נמצאו ימים ב-Monday. בדקו את הלוח או רעננו.');
+      return;
+    }
+    applyItineraryData(data, {
+      toast: force
+        ? '✅ נטען מ-Monday'
+        : (data.fromCache
+          ? (data.stale ? '⚡ מטמון · בודק עדכונים…' : '⚡ נטען מהמטמון')
+          : '✅ נטען מ-Monday'),
     });
+
+    if (!force && data.fromCache) {
+      revalidateMondayData('thailand').then(fresh => {
+        if (!fresh?.days?.length) return;
+        applyItineraryData(fresh, { toast: '🔄 עודכן מ-Monday — יש שינויים בלוח' });
+      });
+    }
+  } catch (e) {
+    hidePaneSkeletons();
+    throw e;
   }
 }
 
