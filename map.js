@@ -2,9 +2,9 @@ import { days, cityColors } from './data.js';
 
 export const map = L.map('map', { zoomControl: false }).setView([35.6762, 139.6503], 11);
 L.control.zoom({ position: 'topleft' }).addTo(map);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors',
-    maxZoom: 19
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Tiles &copy; Esri',
+    maxZoom: 16
 }).addTo(map);
 
 export const dayMarkers = {};
@@ -41,7 +41,7 @@ export function buildMarkerIcon(day, act, opacity = 1) {
             background:${cityColors[day.city]};
             border:2.5px solid white;
             border-radius:50%;
-            box-shadow:0 2px 8px rgba(0,0,0,0.35);
+            box-shadow:0 1px 3px rgba(0,0,0,0.22);
             display:flex;align-items:center;justify-content:center;
             font-size:15px;
             opacity:${opacity};

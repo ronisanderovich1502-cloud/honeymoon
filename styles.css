@@ -517,7 +517,7 @@ body.dark .map-overlay { background: rgba(31,41,55,0.92); border-color: rgba(255
 .sync-modal {
     background: var(--sidebar-bg);
     border-radius: 20px; padding: 26px;
-    width: 390px; max-width: 92vw;
+    width: 480px; max-width: 96vw;
     box-shadow: 0 20px 60px rgba(0,0,0,0.2);
     font-family: 'Noto Sans Hebrew', sans-serif;
 
@@ -548,6 +548,20 @@ body.dark .map-overlay { background: rgba(31,41,55,0.92); border-color: rgba(255
     gap: 8px;
     margin-top: 18px;
     justify-content: flex-end;
+}
+
+.sync-modal .modal-actions {
+    flex-wrap: nowrap;
+    gap: 6px;
+    align-items: stretch;
+}
+.sync-modal .modal-actions .btn-primary,
+.sync-modal .modal-actions .btn-secondary {
+    flex: 1 1 0;
+    white-space: nowrap;
+    padding: 9px 8px;
+    font-size: 0.78rem;
+    text-align: center;
 }
 
 .btn-primary {
