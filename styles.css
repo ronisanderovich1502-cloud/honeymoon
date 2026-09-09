@@ -126,7 +126,7 @@ body.is-resizing .place-panel { transition: none; }
     color: var(--text);
     text-align: center;
     letter-spacing: -0.2px;
-    margin: 2px 0 0;
+    margin: 0;
     line-height: 1.25;
     white-space: nowrap;
 }
@@ -144,7 +144,7 @@ body.is-resizing .place-panel { transition: none; }
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    justify-content: flex-end;
+    justify-content: center;
 }
 
 .icon-btn {
