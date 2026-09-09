@@ -1,7 +1,12 @@
-/** Sidekick AI config — prefer free-tier Gemini Flash-Lite */
+/** Sidekick AI config — prefer free-tier Gemini models */
 
-// Free on Google AI Studio (~500 req/day). Avoid Pro / paid-only models.
-export const GEMINI_MODEL = 'gemini-3.5-flash-lite';
+// Free on Google AI Studio. Try stable Flash first (best AQ. key compatibility).
+export const GEMINI_MODEL = 'gemini-2.5-flash';
+export const GEMINI_MODEL_FALLBACKS = [
+  'gemini-2.5-flash-lite',
+  'gemini-3.1-flash-lite',
+  'gemini-3.5-flash-lite',
+];
 export const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
 
 // OpenAI / Anthropic have no free API tier — cheapest paid models.
@@ -17,7 +22,7 @@ export const STORAGE_CLAUDE_KEY = 'claudeApiKey';
 export const STORAGE_PROVIDER = 'sidekickProvider'; // 'gemini' | 'openai' | 'claude'
 
 export const PROVIDERS = {
-  gemini: { id: 'gemini', label: 'Gemini', keyHint: 'AIza...', inputId: 'geminiKeyInput', free: true },
+  gemini: { id: 'gemini', label: 'Gemini', keyHint: 'AQ.... or AIza...', inputId: 'geminiKeyInput', free: true },
   openai: { id: 'openai', label: 'ChatGPT', keyHint: 'sk-...', inputId: 'openaiKeyInput', free: false },
   claude: { id: 'claude', label: 'Claude', keyHint: 'sk-ant-...', inputId: 'claudeKeyInput', free: false },
 };

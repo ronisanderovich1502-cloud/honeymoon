@@ -369,7 +369,7 @@ function modalMarkup() {
         <div class="sidekick-key-hint">
           1. <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener"><strong>צרי Gemini API key חינמי ←</strong></a><br>
           2. הדביקי ולחצי שמור — נשמר בדפדפן<br>
-          3. מודל: <code>gemini-3.5-flash-lite</code> · מפתח מתחיל ב-<code>AIza</code> או <code>AQ.</code>
+          3. מודל: <code>gemini-2.5-flash</code> (חינם) · מפתח מלא <code>AQ.</code> / <code>AIza</code>
         </div>
         <label>🔑 Gemini API Key</label>
         <input type="password" id="geminiKeyInput" placeholder="AIza..." autocomplete="off" />
