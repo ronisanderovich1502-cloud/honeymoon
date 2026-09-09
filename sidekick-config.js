@@ -1,4 +1,4 @@
-/** Sidekick AI config — Gemini + ChatGPT */
+/** Sidekick AI config — Gemini + ChatGPT + Claude */
 
 export const GEMINI_MODEL = 'gemini-2.0-flash';
 export const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
@@ -6,13 +6,18 @@ export const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta
 export const OPENAI_MODEL = 'gpt-4o-mini';
 export const OPENAI_API_BASE = 'https://api.openai.com/v1';
 
+export const CLAUDE_MODEL = 'claude-haiku-4-5';
+export const CLAUDE_API_BASE = 'https://api.anthropic.com/v1';
+
 export const STORAGE_GEMINI_KEY = 'geminiApiKey';
 export const STORAGE_OPENAI_KEY = 'openaiApiKey';
-export const STORAGE_PROVIDER = 'sidekickProvider'; // 'gemini' | 'openai'
+export const STORAGE_CLAUDE_KEY = 'claudeApiKey';
+export const STORAGE_PROVIDER = 'sidekickProvider'; // 'gemini' | 'openai' | 'claude'
 
 export const PROVIDERS = {
-  gemini: { id: 'gemini', label: 'Gemini', keyHint: 'AIza...' },
-  openai: { id: 'openai', label: 'ChatGPT', keyHint: 'sk-...' },
+  gemini: { id: 'gemini', label: 'Gemini', keyHint: 'AIza...', inputId: 'geminiKeyInput' },
+  openai: { id: 'openai', label: 'ChatGPT', keyHint: 'sk-...', inputId: 'openaiKeyInput' },
+  claude: { id: 'claude', label: 'Claude', keyHint: 'sk-ant-...', inputId: 'claudeKeyInput' },
 };
 
 export function chatStorageKey(country) {

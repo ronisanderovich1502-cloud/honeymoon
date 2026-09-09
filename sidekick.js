@@ -1,10 +1,11 @@
 /**
- * Trip Planner Sidekick — floating chat + Gemini/ChatGPT + approval-gated Monday edits.
+ * Trip Planner Sidekick — floating chat + Gemini/ChatGPT/Claude + approval-gated Monday edits.
  */
 
 import {
   STORAGE_GEMINI_KEY,
   STORAGE_OPENAI_KEY,
+  STORAGE_CLAUDE_KEY,
   STORAGE_PROVIDER,
   PROVIDERS,
   chatStorageKey,
@@ -13,6 +14,7 @@ import {
 } from './sidekick-config.js';
 import { verifyGeminiKey, geminiChat } from './gemini-api.js';
 import { verifyOpenAIKey, openaiChat } from './openai-api.js';
+import { verifyClaudeKey, claudeChat } from './claude-api.js';
 import { buildItinerarySnapshot, buildSystemPrompt, parseProposalFromText } from './sidekick-prompt.js';
 import {
   validateApiKey, bindClearOnInput, shakeModal, clearOneField, clearFieldErrors,
@@ -24,13 +26,26 @@ import {
 
 let geminiToken = localStorage.getItem(STORAGE_GEMINI_KEY) || '';
 let openaiToken = localStorage.getItem(STORAGE_OPENAI_KEY) || '';
+let claudeToken = localStorage.getItem(STORAGE_CLAUDE_KEY) || '';
 let provider = normalizeProvider(localStorage.getItem(STORAGE_PROVIDER));
 let opts = null;
 let busy = false;
 let initialized = false;
 
 function normalizeProvider(raw) {
-  return raw === 'openai' ? 'openai' : 'gemini';
+  if (raw === 'openai' || raw === 'claude') return raw;
+  return 'gemini';
+}
+
+function firstProviderWithKey() {
+  if (geminiToken) return 'gemini';
+  if (openaiToken) return 'openai';
+  if (claudeToken) return 'claude';
+  return 'gemini';
+}
+
+function providerInputId(p = provider) {
+  return PROVIDERS[p]?.inputId || 'geminiKeyInput';
 }
 
 function escapeHtml(s) {
@@ -73,11 +88,13 @@ function savePending(proposal) {
 }
 
 function activeToken() {
-  return provider === 'openai' ? openaiToken : geminiToken;
+  if (provider === 'openai') return openaiToken;
+  if (provider === 'claude') return claudeToken;
+  return geminiToken;
 }
 
 function hasAnyKey() {
-  return !!(geminiToken || openaiToken);
+  return !!(geminiToken || openaiToken || claudeToken);
 }
 
 function hasActiveKey() {
@@ -97,7 +114,7 @@ export function openSidekickKeyModal() {
   fillKeyInputs();
   updateModalStatus();
   overlay.classList.add('open');
-  const inputId = provider === 'openai' ? 'openaiKeyInput' : 'geminiKeyInput';
+  const inputId = providerInputId();
   document.getElementById(inputId)?.focus();
 }
 
@@ -116,7 +133,7 @@ function setProvider(next) {
   localStorage.setItem(STORAGE_PROVIDER, provider);
   // Prefer a provider that already has a key
   if (!activeToken() && hasAnyKey()) {
-    provider = geminiToken ? 'gemini' : 'openai';
+    provider = firstProviderWithKey();
     localStorage.setItem(STORAGE_PROVIDER, provider);
   }
   syncProviderTabs();
@@ -130,8 +147,10 @@ function setProvider(next) {
 function fillKeyInputs() {
   const g = document.getElementById('geminiKeyInput');
   const o = document.getElementById('openaiKeyInput');
+  const c = document.getElementById('claudeKeyInput');
   if (g) g.value = geminiToken;
   if (o) o.value = openaiToken;
+  if (c) c.value = claudeToken;
 }
 
 function syncProviderTabs() {
@@ -151,9 +170,7 @@ function updateModalStatus() {
   if (!status) return;
   if (hasActiveKey()) {
     status.className = 'sync-status-box ok';
-    status.textContent = provider === 'openai'
-      ? '✓ ChatGPT מחובר (מפתח שמור בדפדפן)'
-      : '✓ Gemini מחובר (מפתח שמור בדפדפן)';
+    status.textContent = `✓ ${PROVIDERS[provider].label} מחובר (מפתח שמור בדפדפן)`;
   } else if (hasAnyKey()) {
     status.className = 'sync-status-box pending';
     status.textContent = 'יש מפתח לספק אחר — בחרי אותו למעלה או הזיני מפתח כאן';
@@ -168,6 +185,10 @@ async function connectActiveProvider(apiKey) {
     await verifyOpenAIKey(apiKey);
     localStorage.setItem(STORAGE_OPENAI_KEY, apiKey);
     openaiToken = apiKey;
+  } else if (provider === 'claude') {
+    await verifyClaudeKey(apiKey);
+    localStorage.setItem(STORAGE_CLAUDE_KEY, apiKey);
+    claudeToken = apiKey;
   } else {
     await verifyGeminiKey(apiKey);
     localStorage.setItem(STORAGE_GEMINI_KEY, apiKey);
@@ -183,12 +204,15 @@ function disconnectActiveProvider() {
   if (provider === 'openai') {
     localStorage.removeItem(STORAGE_OPENAI_KEY);
     openaiToken = '';
+  } else if (provider === 'claude') {
+    localStorage.removeItem(STORAGE_CLAUDE_KEY);
+    claudeToken = '';
   } else {
     localStorage.removeItem(STORAGE_GEMINI_KEY);
     geminiToken = '';
   }
   if (!hasActiveKey() && hasAnyKey()) {
-    setProvider(geminiToken ? 'gemini' : 'openai');
+    setProvider(firstProviderWithKey());
   } else {
     updateLauncherState();
     updateComposerState();
@@ -205,7 +229,7 @@ function updateLauncherState() {
   btn.setAttribute('aria-disabled', ready ? 'false' : 'true');
   btn.title = ready
     ? `Trip Planner (${PROVIDERS[provider].label})`
-    : 'Sidekick כבוי — חברי Gemini או ChatGPT API key';
+    : 'Sidekick כבוי — חברי Gemini / ChatGPT / Claude API key';
 }
 
 function updateComposerState() {
@@ -335,10 +359,11 @@ function modalMarkup() {
   return `
     <div class="sync-modal sidekick-key-modal">
       <h3>✨ Trip Planner Sidekick</h3>
-      <p>חברי Gemini או ChatGPT. השינויים ל-Monday רצים רק אחרי approve / אשר.</p>
+      <p>חברי Gemini, ChatGPT או Claude. השינויים ל-Monday רצים רק אחרי approve / אשר.</p>
       <div class="sidekick-provider-tabs" role="tablist">
         <button type="button" class="sidekick-provider-tab" data-sidekick-provider="gemini" role="tab">Gemini</button>
         <button type="button" class="sidekick-provider-tab" data-sidekick-provider="openai" role="tab">ChatGPT</button>
+        <button type="button" class="sidekick-provider-tab" data-sidekick-provider="claude" role="tab">Claude</button>
       </div>
       <div data-provider-panel="gemini">
         <div class="sidekick-key-hint">
@@ -355,6 +380,14 @@ function modalMarkup() {
         </div>
         <label>🔑 ChatGPT (OpenAI) API Key</label>
         <input type="password" id="openaiKeyInput" placeholder="sk-..." autocomplete="off" />
+      </div>
+      <div data-provider-panel="claude" hidden>
+        <div class="sidekick-key-hint">
+          1. <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener"><strong>צרי Claude API key ←</strong></a><br>
+          2. הדביקי ולחצי שמור — נשמר בדפדפן
+        </div>
+        <label>🔑 Claude (Anthropic) API Key</label>
+        <input type="password" id="claudeKeyInput" placeholder="sk-ant-..." autocomplete="off" />
       </div>
       <div class="sync-status-box" id="sidekickKeyStatusBox"></div>
       <div class="modal-actions">
@@ -409,8 +442,8 @@ function ensureDom() {
     overlay.id = 'sidekickKeyModalOverlay';
     overlay.innerHTML = modalMarkup();
     document.body.appendChild(overlay);
-  } else if (!document.getElementById('openaiKeyInput')) {
-    // Upgrade legacy Gemini-only modal markup
+  } else if (!document.getElementById('claudeKeyInput')) {
+    // Upgrade modal when Claude tab was missing
     overlay.id = 'sidekickKeyModalOverlay';
     overlay.innerHTML = modalMarkup();
   }
@@ -503,6 +536,11 @@ async function runModelChat(systemInstruction, historyMessages) {
     return openaiChat(token, { systemInstruction, messages });
   }
 
+  if (provider === 'claude') {
+    const messages = toOpenAIMessages(historyMessages); // same user/assistant shape
+    return claudeChat(token, { systemInstruction, messages });
+  }
+
   const contents = toGeminiContents(historyMessages);
   return geminiChat(token, { systemInstruction, contents });
 }
@@ -580,7 +618,7 @@ async function handleSend(text) {
 }
 
 function activeKeyInput() {
-  return document.getElementById(provider === 'openai' ? 'openaiKeyInput' : 'geminiKeyInput');
+  return document.getElementById(providerInputId());
 }
 
 function bindEvents() {
@@ -635,7 +673,7 @@ function bindEvents() {
     btn.addEventListener('click', () => setProvider(btn.dataset.sidekickProvider));
   });
 
-  bindClearOnInput(['geminiKeyInput', 'openaiKeyInput']);
+  bindClearOnInput(['geminiKeyInput', 'openaiKeyInput', 'claudeKeyInput']);
 
   const connectBtn = document.getElementById('sidekickKeyConnect')
     || document.getElementById('geminiConnect');
@@ -650,14 +688,14 @@ function bindEvents() {
     }
     if (status) {
       status.className = 'sync-status-box pending';
-      status.textContent = provider === 'openai' ? '⏳ מאמת מול ChatGPT…' : '⏳ מאמת מול Gemini…';
+      status.textContent = `⏳ מאמת מול ${PROVIDERS[provider].label}…`;
     }
     try {
       await connectActiveProvider(checked.value);
       clearOneField(keyInput);
       if (status) {
         status.className = 'sync-status-box ok';
-        status.textContent = provider === 'openai' ? '✓ מחובר ל-ChatGPT' : '✓ מחובר ל-Gemini';
+        status.textContent = `✓ מחובר ל-${PROVIDERS[provider].label}`;
       }
       setTimeout(closeSidekickKeyModal, 450);
     } catch (e) {
@@ -684,7 +722,7 @@ function bindEvents() {
     if (!hasActiveKey()) setOpen(false);
   });
 
-  ['geminiKeyInput', 'openaiKeyInput'].forEach(id => {
+  ['geminiKeyInput', 'openaiKeyInput', 'claudeKeyInput'].forEach(id => {
     document.getElementById(id)?.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
@@ -706,7 +744,7 @@ export function initSidekick(options) {
   opts = options;
   // Prefer provider that already has a key
   if (!hasActiveKey() && hasAnyKey()) {
-    provider = geminiToken ? 'gemini' : 'openai';
+    provider = firstProviderWithKey();
     localStorage.setItem(STORAGE_PROVIDER, provider);
   }
   ensureDom();

@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Noto+Sans+Hebrew:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="styles.css?v=20260909k">
+    <link rel="stylesheet" href="styles.css?v=20260909l">
 </head>
 <body>
     <div class="container">
@@ -178,10 +178,11 @@
     <div class="modal-overlay" id="sidekickKeyModalOverlay">
         <div class="sync-modal sidekick-key-modal">
             <h3>✨ Trip Planner Sidekick</h3>
-            <p>חברי Gemini או ChatGPT. השינויים ל-Monday רצים רק אחרי approve / אשר.</p>
+            <p>חברי Gemini, ChatGPT או Claude. השינויים ל-Monday רצים רק אחרי approve / אשר.</p>
             <div class="sidekick-provider-tabs" role="tablist">
                 <button type="button" class="sidekick-provider-tab" data-sidekick-provider="gemini" role="tab">Gemini</button>
                 <button type="button" class="sidekick-provider-tab" data-sidekick-provider="openai" role="tab">ChatGPT</button>
+                <button type="button" class="sidekick-provider-tab" data-sidekick-provider="claude" role="tab">Claude</button>
             </div>
             <div data-provider-panel="gemini">
                 <div class="sidekick-key-hint">
@@ -199,6 +200,14 @@
                 <label>🔑 ChatGPT (OpenAI) API Key</label>
                 <input type="password" id="openaiKeyInput" placeholder="sk-..." autocomplete="off" />
             </div>
+            <div data-provider-panel="claude" hidden>
+                <div class="sidekick-key-hint">
+                    1. <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener"><strong>צרי Claude API key ←</strong></a><br>
+                    2. הדביקי ולחצי שמור — נשמר בדפדפן
+                </div>
+                <label>🔑 Claude (Anthropic) API Key</label>
+                <input type="password" id="claudeKeyInput" placeholder="sk-ant-..." autocomplete="off" />
+            </div>
             <div class="sync-status-box" id="sidekickKeyStatusBox"></div>
             <div class="modal-actions">
                 <button class="btn-secondary" id="sidekickKeyCancel" type="button">סגור</button>
@@ -208,6 +217,6 @@
         </div>
     </div>
 
-    <script type="module" src="thailand-app.js?v=20260909k"></script>
+    <script type="module" src="thailand-app.js?v=20260909l"></script>
 </body>
 </html>
