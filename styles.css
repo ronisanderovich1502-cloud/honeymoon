@@ -450,8 +450,64 @@ body.dark .type-restaurant { background: #4A0020; color: #FBCFE8; }
     border-radius: var(--radius-sm);
     padding: 8px 10px;
 }
-.day-note-meta { font-size: 0.65rem; color: var(--text-light); margin-bottom: 3px; font-weight: 600; }
+.day-note.is-hidden-local { opacity: 0.72; border-style: dashed; }
+.day-note-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 3px;
+}
+.day-note-meta { font-size: 0.65rem; color: var(--text-light); font-weight: 600; }
 .day-note-text { font-size: 0.78rem; color: var(--text); white-space: pre-wrap; line-height: 1.45; }
+.day-note-actions { display: flex; gap: 2px; flex-shrink: 0; }
+.day-note-btn {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.78rem;
+    padding: 2px 4px;
+    border-radius: 6px;
+    line-height: 1;
+}
+.day-note-btn:hover { background: color-mix(in srgb, var(--rose) 12%, transparent); }
+.day-note-edit-form { margin-top: 6px; display: flex; flex-direction: column; gap: 6px; }
+.day-note-edit-form[hidden] { display: none !important; }
+.day-note-edit-input {
+    width: 100%;
+    min-height: 48px;
+    padding: 8px 10px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.78rem;
+    resize: vertical;
+    outline: none;
+}
+.day-note-edit-input:focus { border-color: var(--rose); }
+.day-note-edit-actions { display: flex; gap: 6px; }
+.day-note-save, .day-note-cancel {
+    border: none;
+    border-radius: 999px;
+    padding: 5px 12px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+}
+.day-note-save { background: var(--rose); color: #fff; }
+.day-note-cancel { background: transparent; border: 1px solid var(--border); color: var(--text); }
+.day-notes-toggle-hidden {
+    align-self: flex-start;
+    border: none;
+    background: transparent;
+    color: var(--text-light);
+    font-size: 0.7rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 2px 0;
+    text-decoration: underline;
+}
 .day-notes-composer { display: flex; flex-direction: column; gap: 6px; }
 .day-notes-input {
     width: 100%; min-height: 52px;

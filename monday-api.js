@@ -250,6 +250,36 @@ export async function createItemUpdate(token, itemId, text) {
   };
 }
 
+/** Edit an existing Monday update */
+export async function editItemUpdate(token, updateId, text) {
+  const data = await mondayQuery(token,
+    `mutation($id:ID!,$body:String!) {
+      edit_update(id:$id, body:$body) {
+        id
+        text_body
+        created_at
+        creator { name }
+      }
+    }`,
+    { id: String(updateId), body: toUpdateHtml(text) },
+  );
+  const u = data.edit_update;
+  return {
+    id: u.id,
+    text: (u.text_body || '').trim() || String(text).trim(),
+    createdAt: u.created_at,
+    author: u.creator?.name || '',
+  };
+}
+
+/** Delete a Monday update */
+export async function deleteItemUpdate(token, updateId) {
+  await mondayQuery(token,
+    `mutation($id:ID!) { delete_update(id:$id) { id } }`,
+    { id: String(updateId) },
+  );
+}
+
 function colVal(key, value, type) {
   if (value === undefined || value === null || value === '') return null;
   const id = C[key];

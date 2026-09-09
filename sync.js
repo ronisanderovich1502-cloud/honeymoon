@@ -6,6 +6,8 @@ import {
   buildDataFromItems,
   fetchUpdatesForItems,
   createItemUpdate,
+  editItemUpdate,
+  deleteItemUpdate,
   createActivityItem,
   updateActivityItem,
   deleteItem,
@@ -358,6 +360,53 @@ export async function syncNoteCreate(dayNum, text, mondayId) {
     return { ok: true, note };
   } catch (e) {
     console.error('Monday note create:', e);
+    setSyncDot('error');
+    endMondaySaveError(e);
+    return { ok: false, error: e };
+  }
+}
+
+export async function syncNoteUpdate(dayNum, noteId, text) {
+  if (!mondayToken) return { ok: false, error: new Error('לא מחובר ל-Monday') };
+  if (!noteId) return { ok: false, error: new Error('חסר מזהה הערה') };
+  setSyncDot('syncing');
+  beginMondaySave('מעדכן הערה ב-Monday.com...');
+  try {
+    const note = await editItemUpdate(mondayToken, noteId, text);
+    patchCachedActivity(currentCountry, (c) => {
+      const d = c.days.find(x => x.day === dayNum);
+      if (!d?.notes) return;
+      const idx = d.notes.findIndex(n => String(n.id) === String(noteId));
+      if (idx >= 0) d.notes[idx] = { ...d.notes[idx], ...note };
+    });
+    setSyncDot('synced');
+    endMondaySaveOk('הערה עודכנה ב-Monday.com ✓');
+    return { ok: true, note };
+  } catch (e) {
+    console.error('Monday note edit:', e);
+    setSyncDot('error');
+    endMondaySaveError(e);
+    return { ok: false, error: e };
+  }
+}
+
+export async function syncNoteDelete(dayNum, noteId) {
+  if (!mondayToken) return { ok: false, error: new Error('לא מחובר ל-Monday') };
+  if (!noteId) return { ok: false, error: new Error('חסר מזהה הערה') };
+  setSyncDot('syncing');
+  beginMondaySave('מוחק הערה ב-Monday.com...');
+  try {
+    await deleteItemUpdate(mondayToken, noteId);
+    patchCachedActivity(currentCountry, (c) => {
+      const d = c.days.find(x => x.day === dayNum);
+      if (!d?.notes) return;
+      d.notes = d.notes.filter(n => String(n.id) !== String(noteId));
+    });
+    setSyncDot('synced');
+    endMondaySaveOk('הערה נמחקה מ-Monday.com ✓');
+    return { ok: true };
+  } catch (e) {
+    console.error('Monday note delete:', e);
     setSyncDot('error');
     endMondaySaveError(e);
     return { ok: false, error: e };
