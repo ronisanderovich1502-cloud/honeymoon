@@ -2,7 +2,7 @@ import { thailandDays, thailandCityNames, thailandCityColors, thailandFoodGuide,
 import { map, dayMarkers, allMarkersList, selectedDayNum, selectDayOnMap, addMarkerToMap, fetchPlaceDetails, initMap, rebuildMap } from './thailand-map.js';
 import {
   isConnected, requireMonday, initSync, loadMondayData, revalidateMondayData,
-  syncActivityCreate, syncActivityUpdate, syncActivityDelete, syncFoodCreate,
+  syncActivityCreate, syncActivityUpdate, syncActivityDelete, syncFoodCreate, syncDaySortOrders,
 } from './sync.js';
 import { dayNotesBlockHtml, bindDayNotesHandlers } from './day-notes.js';
 import { initResize } from './resize.js';
@@ -11,7 +11,7 @@ import {
   validatePlaceForm, validateFoodForm,
   clearFieldErrors, bindClearOnInput, shakeModal,
 } from './validate.js';
-import { fillTimeSelect, setTimeSelectValue, suggestEndTime, formatTimeRange } from './time-options.js';
+import { fillTimeSelect, setTimeSelectValue, suggestEndTime, formatTimeRange, sortActivitiesByTime } from './time-options.js';
 
 if (localStorage.getItem('mondayCache_thailand')) hidePaneSkeletons();
 fillTimeSelect(document.getElementById('newPlaceTime'));
@@ -349,32 +349,24 @@ document.getElementById('modalConfirm').addEventListener('click', function() {
     if (!day) { shakeModal('modalOverlay'); return; }
     const newAct = { name, time, timeEnd, desc, lat, lng };
     day.activities.push(newAct);
-    addMarkerToMap(day, newAct);
-    const card = document.querySelector(`.day-card[data-day="${dayNum}"]`);
-    const notesWrap = card.querySelector('.day-notes-wrap');
-    const i = day.activities.length - 1;
-    const key = `${dayNum}-${i}`;
-    const actDiv = document.createElement('div');
-    actDiv.className = 'activity'; actDiv.id = `act-${key}`;
-    actDiv.innerHTML = `
-        <input type="checkbox" class="activity-check" data-key="${key}">
-        <div class="activity-content" data-day="${dayNum}" data-idx="${i}">
-            <span class="activity-time">${formatTimeRange(time, timeEnd)}</span>
-            <span class="activity-name"> ${name}</span>
-            <div class="activity-desc">${desc}</div>
-        </div>
-        <div class="activity-actions">
-            <button class="act-btn edit-btn" data-day="${dayNum}" data-idx="${i}">✏️</button>
-            <button class="act-btn remove-btn" data-day="${dayNum}" data-idx="${i}">🗑️</button>
-        </div>`;
-    card.querySelector('.activities').insertBefore(actDiv, notesWrap);
+    sortActivitiesByTime(day.activities);
+    const keepDay = selectedDayNum;
+    renderItinerary();
+    rebuildMap();
     updateStats();
+    const focusDay = keepDay || dayNum;
+    document.querySelector(`.day-card[data-day="${focusDay}"]`)?.classList.add('active');
+    selectDayOnMap(focusDay);
     modalOverlay.classList.remove('open');
     clearFieldErrors(modalOverlay);
     resetModal();
     (async () => {
-      const result = await syncActivityCreate(dayNum, day.city, newAct, i);
-      if (result.ok) return;
+      const sortOrder = day.activities.indexOf(newAct);
+      const result = await syncActivityCreate(dayNum, day.city, newAct, sortOrder);
+      if (result.ok) {
+        await syncDaySortOrders(day);
+        return;
+      }
       const idx = day.activities.indexOf(newAct);
       if (idx >= 0) day.activities.splice(idx, 1);
       renderItinerary();
@@ -436,10 +428,14 @@ document.addEventListener('click', e => {
 document.getElementById('modalConfirm').addEventListener('click', function() {
     if (!this.dataset.editDay) return;
     if (!requireMonday()) return;
-    const dayNum = parseInt(this.dataset.editDay), idx = parseInt(this.dataset.editIdx);
-    const day = thailandDays.find(d => d.day === dayNum);
-    const act = day.activities[idx];
-    const snapshot = { name: act.name, desc: act.desc, time: act.time, timeEnd: act.timeEnd, lat: act.lat, lng: act.lng };
+    const fromDayNum = parseInt(this.dataset.editDay);
+    const idx = parseInt(this.dataset.editIdx);
+    const fromDay = thailandDays.find(d => d.day === fromDayNum);
+    const act = fromDay.activities[idx];
+    const snapshot = {
+      name: act.name, desc: act.desc, time: act.time, timeEnd: act.timeEnd,
+      lat: act.lat, lng: act.lng, fromDayNum, fromIdx: idx, fromCity: fromDay.city,
+    };
     const checked = validatePlaceForm({
       isEdit: true,
       daysList: thailandDays,
@@ -447,38 +443,63 @@ document.getElementById('modalConfirm').addEventListener('click', function() {
       existingAct: act,
     });
     if (!checked.ok) { shakeModal('modalOverlay'); return; }
-    const { name, desc, time, timeEnd, lat, lng } = checked.values;
+    const { name, desc, time, timeEnd, lat, lng, dayNum: toDayNum } = checked.values;
+    const toDay = thailandDays.find(d => d.day === toDayNum);
+    if (!toDay) { shakeModal('modalOverlay'); return; }
+
     act.name = name;
     act.desc = desc;
     act.time = time;
     act.timeEnd = timeEnd;
     act.lat = lat;
     act.lng = lng;
-    const actEl = document.getElementById(`act-${dayNum}-${idx}`);
-    if (actEl) {
-        actEl.querySelector('.activity-name').textContent = ` ${name}`;
-        actEl.querySelector('.activity-desc').textContent = act.desc;
-        actEl.querySelector('.activity-time').textContent = formatTimeRange(time, timeEnd);
+
+    if (toDayNum !== fromDayNum) {
+      fromDay.activities.splice(idx, 1);
+      toDay.activities.push(act);
+      sortActivitiesByTime(fromDay.activities);
+      sortActivitiesByTime(toDay.activities);
+    } else {
+      sortActivitiesByTime(fromDay.activities);
     }
-    if (dayMarkers[dayNum]?.[idx]) {
-        dayMarkers[dayNum][idx].setLatLng([act.lat, act.lng]);
-    }
+
+    const keepDay = selectedDayNum || toDayNum;
     this.textContent = 'הוסף לתוכנית ✓';
-    delete this.dataset.editDay; delete this.dataset.editIdx;
+    delete this.dataset.editDay;
+    delete this.dataset.editIdx;
     modalOverlay.classList.remove('open');
     clearFieldErrors(modalOverlay);
     resetModal();
+
+    renderItinerary();
+    rebuildMap();
+    updateStats();
+    document.querySelector(`.day-card[data-day="${keepDay}"]`)?.classList.add('active');
+    selectDayOnMap(keepDay);
+
     (async () => {
-      const result = await syncActivityUpdate(act);
-      if (result.ok) return;
-      Object.assign(act, snapshot);
-      const el = document.getElementById(`act-${dayNum}-${idx}`);
-      if (el) {
-        el.querySelector('.activity-name').textContent = ` ${snapshot.name}`;
-        el.querySelector('.activity-desc').textContent = snapshot.desc || '';
-        el.querySelector('.activity-time').textContent = formatTimeRange(snapshot.time, snapshot.timeEnd);
+      const result = await syncActivityUpdate(act, { dayNum: toDayNum, city: toDay.city });
+      if (result.ok) {
+        await syncDaySortOrders(toDay);
+        if (toDayNum !== fromDayNum) await syncDaySortOrders(fromDay);
+        return;
       }
-      if (dayMarkers[dayNum]?.[idx]) dayMarkers[dayNum][idx].setLatLng([snapshot.lat, snapshot.lng]);
+      if (toDayNum !== fromDayNum) {
+        const i = toDay.activities.indexOf(act);
+        if (i >= 0) toDay.activities.splice(i, 1);
+        fromDay.activities.splice(snapshot.fromIdx, 0, act);
+      }
+      Object.assign(act, {
+        name: snapshot.name, desc: snapshot.desc, time: snapshot.time,
+        timeEnd: snapshot.timeEnd, lat: snapshot.lat, lng: snapshot.lng,
+      });
+      sortActivitiesByTime(fromDay.activities);
+      if (toDayNum !== fromDayNum) sortActivitiesByTime(toDay.activities);
+      renderItinerary();
+      rebuildMap();
+      updateStats();
+      document.querySelector(`.day-card[data-day="${fromDayNum}"]`)?.classList.add('active');
+      selectDayOnMap(fromDayNum);
     })();
 });
 

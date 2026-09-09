@@ -89,6 +89,21 @@ export function formatTimeRange(start, end) {
   return '?';
 }
 
+/** Sort activities by start time ascending; reassigns sortOrder 0..n-1 in place */
+export function sortActivitiesByTime(activities) {
+  if (!Array.isArray(activities)) return activities;
+  activities.sort((a, b) => {
+    const ta = parseTimeToMinutes(a.time);
+    const tb = parseTimeToMinutes(b.time);
+    const sa = ta == null ? Number.POSITIVE_INFINITY : ta;
+    const sb = tb == null ? Number.POSITIVE_INFINITY : tb;
+    if (sa !== sb) return sa - sb;
+    return (a.sortOrder ?? 0) - (b.sortOrder ?? 0);
+  });
+  activities.forEach((a, i) => { a.sortOrder = i; });
+  return activities;
+}
+
 /** HTML for left-pane / badges — start and end both visible */
 export function timeRangeHtml(start, end) {
   const s = normalizeTimeToSlot(start, { emptyAs: '' });

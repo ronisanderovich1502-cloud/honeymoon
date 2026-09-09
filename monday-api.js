@@ -1,5 +1,5 @@
 import { MONDAY_BOARD } from './monday-config.js';
-import { normalizeTimeToSlot, suggestEndTime } from './time-options.js';
+import { normalizeTimeToSlot, suggestEndTime, sortActivitiesByTime } from './time-options.js';
 
 const API = 'https://api.monday.com/v2';
 const C = MONDAY_BOARD.columns;
@@ -148,8 +148,11 @@ export function buildDataFromItems(items, country) {
         lat: a.lat,
         lng: a.lng,
         type: a.placeType || 'attraction',
+        sortOrder: a.sortOrder ?? day.activities.length,
       });
     });
+
+  days.forEach(d => sortActivitiesByTime(d.activities));
 
   const foodGuide = filtered
     .filter(i => i.recordType === MONDAY_BOARD.recordTypes.food)
@@ -344,16 +347,30 @@ export async function createActivityItem(token, country, dayNum, city, activity,
   return data.create_item.id;
 }
 
-export async function updateActivityItem(token, itemId, activity) {
+export async function updateActivityItem(token, itemId, activity, { dayNum, city } = {}) {
   const cols = mergeCols(
     activity.name ? { name: activity.name } : null,
+    dayNum != null ? colVal('day_number', dayNum) : null,
+    city ? colVal('city', city, 'dropdown') : null,
     colVal('time', activityTimeForBoard(activity.time)),
     colVal('time_end', activityTimeForBoard(activity.timeEnd)),
     colVal('desc', activity.desc, 'long_text'),
     colVal('lat', activity.lat),
     colVal('lng', activity.lng),
     colVal('place_type', activity.type || 'attraction', 'status'),
+    activity.sortOrder != null ? colVal('sort_order', activity.sortOrder) : null,
   );
+  await mondayQuery(token,
+    `mutation($itemId:ID!,$boardId:ID!,$cols:JSON!) {
+      change_multiple_column_values(item_id:$itemId, board_id:$boardId, column_values:$cols) { id }
+    }`,
+    { itemId: String(itemId), boardId: String(MONDAY_BOARD.boardId), cols },
+  );
+}
+
+/** Persist only sort_order for an activity */
+export async function updateActivitySortOrder(token, itemId, sortOrder) {
+  const cols = mergeCols(colVal('sort_order', sortOrder));
   await mondayQuery(token,
     `mutation($itemId:ID!,$boardId:ID!,$cols:JSON!) {
       change_multiple_column_values(item_id:$itemId, board_id:$boardId, column_values:$cols) { id }

@@ -135,10 +135,10 @@ export function validatePlaceForm({ isEdit = false, daysList = [], selectedPlace
     }
   }
 
-  if (!isEdit) {
-    const dayErr = reqDay(dayNum, daysList);
-    if (dayErr) { setFieldError(dayEl, dayErr); ok = false; }
+  const dayErr = reqDay(dayNum, daysList);
+  if (dayErr) { setFieldError(dayEl, dayErr); ok = false; }
 
+  if (!isEdit) {
     const coordErr = reqCoords(selectedPlace);
     if (coordErr) {
       setFieldError(searchEl, coordErr);

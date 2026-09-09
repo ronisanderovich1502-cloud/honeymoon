@@ -10,11 +10,13 @@ import {
   deleteItemUpdate,
   createActivityItem,
   updateActivityItem,
+  updateActivitySortOrder,
   deleteItem,
   createFoodItem,
 } from './monday-api.js';
 import { beginMondaySave, endMondaySaveOk, endMondaySaveError } from './monday-banner.js';
 import { validateApiKey, bindClearOnInput, shakeModal, clearOneField } from './validate.js';
+import { sortActivitiesByTime } from './time-options.js';
 
 const STORAGE_KEY = 'mondayApiKey';
 const CACHE_TTL_MS = 3 * 24 * 60 * 60 * 1000; // soft TTL for status label
@@ -267,18 +269,26 @@ export async function syncActivityCreate(dayNum, city, activity, sortOrder) {
   }
 }
 
-export async function syncActivityUpdate(activity) {
+export async function syncActivityUpdate(activity, { dayNum, city } = {}) {
   if (!mondayToken || !activity.mondayId) {
     return { ok: false, error: new Error('חסר מזהה Monday לפריט') };
   }
   setSyncDot('syncing');
   beginMondaySave('שומר ב-Monday.com...');
   try {
-    await updateActivityItem(mondayToken, activity.mondayId, activity);
+    await updateActivityItem(mondayToken, activity.mondayId, activity, { dayNum, city });
     patchCachedActivity(currentCountry, (cached) => {
+      // Remove from whatever day currently holds it
       for (const day of cached.days) {
-        const idx = day.activities.findIndex(a => a.mondayId === activity.mondayId);
-        if (idx >= 0) { day.activities[idx] = { ...day.activities[idx], ...activity }; break; }
+        day.activities = (day.activities || []).filter(a => a.mondayId !== activity.mondayId);
+      }
+      const targetDayNum = dayNum ?? cached.days.find(d =>
+        d.activities.some(a => a.mondayId === activity.mondayId)
+      )?.day;
+      const target = cached.days.find(d => d.day === (dayNum ?? targetDayNum));
+      if (target) {
+        target.activities.push({ ...activity });
+        sortActivitiesByTime(target.activities);
       }
     });
     setSyncDot('synced');
@@ -288,6 +298,27 @@ export async function syncActivityUpdate(activity) {
     console.error('Monday update:', e);
     setSyncDot('error');
     endMondaySaveError(e);
+    return { ok: false, error: e };
+  }
+}
+
+/** Quietly persist sort_order for every activity on a day (no banner) */
+export async function syncDaySortOrders(day) {
+  if (!mondayToken || !day?.activities?.length) return { ok: true };
+  try {
+    sortActivitiesByTime(day.activities);
+    for (const act of day.activities) {
+      if (!act.mondayId) continue;
+      await updateActivitySortOrder(mondayToken, act.mondayId, act.sortOrder);
+    }
+    patchCachedActivity(currentCountry, (cached) => {
+      const d = cached.days.find(x => x.day === day.day);
+      if (!d) return;
+      d.activities = day.activities.map(a => ({ ...a }));
+    });
+    return { ok: true };
+  } catch (e) {
+    console.error('Monday sort sync:', e);
     return { ok: false, error: e };
   }
 }
