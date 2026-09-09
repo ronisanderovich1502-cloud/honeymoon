@@ -8,6 +8,9 @@ import {
 import { initResize } from './resize.js';
 import { searchSkeleton, showPaneSkeletons, hidePaneSkeletons } from './skeleton.js';
 
+// Strip any leftover loading UI immediately if cache already exists
+if (localStorage.getItem('mondayCache_japan')) hidePaneSkeletons();
+
 if (!isConnected()) {
   location.replace('index.html');
 }
