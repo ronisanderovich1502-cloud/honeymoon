@@ -1,5 +1,4 @@
 import { MONDAY_BOARD } from './monday-config.js';
-import { saveToken, loadToken, clearToken, hasStoredToken } from './monday-crypto.js';
 import {
   verifyToken,
   fetchAllItems,
@@ -10,7 +9,11 @@ import {
   createFoodItem,
 } from './monday-api.js';
 
-export let mondayToken = null;
+const STORAGE_KEY = 'mondayApiKey';
+const CACHE_TTL_MS = 3 * 24 * 60 * 60 * 1000; // 3 days
+const cacheKey = (country) => `mondayCache_${country}`;
+
+export let mondayToken = localStorage.getItem(STORAGE_KEY) || '';
 let currentCountry = 'japan';
 
 export function setCountry(country) { currentCountry = country; }
@@ -22,41 +25,128 @@ export function setSyncDot(state) {
 
 export function isConnected() { return !!mondayToken; }
 
-export async function unlockWithPin(pin) {
-  const token = await loadToken(pin);
-  if (!token) throw new Error('PIN שגוי או token פגום');
-  await verifyToken(token);
-  mondayToken = token;
-  setSyncDot('synced');
-  return token;
+export function openSyncModal() {
+  const overlay = document.getElementById('syncModalOverlay');
+  const keyInput = document.getElementById('mondayKeyInput');
+  if (keyInput) keyInput.value = mondayToken || '';
+  const box = document.getElementById('syncStatusBox');
+  if (box) { box.className = 'sync-status-box'; box.textContent = ''; }
+  updateCacheStatusLabel();
+  overlay?.classList.add('open');
 }
 
-export async function connectMonday(apiKey, pin) {
+export function requireMonday(message = '⚠️ חברי Monday API key כדי לערוך') {
+  if (mondayToken) return true;
+  showSyncToast(message);
+  openSyncModal();
+  return false;
+}
+
+function readCache(country) {
+  try {
+    const raw = localStorage.getItem(cacheKey(country));
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed?.savedAt || !Array.isArray(parsed.days)) return null;
+    if (Date.now() - parsed.savedAt > CACHE_TTL_MS) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function writeCache(country, data) {
+  localStorage.setItem(cacheKey(country), JSON.stringify({
+    savedAt: Date.now(),
+    days: data.days,
+    foodGuide: data.foodGuide || [],
+  }));
+  updateCacheStatusLabel();
+}
+
+export function clearMondayCache(country) {
+  if (country) localStorage.removeItem(cacheKey(country));
+  else {
+    localStorage.removeItem(cacheKey('japan'));
+    localStorage.removeItem(cacheKey('thailand'));
+  }
+  updateCacheStatusLabel();
+}
+
+function updateCacheStatusLabel() {
+  const el = document.getElementById('mondayCacheStatus');
+  if (!el) return;
+  const cached = readCache(currentCountry);
+  if (!cached) {
+    el.textContent = 'אין מטמון — הטעינה הבאה תמשוך מ-Monday';
+    return;
+  }
+  const ageH = Math.round((Date.now() - cached.savedAt) / 3600000);
+  const leftH = Math.max(0, Math.round((CACHE_TTL_MS - (Date.now() - cached.savedAt)) / 3600000));
+  el.textContent = `מטמון פעיל · נשמר לפני ~${ageH} שע׳ · תוקף עוד ~${leftH} שע׳`;
+}
+
+export async function connectMonday(apiKey) {
   await verifyToken(apiKey);
-  await saveToken(apiKey, pin);
+  localStorage.setItem(STORAGE_KEY, apiKey);
+  localStorage.removeItem('mondayTokenEnc');
+  localStorage.removeItem('mondayTokenSalt');
+  localStorage.removeItem('mondayTokenIv');
+  localStorage.removeItem('ghToken');
   mondayToken = apiKey;
   setSyncDot('synced');
 }
 
 export function disconnectMonday() {
-  clearToken();
-  mondayToken = null;
+  localStorage.removeItem(STORAGE_KEY);
+  clearMondayCache();
+  mondayToken = '';
   setSyncDot('');
+  window.dispatchEvent(new CustomEvent('monday-disconnected'));
 }
 
-export async function loadMondayData(country) {
+/** @param {{ force?: boolean }} opts force=true bypasses cache (hard refresh) */
+export async function loadMondayData(country, opts = {}) {
   if (!mondayToken) return null;
+  const force = !!opts.force;
+
+  if (!force) {
+    const cached = readCache(country);
+    if (cached) {
+      setSyncDot('synced');
+      return { days: cached.days, foodGuide: cached.foodGuide || [], fromCache: true };
+    }
+  }
+
   setSyncDot('syncing');
   try {
     const items = await fetchAllItems(mondayToken);
     const data = buildDataFromItems(items, country);
+    writeCache(country, data);
     setSyncDot('synced');
-    return data;
+    return { ...data, fromCache: false };
   } catch (e) {
     console.error('Monday load:', e);
+    const stale = (() => {
+      try { return JSON.parse(localStorage.getItem(cacheKey(country)) || 'null'); } catch { return null; }
+    })();
+    if (stale?.days?.length) {
+      setSyncDot('error');
+      return { days: stale.days, foodGuide: stale.foodGuide || [], fromCache: true, stale: true };
+    }
     setSyncDot('error');
     throw e;
   }
+}
+
+function patchCachedActivity(country, mutator) {
+  const cached = (() => {
+    try { return JSON.parse(localStorage.getItem(cacheKey(country)) || 'null'); } catch { return null; }
+  })();
+  if (!cached?.days) return;
+  mutator(cached);
+  cached.savedAt = Date.now();
+  localStorage.setItem(cacheKey(country), JSON.stringify(cached));
 }
 
 export async function syncActivityCreate(dayNum, city, activity, sortOrder) {
@@ -64,6 +154,11 @@ export async function syncActivityCreate(dayNum, city, activity, sortOrder) {
   setSyncDot('syncing');
   try {
     const id = await createActivityItem(mondayToken, currentCountry, dayNum, city, activity, sortOrder);
+    activity.mondayId = id;
+    patchCachedActivity(currentCountry, (cached) => {
+      const day = cached.days.find(d => d.day === dayNum);
+      if (day) day.activities.push({ ...activity, mondayId: id });
+    });
     setSyncDot('synced');
     return id;
   } catch (e) {
@@ -78,6 +173,12 @@ export async function syncActivityUpdate(activity) {
   setSyncDot('syncing');
   try {
     await updateActivityItem(mondayToken, activity.mondayId, activity);
+    patchCachedActivity(currentCountry, (cached) => {
+      for (const day of cached.days) {
+        const idx = day.activities.findIndex(a => a.mondayId === activity.mondayId);
+        if (idx >= 0) { day.activities[idx] = { ...day.activities[idx], ...activity }; break; }
+      }
+    });
     setSyncDot('synced');
   } catch (e) {
     console.error('Monday update:', e);
@@ -90,6 +191,11 @@ export async function syncActivityDelete(itemId) {
   setSyncDot('syncing');
   try {
     await deleteItem(mondayToken, itemId);
+    patchCachedActivity(currentCountry, (cached) => {
+      for (const day of cached.days) {
+        day.activities = day.activities.filter(a => a.mondayId !== itemId);
+      }
+    });
     setSyncDot('synced');
   } catch (e) {
     console.error('Monday delete:', e);
@@ -102,6 +208,11 @@ export async function syncFoodCreate(entry) {
   setSyncDot('syncing');
   try {
     const id = await createFoodItem(mondayToken, currentCountry, entry);
+    entry.mondayId = id;
+    patchCachedActivity(currentCountry, (cached) => {
+      cached.foodGuide = cached.foodGuide || [];
+      cached.foodGuide.push({ ...entry, mondayId: id });
+    });
     setSyncDot('synced');
     return id;
   } catch (e) {
@@ -116,14 +227,7 @@ export function initSync(country = 'japan') {
   const overlay = document.getElementById('syncModalOverlay');
   if (!overlay) return;
 
-  document.getElementById('syncSettingsBtn')?.addEventListener('click', () => {
-    document.getElementById('mondayPinInput').value = '';
-    document.getElementById('mondayKeyInput').value = '';
-    document.getElementById('syncStatusBox').className = 'sync-status-box';
-    document.getElementById('syncStatusBox').textContent = '';
-    overlay.classList.add('open');
-  });
-
+  document.getElementById('syncSettingsBtn')?.addEventListener('click', () => openSyncModal());
   document.getElementById('syncModalCancel')?.addEventListener('click', () => overlay.classList.remove('open'));
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
 
@@ -133,45 +237,38 @@ export function initSync(country = 'japan') {
     showSyncToast('נותק מ-Monday');
   });
 
-  document.getElementById('syncUnlock')?.addEventListener('click', async () => {
-    const pin = document.getElementById('mondayPinInput').value.trim();
+  document.getElementById('syncConnect')?.addEventListener('click', async () => {
+    const key = document.getElementById('mondayKeyInput').value.trim();
     const box = document.getElementById('syncStatusBox');
-    if (!pin) { box.className = 'sync-status-box err'; box.textContent = '❌ נא להזין PIN'; return; }
-    box.className = 'sync-status-box'; box.textContent = '⏳ פותח...';
+    if (!key) { box.className = 'sync-status-box err'; box.textContent = '❌ נא להזין API key'; return; }
+    box.className = 'sync-status-box'; box.textContent = '⏳ מאמת...';
     try {
-      await unlockWithPin(pin);
+      await connectMonday(key);
+      clearMondayCache(currentCountry);
       box.className = 'sync-status-box ok';
       box.textContent = '✅ מחובר! טוען נתונים מ-Monday...';
       overlay.classList.remove('open');
-      window.dispatchEvent(new CustomEvent('monday-connected'));
+      window.dispatchEvent(new CustomEvent('monday-connected', { detail: { force: true } }));
     } catch (e) {
       box.className = 'sync-status-box err';
       box.textContent = `❌ ${e.message}`;
     }
   });
 
-  document.getElementById('syncConnect')?.addEventListener('click', async () => {
-    const key = document.getElementById('mondayKeyInput').value.trim();
-    const pin = document.getElementById('mondayPinInput').value.trim();
+  document.getElementById('syncHardRefresh')?.addEventListener('click', async () => {
+    if (!requireMonday('⚠️ חברי Monday כדי לרענן')) return;
     const box = document.getElementById('syncStatusBox');
-    if (!key || !pin) { box.className = 'sync-status-box err'; box.textContent = '❌ נא למלא API key ו-PIN'; return; }
-    box.className = 'sync-status-box'; box.textContent = '⏳ מאמת...';
-    try {
-      await connectMonday(key, pin);
-      box.className = 'sync-status-box ok';
-      box.textContent = '✅ נשמר! טוען נתונים מ-Monday...';
-      overlay.classList.remove('open');
-      window.dispatchEvent(new CustomEvent('monday-connected'));
-    } catch (e) {
-      box.className = 'sync-status-box err';
-      box.textContent = `❌ ${e.message}`;
-    }
+    box.className = 'sync-status-box';
+    box.textContent = '⏳ מרענן מ-Monday...';
+    clearMondayCache(currentCountry);
+    window.dispatchEvent(new CustomEvent('monday-connected', { detail: { force: true } }));
+    overlay.classList.remove('open');
   });
 
-  if (hasStoredToken()) {
-    setSyncDot('');
-  } else {
-    setSyncDot('');
+  setSyncDot(mondayToken ? 'synced' : '');
+  updateCacheStatusLabel();
+  if (mondayToken) {
+    window.dispatchEvent(new CustomEvent('monday-connected', { detail: { force: false } }));
   }
 }
 
@@ -183,4 +280,4 @@ function showSyncToast(msg) {
   setTimeout(() => toast.classList.remove('show'), 2500);
 }
 
-export { MONDAY_BOARD };
+export { MONDAY_BOARD, CACHE_TTL_MS };

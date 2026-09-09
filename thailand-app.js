@@ -1,7 +1,7 @@
 import { thailandDays, thailandCityNames, thailandCityColors, thailandFoodGuide, thailandFoodCategories } from './thailand-data.js';
 import { map, dayMarkers, allMarkersList, selectedDayNum, selectDayOnMap, addMarkerToMap, fetchPlaceDetails, initMap, rebuildMap } from './thailand-map.js';
 import {
-  isConnected, initSync, loadMondayData,
+  isConnected, requireMonday, initSync, loadMondayData,
   syncActivityCreate, syncActivityUpdate, syncActivityDelete, syncFoodCreate,
 } from './sync.js';
 
@@ -119,8 +119,10 @@ function renderItinerary() {
                     ${typeBadge}
                 </div>
                 <div class="activity-actions">
+                    ${isConnected() ? `
                     <button class="act-btn edit-btn" data-day="${day.day}" data-idx="${i}" title="ערוך">✏️</button>
                     <button class="act-btn remove-btn" data-day="${day.day}" data-idx="${i}" title="מחק">🗑️</button>
+                    ` : ''}
                 </div>
             </div>`;
     }).join('');
@@ -139,7 +141,7 @@ function renderItinerary() {
             ${activitiesHtml}
             <div class="day-notes-wrap">
                 <div class="day-notes-label">📝 הערות ליום ${day.day}</div>
-                <textarea class="day-notes" data-day="${day.day}" placeholder="הוסף הערות, טיפים, מספרי הזמנה...">${notes[day.day] || ''}</textarea>
+                <textarea class="day-notes" data-day="${day.day}" placeholder="${isConnected() ? 'הוסף הערות, טיפים, מספרי הזמנה...' : 'חברי Monday כדי להוסיף הערות'}" ${isConnected() ? '' : 'disabled'}>${notes[day.day] || ''}</textarea>
             </div>
         </div>`;
 
@@ -232,6 +234,32 @@ thailandDays.forEach(d => {
 
 document.getElementById('apiKeyHint').textContent = '🗺️ חיפוש חופשי באמצעות OpenStreetMap';
 
+document.addEventListener('input', e => {
+    if (!e.target.classList.contains('day-notes')) return;
+    if (!requireMonday()) { e.target.value = getNotes()[e.target.dataset.day] || ''; return; }
+    const notes = getNotes();
+    notes[e.target.dataset.day] = e.target.value;
+    setNotes(notes);
+});
+
+function updateEditAccess() {
+    const connected = isConnected();
+    if (typeof addPlaceBtn !== 'undefined' && addPlaceBtn) addPlaceBtn.style.display = connected ? '' : 'none';
+    document.querySelectorAll('.day-notes').forEach(el => {
+        el.disabled = !connected;
+        el.placeholder = connected ? 'הוסף הערות, טיפים, מספרי הזמנה...' : 'חברי Monday כדי להוסיף הערות';
+    });
+    document.querySelectorAll('.activity-actions').forEach(wrap => {
+        const content = wrap.closest('.activity')?.querySelector('.activity-content');
+        if (!content) return;
+        const dayNum = content.dataset.day, idx = content.dataset.idx;
+        wrap.innerHTML = connected
+            ? `<button class="act-btn edit-btn" data-day="${dayNum}" data-idx="${idx}" title="ערוך">✏️</button>
+               <button class="act-btn remove-btn" data-day="${dayNum}" data-idx="${idx}" title="מחק">🗑️</button>`
+            : '';
+    });
+}
+
 const addPlaceBtn = document.createElement('button');
 addPlaceBtn.className = 'add-place-btn';
 addPlaceBtn.innerHTML = '+';
@@ -240,6 +268,7 @@ if (window.innerWidth <= 768) { document.body.appendChild(addPlaceBtn); }
 else { document.querySelector('.map-container').appendChild(addPlaceBtn); }
 
 addPlaceBtn.addEventListener('click', () => {
+    if (!requireMonday()) return;
     if (selectedDayNum) daySelect.value = selectedDayNum;
     modalOverlay.classList.add('open');
     document.getElementById('placesSearchInput').focus();
@@ -287,6 +316,7 @@ document.getElementById('placesSearchInput').addEventListener('input', function(
 // Add place confirm
 document.getElementById('modalConfirm').addEventListener('click', function() {
     if (this.dataset.editDay) return;
+    if (!requireMonday()) return;
     const name = document.getElementById('newPlaceName').value.trim();
     const desc = document.getElementById('newPlaceDesc').value.trim();
     const time = document.getElementById('newPlaceTime').value.trim() || '?';
@@ -321,12 +351,13 @@ document.getElementById('modalConfirm').addEventListener('click', function() {
     })();
     modalOverlay.classList.remove('open');
     resetModal();
-    showToast(isConnected() ? `✅ ${name} נוסף — נשמר ב-Monday` : `✅ ${name} נוסף מקומית`, 3000);
+    showToast(`✅ ${name} נוסף — נשמר ב-Monday`, 3000);
 });
 
 // Edit / Remove
 document.addEventListener('click', e => {
     if (e.target.closest('.remove-btn')) {
+        if (!requireMonday()) return;
         const btn = e.target.closest('.remove-btn');
         const dayNum = parseInt(btn.dataset.day), idx = parseInt(btn.dataset.idx);
         const day = thailandDays.find(d => d.day === dayNum);
@@ -339,10 +370,11 @@ document.addEventListener('click', e => {
         document.getElementById(`act-${dayNum}-${idx}`)?.remove();
         if (selectedDayNum === dayNum) selectDayOnMap(dayNum);
         updateStats();
-        showToast(isConnected() ? '🗑️ מחוק מ-Monday' : '🗑️ נמחק', 2000);
+        showToast('🗑️ מחוק מ-Monday', 2000);
         return;
     }
     if (e.target.closest('.edit-btn')) {
+        if (!requireMonday()) return;
         const btn = e.target.closest('.edit-btn');
         const dayNum = parseInt(btn.dataset.day), idx = parseInt(btn.dataset.idx);
         const act = thailandDays.find(d => d.day === dayNum).activities[idx];
@@ -363,6 +395,7 @@ document.addEventListener('click', e => {
 // Edit confirm
 document.getElementById('modalConfirm').addEventListener('click', function() {
     if (!this.dataset.editDay) return;
+    if (!requireMonday()) return;
     const dayNum = parseInt(this.dataset.editDay), idx = parseInt(this.dataset.editIdx);
     const day = thailandDays.find(d => d.day === dayNum);
     const act = day.activities[idx];
@@ -383,7 +416,7 @@ document.getElementById('modalConfirm').addEventListener('click', function() {
     delete this.dataset.editDay; delete this.dataset.editIdx;
     modalOverlay.classList.remove('open');
     resetModal();
-    showToast(isConnected() ? `✅ ${name} עודכן ב-Monday` : `✅ ${name} עודכן`, 2500);
+    showToast(`✅ ${name} עודכן ב-Monday`, 2500);
 });
 
 // --- FOOD GUIDE ---
@@ -400,7 +433,8 @@ function renderFoodGuide(cityFilter = 'all') {
     [['all','הכל'], ...Object.entries(thailandCityNames)].forEach(([c, lbl]) => {
         html += `<button class="food-city-btn ${cityFilter === c ? 'active' : ''}" data-city="${c}" ${c !== 'all' ? `style="--th-city-color:${thailandCityColors[c]}"` : ''}>${lbl}</button>`;
     });
-    html += '<button class="food-add-btn" id="foodAddBtn">＋ הוסף</button></div>';
+    if (isConnected()) html += '<button class="food-add-btn" id="foodAddBtn">＋ הוסף</button>';
+    html += '</div>';
 
     if (!items.length) {
         html += `<div style="padding:40px 20px;text-align:center;color:var(--text-light);line-height:1.8">
@@ -431,6 +465,7 @@ function renderFoodGuide(cityFilter = 'all') {
         btn.addEventListener('click', () => { _foodGuideCurrentCity = btn.dataset.city; renderFoodGuide(btn.dataset.city); });
     });
     document.getElementById('foodAddBtn')?.addEventListener('click', () => {
+        if (!requireMonday()) return;
         document.getElementById('foodModalOverlay').classList.add('open');
         document.getElementById('foodItemName').focus();
     });
@@ -447,6 +482,7 @@ function resetFoodModal() {
     ['foodItemName','foodItemArea','foodItemDesc','foodItemDay'].forEach(id => document.getElementById(id).value = '');
 }
 document.getElementById('foodModalConfirm').addEventListener('click', () => {
+    if (!requireMonday()) return;
     const name = document.getElementById('foodItemName').value.trim();
     const city = document.getElementById('foodItemCity').value;
     const area = document.getElementById('foodItemArea').value.trim();
@@ -463,7 +499,7 @@ document.getElementById('foodModalConfirm').addEventListener('click', () => {
       document.getElementById('foodModalOverlay').classList.remove('open');
       resetFoodModal();
       renderFoodGuide(_foodGuideCurrentCity);
-      showToast(isConnected() ? `✅ ${name} נוסף למדריך ול-Monday` : `✅ ${name} נוסף למדריך`, 2500);
+      showToast(`✅ ${name} נוסף למדריך ול-Monday`, 2500);
     })();
 });
 
@@ -504,24 +540,28 @@ document.querySelectorAll('.sidebar-tab').forEach(tab => {
 // Panel back button
 document.getElementById('panelBackBtn')?.addEventListener('click', () => document.getElementById('placePanel').classList.remove('open'));
 
-async function refreshFromMonday() {
-  const data = await loadMondayData('thailand');
+async function refreshFromMonday(force = false) {
+  const data = await loadMondayData('thailand', { force });
   if (!data?.days?.length) return;
   replaceArray(thailandDays, data.days);
   replaceArray(thailandFoodGuide, data.foodGuide);
   renderItinerary();
   rebuildMap();
   updateStats();
+  updateEditAccess();
   document.querySelector('.day-card')?.classList.add('active');
   selectDayOnMap(thailandDays[0]?.day || 1);
-  showToast('✅ נטען מ-Monday', 2500);
+  if (data.fromCache) showToast(data.stale ? '⚠️ נטען ממטמון (שגיאת Monday)' : '✅ נטען מהמטמון', 2500);
+  else showToast('✅ נטען מ-Monday', 2500);
 }
 
-window.addEventListener('monday-connected', () => refreshFromMonday());
+window.addEventListener('monday-connected', (e) => refreshFromMonday(!!e.detail?.force));
+window.addEventListener('monday-disconnected', () => updateEditAccess());
 
 // --- INIT ---
 initMap();
 initSync('thailand');
+updateEditAccess();
 document.querySelector('.day-card')?.classList.add('active');
 selectDayOnMap(1);
 updateStats();

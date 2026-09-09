@@ -2,7 +2,7 @@ import { days, cityNames, cityColors, dayTitlesEn, weekdayEn, TR, foodGuide, foo
 localStorage.setItem('honeymoon-country', 'japan');
 import { map, dayMarkers, allMarkersList, selectedDayNum, selectDayOnMap, addMarkerToMap, fetchPlaceDetails, initMap, rebuildMap } from './map.js';
 import {
-  isConnected, initSync, loadMondayData,
+  isConnected, requireMonday, initSync, loadMondayData,
   syncActivityCreate, syncActivityUpdate, syncActivityDelete, syncFoodCreate,
 } from './sync.js';
 
@@ -172,8 +172,10 @@ function renderItinerary() {
                     ${typeBadge}
                 </div>
                 <div class="activity-actions">
+                    ${isConnected() ? `
                     <button class="act-btn edit-btn" data-day="${day.day}" data-idx="${i}" title="ערוך">✏️</button>
                     <button class="act-btn remove-btn" data-day="${day.day}" data-idx="${i}" title="מחק">🗑️</button>
+                    ` : ''}
                 </div>
             </div>`;
     }).join('');
@@ -192,7 +194,7 @@ function renderItinerary() {
             ${activitiesHtml}
             <div class="day-notes-wrap">
                 <div class="day-notes-label">📝 הערות ליום ${day.day}</div>
-                <textarea class="day-notes" data-day="${day.day}" placeholder="הוסף הערות, טיפים, מספרי הזמנה...">${notes[day.day] || ''}</textarea>
+                <textarea class="day-notes" data-day="${day.day}" placeholder="${isConnected() ? 'הוסף הערות, טיפים, מספרי הזמנה...' : 'חברי Monday כדי להוסיף הערות'}" ${isConnected() ? '' : 'disabled'}>${notes[day.day] || ''}</textarea>
             </div>
         </div>
     `;
@@ -244,10 +246,35 @@ document.addEventListener('change', e => {
 // Notes
 document.addEventListener('input', e => {
     if (!e.target.classList.contains('day-notes')) return;
+    if (!requireMonday()) { e.target.value = getNotes()[e.target.dataset.day] || ''; return; }
     const notes = getNotes();
     notes[e.target.dataset.day] = e.target.value;
     setNotes(notes);
 });
+
+function updateEditAccess() {
+    const connected = isConnected();
+    if (typeof addPlaceBtn !== 'undefined' && addPlaceBtn) {
+        addPlaceBtn.style.display = connected ? '' : 'none';
+        addPlaceBtn.title = connected ? 'הוסף מקום לתוכנית' : 'חברי Monday כדי להוסיף';
+    }
+    document.querySelectorAll('.day-notes').forEach(el => {
+        el.disabled = !connected;
+        el.placeholder = connected ? TR[currentLang].notes_ph : 'חברי Monday כדי להוסיף הערות';
+    });
+    document.querySelectorAll('.activity-actions').forEach(wrap => {
+        const act = wrap.closest('.activity');
+        if (!act) return;
+        const content = act.querySelector('.activity-content');
+        if (!content) return;
+        const dayNum = content.dataset.day;
+        const idx = content.dataset.idx;
+        wrap.innerHTML = connected
+            ? `<button class="act-btn edit-btn" data-day="${dayNum}" data-idx="${idx}" title="ערוך">✏️</button>
+               <button class="act-btn remove-btn" data-day="${dayNum}" data-idx="${idx}" title="מחק">🗑️</button>`
+            : '';
+    });
+}
 
 // --- SEARCH ---
 document.getElementById('searchInput').addEventListener('input', function() {
@@ -307,6 +334,7 @@ if (window.innerWidth <= 768) {
 }
 
 addPlaceBtn.addEventListener('click', () => {
+    if (!requireMonday()) return;
     if (selectedDayNum) daySelect.value = selectedDayNum;
     modalOverlay.classList.add('open');
     document.getElementById('placesSearchInput').focus();
@@ -362,6 +390,7 @@ function searchNominatim(query) {
 // Add new place
 document.getElementById('modalConfirm').addEventListener('click', () => {
     if (document.getElementById('modalConfirm').dataset.editDay) return;
+    if (!requireMonday()) return;
     const name = document.getElementById('newPlaceName').value.trim();
     const desc = document.getElementById('newPlaceDesc').value.trim();
     const time = document.getElementById('newPlaceTime').value.trim() || '?';
@@ -402,12 +431,13 @@ document.getElementById('modalConfirm').addEventListener('click', () => {
     modalOverlay.classList.remove('open');
     resetModal();
 
-    showToast(isConnected() ? `✅ ${name} נוסף — נשמר ב-Monday` : `✅ ${name} נוסף מקומית — לא מחובר ל-Monday`, 3000);
+    showToast(`✅ ${name} נוסף — נשמר ב-Monday`, 3000);
 });
 
 // --- EDIT / REMOVE ---
 document.addEventListener('click', e => {
     if (e.target.closest('.remove-btn')) {
+        if (!requireMonday()) return;
         const btn = e.target.closest('.remove-btn');
         const dayNum = parseInt(btn.dataset.day);
         const idx = parseInt(btn.dataset.idx);
@@ -420,17 +450,18 @@ document.addEventListener('click', e => {
         const mIdx = allMarkersList.findIndex(m => m.marker === marker);
         if (mIdx > -1) allMarkersList.splice(mIdx, 1);
 
+        syncActivityDelete(act.mondayId);
         day.activities.splice(idx, 1);
         document.getElementById(`act-${dayNum}-${idx}`)?.remove();
 
         if (selectedDayNum === dayNum) selectDayOnMap(dayNum);
         updateStats();
-        syncActivityDelete(act.mondayId);
-        showToast(isConnected() ? '🗑️ מחוק מ-Monday' : '🗑️ מחוק מקומית — לא מחובר ל-Monday', 3000);
+        showToast('🗑️ מחוק מ-Monday', 3000);
         return;
     }
 
     if (e.target.closest('.edit-btn')) {
+        if (!requireMonday()) return;
         const btn = e.target.closest('.edit-btn');
         const dayNum = parseInt(btn.dataset.day);
         const idx = parseInt(btn.dataset.idx);
@@ -458,6 +489,7 @@ document.getElementById('modalConfirm').addEventListener('click', function() {
     const editDay = this.dataset.editDay;
     const editIdx = this.dataset.editIdx;
     if (editDay === undefined || editDay === '') return;
+    if (!requireMonday()) return;
 
     const dayNum = parseInt(editDay);
     const idx = parseInt(editIdx);
@@ -493,7 +525,7 @@ document.getElementById('modalConfirm').addEventListener('click', function() {
     modalOverlay.classList.remove('open');
     resetModal();
 
-    showToast(isConnected() ? `✅ ${name} עודכן ב-Monday` : `✅ ${name} עודכן מקומית — לא מחובר ל-Monday`, 3000);
+    showToast(`✅ ${name} עודכן ב-Monday`, 3000);
 });
 
 // --- FOOD GUIDE ---
@@ -513,7 +545,7 @@ function renderFoodGuide(cityFilter = 'all') {
     [['all', 'הכל'], ['tokyo', '🗼 טוקיו'], ['kyoto', '⛩️ קיוטו'], ['osaka', '🎡 אוסקה']].forEach(([c, lbl]) => {
         html += `<button class="food-city-btn ${cityFilter === c ? 'active' : ''} ${c !== 'all' ? 'city-' + c : ''}" data-city="${c}">${lbl}</button>`;
     });
-    html += '<button class="food-add-btn" id="foodAddBtn">＋ הוסף</button>';
+    if (isConnected()) html += '<button class="food-add-btn" id="foodAddBtn">＋ הוסף</button>';
     html += '</div>';
 
     catOrder.forEach(cat => {
@@ -539,6 +571,7 @@ function renderFoodGuide(cityFilter = 'all') {
         btn.addEventListener('click', () => { _foodGuideCurrentCity = btn.dataset.city; renderFoodGuide(btn.dataset.city); });
     });
     document.getElementById('foodAddBtn')?.addEventListener('click', () => {
+        if (!requireMonday()) return;
         document.getElementById('foodModalOverlay').classList.add('open');
         document.getElementById('foodItemName').focus();
     });
@@ -561,6 +594,7 @@ function resetFoodModal() {
     document.getElementById('foodItemCategory').value = 'cafe';
 }
 document.getElementById('foodModalConfirm').addEventListener('click', () => {
+    if (!requireMonday()) return;
     const name = document.getElementById('foodItemName').value.trim();
     const city = document.getElementById('foodItemCity').value;
     const area = document.getElementById('foodItemArea').value.trim();
@@ -577,7 +611,7 @@ document.getElementById('foodModalConfirm').addEventListener('click', () => {
       document.getElementById('foodModalOverlay').classList.remove('open');
       resetFoodModal();
       renderFoodGuide(_foodGuideCurrentCity);
-      showToast(isConnected() ? `✅ ${name} נוסף למדריך ול-Monday` : `✅ ${name} נוסף למדריך האוכל`, 2500);
+      showToast(`✅ ${name} נוסף למדריך ול-Monday`, 2500);
     })();
 });
 
@@ -639,24 +673,28 @@ document.getElementById('panelBackBtn')?.addEventListener('click', () => {
     document.getElementById('placePanel').classList.remove('open');
 });
 
-async function refreshFromMonday() {
-  const data = await loadMondayData('japan');
+async function refreshFromMonday(force = false) {
+  const data = await loadMondayData('japan', { force });
   if (!data?.days?.length) return;
   replaceArray(days, data.days);
   replaceArray(foodGuide, data.foodGuide);
   renderItinerary();
   rebuildMap();
   updateStats();
+  updateEditAccess();
   document.querySelector('.day-card')?.classList.add('active');
   selectDayOnMap(days[0]?.day || 1);
-  showToast('✅ נטען מ-Monday', 2500);
+  if (data.fromCache) showToast(data.stale ? '⚠️ נטען ממטמון (שגיאת Monday)' : '✅ נטען מהמטמון', 2500);
+  else showToast('✅ נטען מ-Monday', 2500);
 }
 
-window.addEventListener('monday-connected', () => refreshFromMonday());
+window.addEventListener('monday-connected', (e) => refreshFromMonday(!!e.detail?.force));
+window.addEventListener('monday-disconnected', () => updateEditAccess());
 
 // --- INIT ---
 initMap();
 initSync('japan');
+updateEditAccess();
 document.querySelector('.day-card')?.classList.add('active');
 selectDayOnMap(1);
 updateStats();

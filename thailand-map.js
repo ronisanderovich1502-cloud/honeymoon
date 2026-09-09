@@ -2,9 +2,9 @@ import { thailandDays as days, thailandCityColors as cityColors } from './thaila
 
 export const map = L.map('map', { zoomControl: false }).setView([13.7563, 100.5018], 12);
 L.control.zoom({ position: 'topleft' }).addTo(map);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-    subdomains: 'abcd', maxZoom: 19
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors',
+    maxZoom: 19
 }).addTo(map);
 
 export const dayMarkers = {};
