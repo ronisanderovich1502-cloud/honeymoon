@@ -2,9 +2,10 @@ import { days, cityColors } from './data.js';
 
 export const map = L.map('map', { zoomControl: false }).setView([35.6762, 139.6503], 11);
 L.control.zoom({ position: 'topleft' }).addTo(map);
-L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+// World Street Map: English labels worldwide (light-gray canvas uses local scripts)
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
     attribution: 'Tiles &copy; Esri',
-    maxZoom: 16
+    maxZoom: 19
 }).addTo(map);
 
 export const dayMarkers = {};
