@@ -126,6 +126,7 @@ export function buildDataFromItems(items, country) {
       weather: d.weather,
       hotel: d.hotel || undefined,
       activities: [],
+      notes: [],
     }));
 
   const dayMap = Object.fromEntries(days.map(d => [d.day, d]));
@@ -163,6 +164,90 @@ export function buildDataFromItems(items, country) {
     }));
 
   return { days, foodGuide };
+}
+
+/** Fetch Monday updates (comments) for Day items, keyed by item id */
+export async function fetchUpdatesForItems(token, itemIds) {
+  const ids = [...new Set((itemIds || []).filter(Boolean).map(String))];
+  const byItem = {};
+  if (!ids.length) return byItem;
+
+  for (let i = 0; i < ids.length; i += 40) {
+    const chunk = ids.slice(i, i + 40);
+    const data = await mondayQuery(token,
+      `query($ids:[ID!]!) {
+        items(ids:$ids) {
+          id
+          updates(limit: 50) {
+            id
+            text_body
+            body
+            created_at
+            creator { name }
+          }
+        }
+      }`,
+      { ids: chunk },
+    );
+    for (const item of data.items || []) {
+      const notes = (item.updates || [])
+        .map(u => ({
+          id: u.id,
+          text: (u.text_body || '').trim() || stripHtml(u.body || ''),
+          createdAt: u.created_at,
+          author: u.creator?.name || '',
+        }))
+        .filter(n => n.text)
+        .reverse(); // oldest first
+      byItem[String(item.id)] = notes;
+    }
+  }
+  return byItem;
+}
+
+function stripHtml(html) {
+  return String(html || '')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .trim();
+}
+
+function toUpdateHtml(text) {
+  const esc = String(text || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/\n/g, '<br>');
+  return `<p>${esc}</p>`;
+}
+
+/** Create a Monday update (comment) on a Day item */
+export async function createItemUpdate(token, itemId, text) {
+  const data = await mondayQuery(token,
+    `mutation($itemId:ID!,$body:String!) {
+      create_update(item_id:$itemId, body:$body) {
+        id
+        text_body
+        created_at
+        creator { name }
+      }
+    }`,
+    { itemId: String(itemId), body: toUpdateHtml(text) },
+  );
+  const u = data.create_update;
+  return {
+    id: u.id,
+    text: (u.text_body || '').trim() || String(text).trim(),
+    createdAt: u.created_at,
+    author: u.creator?.name || '',
+  };
 }
 
 function colVal(key, value, type) {
@@ -246,8 +331,14 @@ export async function updateActivityItem(token, itemId, activity) {
   );
   if (activity.name) {
     await mondayQuery(token,
-      `mutation($itemId:ID!,$name:String!) { change_simple_column_value(item_id:$itemId, column_id:"name", value:$name) { id } }`,
-      { itemId: String(itemId), name: activity.name },
+      `mutation($itemId:ID!,$boardId:ID!,$name:String!) {
+        change_simple_column_value(item_id:$itemId, board_id:$boardId, column_id:"name", value:$name) { id }
+      }`,
+      {
+        itemId: String(itemId),
+        boardId: String(MONDAY_BOARD.boardId),
+        name: activity.name,
+      },
     );
   }
 }

@@ -4,6 +4,8 @@ import {
   fetchAllItems,
   fetchBoardFingerprint,
   buildDataFromItems,
+  fetchUpdatesForItems,
+  createItemUpdate,
   createActivityItem,
   updateActivityItem,
   deleteItem,
@@ -14,7 +16,7 @@ import { validateApiKey, bindClearOnInput, shakeModal, clearOneField } from './v
 
 const STORAGE_KEY = 'mondayApiKey';
 const CACHE_TTL_MS = 3 * 24 * 60 * 60 * 1000; // soft TTL for status label
-const CACHE_SCHEMA = 2; // bump when cached activity shape changes (e.g. timeEnd)
+const CACHE_SCHEMA = 3; // day.notes from Monday updates
 const cacheKey = (country) => `mondayCache_${country}_v${CACHE_SCHEMA}`;
 
 export let mondayToken = localStorage.getItem(STORAGE_KEY) || '';
@@ -137,6 +139,16 @@ async function fetchAndCache(country) {
     fetchBoardFingerprint(mondayToken),
   ]);
   const data = buildDataFromItems(items, country);
+  const dayIds = data.days.map(d => d.mondayId).filter(Boolean);
+  try {
+    const byItem = await fetchUpdatesForItems(mondayToken, dayIds);
+    for (const day of data.days) {
+      day.notes = byItem[String(day.mondayId)] || [];
+    }
+  } catch (e) {
+    console.warn('Monday updates fetch failed:', e);
+    for (const day of data.days) day.notes = day.notes || [];
+  }
   writeCache(country, data, fingerprint);
   return { ...data, fingerprint, fromCache: false };
 }
@@ -318,6 +330,34 @@ export async function syncFoodCreate(entry) {
     return { ok: true, id };
   } catch (e) {
     console.error('Monday food create:', e);
+    setSyncDot('error');
+    endMondaySaveError(e);
+    return { ok: false, error: e };
+  }
+}
+
+/** Post a day note as a Monday item update */
+export async function syncNoteCreate(dayNum, text, mondayId) {
+  if (!mondayToken) return { ok: false, error: new Error('לא מחובר ל-Monday') };
+  const id = mondayId || readCache(currentCountry)?.days?.find(d => d.day === dayNum)?.mondayId;
+  if (!id) {
+    return { ok: false, error: new Error('חסר מזהה Monday ליום') };
+  }
+  setSyncDot('syncing');
+  beginMondaySave('שומר הערה ב-Monday.com...');
+  try {
+    const note = await createItemUpdate(mondayToken, id, text);
+    patchCachedActivity(currentCountry, (c) => {
+      const d = c.days.find(x => x.day === dayNum);
+      if (!d) return;
+      d.notes = d.notes || [];
+      d.notes.push(note);
+    });
+    setSyncDot('synced');
+    endMondaySaveOk('הערה נשמרה ב-Monday.com ✓');
+    return { ok: true, note };
+  } catch (e) {
+    console.error('Monday note create:', e);
     setSyncDot('error');
     endMondaySaveError(e);
     return { ok: false, error: e };

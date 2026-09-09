@@ -442,8 +442,19 @@ body.dark .type-restaurant { background: #4A0020; color: #FBCFE8; }
 /* ── NOTES ── */
 .day-notes-wrap { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
 .day-notes-label { font-size: 0.7rem; color: var(--text-light); font-weight: 600; margin-bottom: 6px; letter-spacing: 0.3px; }
-.day-notes {
-    width: 100%; min-height: 54px;
+.day-notes-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+.day-notes-empty { font-size: 0.72rem; color: var(--text-light); opacity: 0.85; }
+.day-note {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+}
+.day-note-meta { font-size: 0.65rem; color: var(--text-light); margin-bottom: 3px; font-weight: 600; }
+.day-note-text { font-size: 0.78rem; color: var(--text); white-space: pre-wrap; line-height: 1.45; }
+.day-notes-composer { display: flex; flex-direction: column; gap: 6px; }
+.day-notes-input {
+    width: 100%; min-height: 52px;
     padding: 8px 10px;
     font-family: 'Noto Sans Hebrew', sans-serif;
     font-size: 0.8rem; color: var(--text);
@@ -451,9 +462,21 @@ body.dark .type-restaurant { background: #4A0020; color: #FBCFE8; }
     border: 1.5px solid var(--border);
     border-radius: var(--radius-sm);
     resize: vertical; outline: none;
-    transition: border-color 0.18s;
 }
-.day-notes:focus { border-color: var(--rose); }
+.day-notes-input:focus { border-color: var(--rose); }
+.day-notes-add {
+    align-self: flex-start;
+    border: none;
+    background: var(--rose);
+    color: #fff;
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+}
+.day-notes-add:disabled { opacity: 0.6; cursor: wait; }
 
 /* ── MAP ── */
 .map-container { flex: 1; height: 100vh; position: relative; }

@@ -2,7 +2,7 @@ import { thailandDays, thailandCityNames, thailandCityColors, thailandFoodGuide,
 import { map, dayMarkers, allMarkersList, selectedDayNum, selectDayOnMap, addMarkerToMap, fetchPlaceDetails, initMap, rebuildMap } from './thailand-map.js';
 import {
   isConnected, requireMonday, initSync, loadMondayData, revalidateMondayData,
-  syncActivityCreate, syncActivityUpdate, syncActivityDelete, syncFoodCreate,
+  syncActivityCreate, syncActivityUpdate, syncActivityDelete, syncFoodCreate, syncNoteCreate,
 } from './sync.js';
 import { initResize } from './resize.js';
 import { searchSkeleton, showPaneSkeletons, hidePaneSkeletons } from './skeleton.js';
@@ -86,8 +86,51 @@ function showToast(msg, duration = 2500) {
 // --- CHECKLIST STATE ---
 function getChecked() { return JSON.parse(localStorage.getItem('th-checked') || '{}'); }
 function setChecked(obj) { localStorage.setItem('th-checked', JSON.stringify(obj)); }
-function getNotes() { return JSON.parse(localStorage.getItem('th-notes') || '{}'); }
-function setNotes(obj) { localStorage.setItem('th-notes', JSON.stringify(obj)); }
+
+function escapeHtml(s) {
+  return String(s || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function formatNoteTime(iso) {
+  if (!iso) return '';
+  try {
+    return new Date(iso).toLocaleString('he-IL', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  } catch {
+    return '';
+  }
+}
+
+function notesListHtml(day) {
+  const notes = day.notes || [];
+  if (!notes.length) {
+    return `<div class="day-notes-empty">${isConnected() ? 'אין הערות עדיין' : 'חברי Monday כדי לראות הערות'}</div>`;
+  }
+  return notes.map(n => `
+    <div class="day-note" data-note-id="${n.id || ''}">
+      <div class="day-note-meta">${escapeHtml(n.author || 'הערה')}${n.createdAt ? ` · ${formatNoteTime(n.createdAt)}` : ''}</div>
+      <div class="day-note-text">${escapeHtml(n.text)}</div>
+    </div>
+  `).join('');
+}
+
+function dayNotesBlockHtml(day) {
+  const connected = isConnected();
+  return `
+    <div class="day-notes-wrap" data-day="${day.day}">
+      <div class="day-notes-label">📝 הערות ליום ${day.day}</div>
+      <div class="day-notes-list">${notesListHtml(day)}</div>
+      ${connected ? `
+        <div class="day-notes-composer">
+          <textarea class="day-notes-input" data-day="${day.day}" rows="2" placeholder="הוסף הערה, טיפ, מספר הזמנה..."></textarea>
+          <button type="button" class="day-notes-add" data-day="${day.day}">הוסף הערה</button>
+        </div>
+      ` : `<div class="day-notes-empty">חברי Monday כדי להוסיף הערות</div>`}
+    </div>`;
+}
 
 function updateStats() {
     const total = thailandDays.reduce((s, d) => s + d.activities.length, 0);
@@ -127,7 +170,6 @@ function renderItinerary() {
     }
 
     const checked = getChecked();
-    const notes = getNotes();
     const card = document.createElement('div');
     card.className = 'day-card';
     card.dataset.day = day.day;
@@ -166,10 +208,7 @@ function renderItinerary() {
         <div class="day-progress-bar"><div class="day-progress-fill" id="bar-fill-${day.day}" style="width:0%"></div></div>
         <div class="activities">
             ${activitiesHtml}
-            <div class="day-notes-wrap">
-                <div class="day-notes-label">📝 הערות ליום ${day.day}</div>
-                <textarea class="day-notes" data-day="${day.day}" placeholder="${isConnected() ? 'הוסף הערות, טיפים, מספרי הזמנה...' : 'חברי Monday כדי להוסיף הערות'}" ${isConnected() ? '' : 'disabled'}>${notes[day.day] || ''}</textarea>
-            </div>
+            ${dayNotesBlockHtml(day)}
         </div>`;
 
     card.querySelector('.day-header').addEventListener('click', () => {
@@ -227,12 +266,40 @@ document.addEventListener('change', e => {
     updateStats();
 });
 
-// Notes
-document.addEventListener('input', e => {
-    if (!e.target.classList.contains('day-notes')) return;
-    const notes = getNotes();
-    notes[e.target.dataset.day] = e.target.value;
-    setNotes(notes);
+// Day notes → Monday updates
+document.addEventListener('click', async (e) => {
+  const addBtn = e.target.closest('.day-notes-add');
+  if (!addBtn) return;
+  if (!requireMonday()) return;
+  const dayNum = parseInt(addBtn.dataset.day, 10);
+  const day = thailandDays.find(d => d.day === dayNum);
+  if (!day?.mondayId) {
+    showToast('חסר מזהה Monday ליום', 2500);
+    return;
+  }
+  const wrap = addBtn.closest('.day-notes-wrap');
+  const input = wrap?.querySelector('.day-notes-input');
+  const text = input?.value.trim() || '';
+  if (text.length < 2) {
+    showToast('כתבי הערה קצרה לפחות', 2000);
+    return;
+  }
+  addBtn.disabled = true;
+  const result = await syncNoteCreate(dayNum, text, day.mondayId);
+  addBtn.disabled = false;
+  if (!result.ok) return;
+  day.notes = day.notes || [];
+  day.notes.push(result.note);
+  const list = wrap.querySelector('.day-notes-list');
+  if (list) list.innerHTML = notesListHtml(day);
+  if (input) input.value = '';
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter' || (!e.metaKey && !e.ctrlKey)) return;
+  if (!e.target.classList.contains('day-notes-input')) return;
+  e.preventDefault();
+  e.target.closest('.day-notes-wrap')?.querySelector('.day-notes-add')?.click();
 });
 
 // --- SEARCH ---
@@ -273,21 +340,9 @@ const daySelect    = document.getElementById('newPlaceDay');
 
 document.getElementById('apiKeyHint').textContent = '🗺️ חיפוש חופשי באמצעות OpenStreetMap';
 
-document.addEventListener('input', e => {
-    if (!e.target.classList.contains('day-notes')) return;
-    if (!requireMonday()) { e.target.value = getNotes()[e.target.dataset.day] || ''; return; }
-    const notes = getNotes();
-    notes[e.target.dataset.day] = e.target.value;
-    setNotes(notes);
-});
-
 function updateEditAccess() {
     const connected = isConnected();
     if (typeof addPlaceBtn !== 'undefined' && addPlaceBtn) addPlaceBtn.style.display = connected ? '' : 'none';
-    document.querySelectorAll('.day-notes').forEach(el => {
-        el.disabled = !connected;
-        el.placeholder = connected ? 'הוסף הערות, טיפים, מספרי הזמנה...' : 'חברי Monday כדי להוסיף הערות';
-    });
     document.querySelectorAll('.activity-actions').forEach(wrap => {
         const content = wrap.closest('.activity')?.querySelector('.activity-content');
         if (!content) return;
