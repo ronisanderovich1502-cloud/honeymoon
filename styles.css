@@ -1036,6 +1036,15 @@ body.dark .sk-inline-chip {
     font-weight: 600;
     color: var(--text);
     text-align: left;
+    max-width: 88px;
+    line-height: 1.25;
+}
+.transit-price.note {
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: var(--text-light);
+}
+    text-align: left;
 }
 
 .fastest-badge {
