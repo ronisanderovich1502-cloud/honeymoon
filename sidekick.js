@@ -190,6 +190,9 @@ async function connectActiveProvider(apiKey) {
     localStorage.setItem(STORAGE_CLAUDE_KEY, apiKey);
     claudeToken = apiKey;
   } else {
+    if (!/^AIza/i.test(apiKey)) {
+      throw new Error('מפתח Gemini צריך להתחיל ב-AIza… — צרי מפתח ב-AI Studio (לא OAuth / Monday key)');
+    }
     await verifyGeminiKey(apiKey);
     localStorage.setItem(STORAGE_GEMINI_KEY, apiKey);
     geminiToken = apiKey;

@@ -2,16 +2,23 @@
 
 import { GEMINI_API_BASE, GEMINI_MODEL } from './sidekick-config.js';
 
-function endpoint(model = GEMINI_MODEL) {
-  return `${GEMINI_API_BASE}/models/${model}:generateContent`;
+function endpoint(apiKey, model = GEMINI_MODEL) {
+  // API key in query string — most reliable for browser + AI Studio keys
+  // (avoids OAuth errors when custom auth headers are dropped).
+  const q = new URLSearchParams({ key: apiKey });
+  return `${GEMINI_API_BASE}/models/${model}:generateContent?${q}`;
 }
 
 async function generateContent(apiKey, body, { model = GEMINI_MODEL } = {}) {
-  const res = await fetch(endpoint(model), {
+  const key = String(apiKey || '').trim();
+  if (!key) {
+    throw new Error('חסר Gemini API key');
+  }
+
+  const res = await fetch(endpoint(key, model), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-goog-api-key': apiKey,
     },
     body: JSON.stringify(body),
   });
@@ -24,7 +31,10 @@ async function generateContent(apiKey, body, { model = GEMINI_MODEL } = {}) {
   }
 
   if (!res.ok) {
-    const msg = data?.error?.message || `Gemini HTTP ${res.status}`;
+    let msg = data?.error?.message || `Gemini HTTP ${res.status}`;
+    if (/oauth|authentication|invalid.*credential|api.?key/i.test(msg)) {
+      msg = `${msg}\n\nטיפ: צרי מפתח חדש ב-AI Studio (AIza...) והדביקי אותו מחדש — לא OAuth / Cloud token.`;
+    }
     const err = new Error(msg);
     err.status = res.status;
     err.data = data;
@@ -44,7 +54,7 @@ export function extractText(response) {
 export async function verifyGeminiKey(apiKey) {
   const data = await generateContent(apiKey, {
     contents: [{ role: 'user', parts: [{ text: 'Reply with OK only.' }] }],
-    generationConfig: { maxOutputTokens: 8, temperature: 0 },
+    generationConfig: { maxOutputTokens: 16, temperature: 0 },
   });
   const text = extractText(data);
   if (!text) throw new Error('Gemini לא החזיר תשובה — בדקי את המפתח');
