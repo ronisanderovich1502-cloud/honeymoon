@@ -10,10 +10,12 @@ import {
   createFoodItem,
 } from './monday-api.js';
 import { beginMondaySave, endMondaySaveOk, endMondaySaveError } from './monday-banner.js';
+import { validateApiKey, bindClearOnInput, shakeModal, clearOneField } from './validate.js';
 
 const STORAGE_KEY = 'mondayApiKey';
 const CACHE_TTL_MS = 3 * 24 * 60 * 60 * 1000; // soft TTL for status label
-const cacheKey = (country) => `mondayCache_${country}`;
+const CACHE_SCHEMA = 2; // bump when cached activity shape changes (e.g. timeEnd)
+const cacheKey = (country) => `mondayCache_${country}_v${CACHE_SCHEMA}`;
 
 export let mondayToken = localStorage.getItem(STORAGE_KEY) || '';
 let currentCountry = 'japan';
@@ -31,7 +33,10 @@ export function isConnected() { return !!mondayToken; }
 export function openSyncModal() {
   const overlay = document.getElementById('syncModalOverlay');
   const keyInput = document.getElementById('mondayKeyInput');
-  if (keyInput) keyInput.value = mondayToken || '';
+  if (keyInput) {
+    keyInput.value = mondayToken || '';
+    clearOneField(keyInput);
+  }
   const box = document.getElementById('syncStatusBox');
   if (box) { box.className = 'sync-status-box'; box.textContent = ''; }
   updateCacheStatusLabel();
@@ -334,13 +339,21 @@ export function initSync(country = 'japan', { autoLoad = true } = {}) {
     showSyncToast('נותק מ-Monday');
   });
 
+  bindClearOnInput(['mondayKeyInput']);
+
   document.getElementById('syncConnect')?.addEventListener('click', async () => {
-    const key = document.getElementById('mondayKeyInput').value.trim();
+    const keyInput = document.getElementById('mondayKeyInput');
     const box = document.getElementById('syncStatusBox');
-    if (!key) { box.className = 'sync-status-box err'; box.textContent = '❌ נא להזין API key'; return; }
+    const checked = validateApiKey(keyInput);
+    if (!checked.ok) {
+      box.className = 'sync-status-box err';
+      box.textContent = '❌ בדקי את ה-API key';
+      shakeModal('syncModalOverlay');
+      return;
+    }
     box.className = 'sync-status-box'; box.textContent = '⏳ מאמת...';
     try {
-      await connectMonday(key);
+      await connectMonday(checked.value);
       clearMondayCache(currentCountry);
       box.className = 'sync-status-box ok';
       box.textContent = '✅ מחובר! טוען נתונים מ-Monday...';

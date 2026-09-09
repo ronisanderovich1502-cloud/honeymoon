@@ -1,11 +1,13 @@
 import { MONDAY_BOARD } from './monday-config.js';
 import { connectMonday, disconnectMonday, isConnected, loadMondayData, revalidateMondayData, clearMondayCache } from './sync.js';
 import { inlineChipSkeleton } from './skeleton.js';
+import { validateApiKey, bindClearOnInput, shakeModal, clearOneField } from './validate.js';
 
 const loginCard = document.getElementById('loginCard');
 const destPanel = document.getElementById('destinationsPanel');
 const statusBox = document.getElementById('loginStatusBox');
 const keyInput = document.getElementById('loginKeyInput');
+bindClearOnInput(['loginKeyInput']);
 
 function showLogin() {
   loginCard.style.display = '';
@@ -61,18 +63,21 @@ async function prefetchBoards() {
 }
 
 document.getElementById('loginSubmit').addEventListener('click', async () => {
-  const key = keyInput.value.trim();
-  if (!key) {
+  const checked = validateApiKey(keyInput);
+  if (!checked.ok) {
     statusBox.className = 'sync-status-box err';
-    statusBox.textContent = '❌ נא להזין API key';
+    statusBox.textContent = '❌ בדקי את ה-API key';
+    statusBox.style.display = 'block';
+    shakeModal('loginCard');
     return;
   }
   statusBox.className = 'sync-status-box';
   statusBox.textContent = '⏳ מאמת וטוען לו״ז מ-Monday...';
   statusBox.style.display = 'block';
   try {
-    await connectMonday(key);
+    await connectMonday(checked.value);
     clearMondayCache();
+    clearOneField(keyInput);
     showDestinations();
     await prefetchBoards();
   } catch (e) {

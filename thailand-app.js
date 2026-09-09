@@ -6,8 +6,27 @@ import {
 } from './sync.js';
 import { initResize } from './resize.js';
 import { searchSkeleton, showPaneSkeletons, hidePaneSkeletons } from './skeleton.js';
+import {
+  validatePlaceForm, validateFoodForm,
+  clearFieldErrors, bindClearOnInput, shakeModal,
+} from './validate.js';
+import { fillTimeSelect, setTimeSelectValue, suggestEndTime, formatTimeRange } from './time-options.js';
 
 if (localStorage.getItem('mondayCache_thailand')) hidePaneSkeletons();
+fillTimeSelect(document.getElementById('newPlaceTime'));
+fillTimeSelect(document.getElementById('newPlaceTimeEnd'));
+document.getElementById('newPlaceTime')?.addEventListener('change', () => {
+  const start = document.getElementById('newPlaceTime').value;
+  const endEl = document.getElementById('newPlaceTimeEnd');
+  if (start && endEl && (!endEl.value || endEl.value <= start)) {
+    setTimeSelectValue(endEl, suggestEndTime(start));
+  }
+});
+bindClearOnInput([
+  'placesSearchInput', 'newPlaceName', 'newPlaceDesc', 'newPlaceTime', 'newPlaceTimeEnd', 'newPlaceDay',
+  'foodItemName', 'foodItemArea', 'foodItemCity', 'foodItemCategory', 'foodItemDesc', 'foodItemDay',
+  'mondayKeyInput',
+]);
 
 if (!isConnected()) {
   location.replace('index.html');
@@ -121,7 +140,7 @@ function renderItinerary() {
             <div class="activity ${checked[key] ? 'done' : ''}" id="act-${key}">
                 <input type="checkbox" class="activity-check" data-key="${key}" ${checked[key] ? 'checked' : ''}>
                 <div class="activity-content" data-day="${day.day}" data-idx="${i}">
-                    <span class="activity-time">${a.time}</span>
+                    <span class="activity-time">${formatTimeRange(a.time, a.timeEnd)}</span>
                     <span class="activity-name"> ${a.name}</span>
                     <div class="activity-desc">${a.desc}</div>
                     ${typeBadge}
@@ -289,6 +308,7 @@ else { document.querySelector('.map-container').appendChild(addPlaceBtn); }
 
 addPlaceBtn.addEventListener('click', () => {
     if (!requireMonday()) return;
+    resetModal();
     if (selectedDayNum) daySelect.value = selectedDayNum;
     modalOverlay.classList.add('open');
     document.getElementById('placesSearchInput').focus();
@@ -298,9 +318,12 @@ document.getElementById('modalCancel').addEventListener('click', () => { modalOv
 modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) { modalOverlay.classList.remove('open'); resetModal(); } });
 
 function resetModal() {
-    ['placesSearchInput','newPlaceName','newPlaceDesc','newPlaceTime'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+    ['placesSearchInput','newPlaceName','newPlaceDesc'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+    setTimeSelectValue(document.getElementById('newPlaceTime'), '');
+    setTimeSelectValue(document.getElementById('newPlaceTimeEnd'), '');
     document.getElementById('places-search-results').style.display = 'none';
     selectedPlace = null;
+    clearFieldErrors(modalOverlay);
 }
 
 let searchTimeout;
@@ -341,13 +364,12 @@ document.getElementById('placesSearchInput').addEventListener('input', function(
 document.getElementById('modalConfirm').addEventListener('click', function() {
     if (this.dataset.editDay) return;
     if (!requireMonday()) return;
-    const name = document.getElementById('newPlaceName').value.trim();
-    const desc = document.getElementById('newPlaceDesc').value.trim();
-    const time = document.getElementById('newPlaceTime').value.trim() || '?';
-    const dayNum = parseInt(daySelect.value);
+    const checked = validatePlaceForm({ isEdit: false, daysList: thailandDays, selectedPlace });
+    if (!checked.ok) { shakeModal('modalOverlay'); return; }
+    const { name, desc, time, timeEnd, dayNum, lat, lng } = checked.values;
     const day = thailandDays.find(d => d.day === dayNum);
-    if (!name || !selectedPlace) { showToast('נא לחפש ולבחור מקום', 2000); return; }
-    const newAct = { name, time, desc, lat: selectedPlace.lat, lng: selectedPlace.lng };
+    if (!day) { shakeModal('modalOverlay'); return; }
+    const newAct = { name, time, timeEnd, desc, lat, lng };
     day.activities.push(newAct);
     addMarkerToMap(day, newAct);
     const card = document.querySelector(`.day-card[data-day="${dayNum}"]`);
@@ -359,7 +381,7 @@ document.getElementById('modalConfirm').addEventListener('click', function() {
     actDiv.innerHTML = `
         <input type="checkbox" class="activity-check" data-key="${key}">
         <div class="activity-content" data-day="${dayNum}" data-idx="${i}">
-            <span class="activity-time">${time}</span>
+            <span class="activity-time">${formatTimeRange(time, timeEnd)}</span>
             <span class="activity-name"> ${name}</span>
             <div class="activity-desc">${desc}</div>
         </div>
@@ -370,6 +392,7 @@ document.getElementById('modalConfirm').addEventListener('click', function() {
     card.querySelector('.activities').insertBefore(actDiv, notesWrap);
     updateStats();
     modalOverlay.classList.remove('open');
+    clearFieldErrors(modalOverlay);
     resetModal();
     (async () => {
       const result = await syncActivityCreate(dayNum, day.city, newAct, i);
@@ -417,10 +440,12 @@ document.addEventListener('click', e => {
         const act = thailandDays.find(d => d.day === dayNum).activities[idx];
         document.getElementById('newPlaceName').value = act.name;
         document.getElementById('newPlaceDesc').value = act.desc || '';
-        document.getElementById('newPlaceTime').value = act.time || '';
+        setTimeSelectValue(document.getElementById('newPlaceTime'), act.time || '');
+        setTimeSelectValue(document.getElementById('newPlaceTimeEnd'), act.timeEnd || suggestEndTime(act.time));
         daySelect.value = dayNum;
         selectedPlace = { name: act.name, lat: act.lat, lng: act.lng };
         document.getElementById('placesSearchInput').value = act.name;
+        clearFieldErrors(modalOverlay);
         const confirmBtn = document.getElementById('modalConfirm');
         confirmBtn.textContent = 'עדכן ✓';
         confirmBtn.dataset.editDay = dayNum;
@@ -436,25 +461,34 @@ document.getElementById('modalConfirm').addEventListener('click', function() {
     const dayNum = parseInt(this.dataset.editDay), idx = parseInt(this.dataset.editIdx);
     const day = thailandDays.find(d => d.day === dayNum);
     const act = day.activities[idx];
-    const snapshot = { name: act.name, desc: act.desc, time: act.time, lat: act.lat, lng: act.lng };
-    const name = document.getElementById('newPlaceName').value.trim();
-    if (!name) return;
+    const snapshot = { name: act.name, desc: act.desc, time: act.time, timeEnd: act.timeEnd, lat: act.lat, lng: act.lng };
+    const checked = validatePlaceForm({
+      isEdit: true,
+      daysList: thailandDays,
+      selectedPlace,
+      existingAct: act,
+    });
+    if (!checked.ok) { shakeModal('modalOverlay'); return; }
+    const { name, desc, time, timeEnd, lat, lng } = checked.values;
     act.name = name;
-    act.desc = document.getElementById('newPlaceDesc').value.trim();
-    act.time = document.getElementById('newPlaceTime').value.trim() || act.time;
-    if (selectedPlace) { act.lat = selectedPlace.lat; act.lng = selectedPlace.lng; }
+    act.desc = desc;
+    act.time = time;
+    act.timeEnd = timeEnd;
+    act.lat = lat;
+    act.lng = lng;
     const actEl = document.getElementById(`act-${dayNum}-${idx}`);
     if (actEl) {
         actEl.querySelector('.activity-name').textContent = ` ${name}`;
         actEl.querySelector('.activity-desc').textContent = act.desc;
-        actEl.querySelector('.activity-time').textContent = act.time;
+        actEl.querySelector('.activity-time').textContent = formatTimeRange(time, timeEnd);
     }
-    if (selectedPlace && dayMarkers[dayNum]?.[idx]) {
+    if (dayMarkers[dayNum]?.[idx]) {
         dayMarkers[dayNum][idx].setLatLng([act.lat, act.lng]);
     }
     this.textContent = 'הוסף לתוכנית ✓';
     delete this.dataset.editDay; delete this.dataset.editIdx;
     modalOverlay.classList.remove('open');
+    clearFieldErrors(modalOverlay);
     resetModal();
     (async () => {
       const result = await syncActivityUpdate(act);
@@ -464,7 +498,7 @@ document.getElementById('modalConfirm').addEventListener('click', function() {
       if (el) {
         el.querySelector('.activity-name').textContent = ` ${snapshot.name}`;
         el.querySelector('.activity-desc').textContent = snapshot.desc || '';
-        el.querySelector('.activity-time').textContent = snapshot.time || '';
+        el.querySelector('.activity-time').textContent = formatTimeRange(snapshot.time, snapshot.timeEnd);
       }
       if (dayMarkers[dayNum]?.[idx]) dayMarkers[dayNum][idx].setLatLng([snapshot.lat, snapshot.lng]);
     })();
@@ -517,6 +551,7 @@ function renderFoodGuide(cityFilter = 'all') {
     });
     document.getElementById('foodAddBtn')?.addEventListener('click', () => {
         if (!requireMonday()) return;
+        resetFoodModal();
         document.getElementById('foodModalOverlay').classList.add('open');
         document.getElementById('foodItemName').focus();
     });
@@ -531,18 +566,15 @@ document.getElementById('foodModalOverlay').addEventListener('click', e => {
 });
 function resetFoodModal() {
     ['foodItemName','foodItemArea','foodItemDesc','foodItemDay'].forEach(id => document.getElementById(id).value = '');
+    clearFieldErrors(document.getElementById('foodModalOverlay'));
 }
 document.getElementById('foodModalConfirm').addEventListener('click', () => {
     if (!requireMonday()) return;
-    const name = document.getElementById('foodItemName').value.trim();
-    const city = document.getElementById('foodItemCity').value;
-    const area = document.getElementById('foodItemArea').value.trim();
-    const category = document.getElementById('foodItemCategory').value;
-    const desc = document.getElementById('foodItemDesc').value.trim();
-    const dayVal = document.getElementById('foodItemDay').value.trim();
-    if (!name || !area) { showToast('נא למלא שם ואיזור', 2000); return; }
+    const checked = validateFoodForm({ maxDay: 18 });
+    if (!checked.ok) { shakeModal('foodModalOverlay'); return; }
+    const { name, city, area, category, desc, day } = checked.values;
     const entry = { name, city, area, category, desc };
-    if (dayVal) entry.day = parseInt(dayVal);
+    if (day != null) entry.day = day;
     thailandFoodGuide.push(entry);
     document.getElementById('foodModalOverlay').classList.remove('open');
     resetFoodModal();

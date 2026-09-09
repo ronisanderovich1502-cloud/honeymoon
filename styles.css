@@ -377,7 +377,27 @@ body.is-resizing .place-panel { transition: none; }
 
 .activity-content { flex: 1; min-width: 0; cursor: pointer; }
 .activity-content:hover .activity-name { color: var(--rose); }
-.activity-time { font-weight: 600; color: var(--gold); font-size: 0.7rem; display: block; }
+.activity-time {
+    font-weight: 700;
+    color: var(--gold);
+    font-size: 0.72rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 2px;
+    letter-spacing: 0.02em;
+}
+.activity-time-sep { opacity: 0.55; font-weight: 500; }
+.activity-time-end { color: var(--rose); }
+
+.modal-time-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 4px;
+}
+.modal-time-row > div { display: flex; flex-direction: column; gap: 4px; }
+.modal-time-row label { margin: 0; }
 .activity-name { font-weight: 600; color: var(--text); font-size: 0.84rem; }
 .activity-desc { color: var(--text-light); font-size: 0.76rem; margin-top: 1px; display: block; }
 
@@ -442,7 +462,7 @@ body.dark .type-restaurant { background: #4A0020; color: #FBCFE8; }
 /* ── MAP OVERLAY ── */
 .map-overlay {
     position: absolute;
-    top: 14px; left: 14px;
+    bottom: 14px; left: 14px; top: auto; right: auto;
     z-index: 1000;
     background: rgba(255,255,255,0.92);
     backdrop-filter: blur(10px);
@@ -603,6 +623,30 @@ body.dark .map-overlay { background: rgba(31,41,55,0.92); border-color: rgba(255
     transition: border-color 0.18s, box-shadow 0.18s;
 }
 .modal input:focus, .modal select:focus { border-color: var(--rose); box-shadow: 0 0 0 3px rgba(224,92,122,0.1); }
+.modal input.is-invalid,
+.modal select.is-invalid,
+.login-card input.is-invalid,
+.sync-modal input.is-invalid {
+    border-color: #dc2626 !important;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+}
+.field-error {
+    color: #dc2626;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin: 4px 0 2px;
+    line-height: 1.35;
+}
+@keyframes modal-shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+}
+.modal.shake, .sync-modal.shake, .login-card.shake {
+    animation: modal-shake 0.4s ease;
+}
 
 /* ── SYNC MODAL ── */
 .sync-modal {

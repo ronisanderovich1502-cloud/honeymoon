@@ -16,6 +16,7 @@ export const MONDAY_BOARD = {
     weather: 'text_mm71ed5f',
     hotel: 'text_mm71z43e',
     time: 'text_mm71vjzz',
+    time_end: 'text_mm71m5qe',
     desc: 'long_text_mm71h6jw',
     lat: 'numeric_mm71vmzv',
     lng: 'numeric_mm715zkm',

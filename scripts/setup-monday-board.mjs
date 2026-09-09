@@ -59,6 +59,7 @@ const COLUMN_DEFS = [
   { title: 'weather', type: 'text' },
   { title: 'hotel', type: 'text' },
   { title: 'time', type: 'text' },
+  { title: 'time_end', type: 'text' },
   { title: 'desc', type: 'long_text' },
   { title: 'lat', type: 'numbers' },
   { title: 'lng', type: 'numbers' },

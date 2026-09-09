@@ -1,5 +1,6 @@
 import { detailsRowsSkeleton, transitSkeleton } from './skeleton.js';
 import { thailandDays as days, thailandCityColors as cityColors } from './thailand-data.js';
+import { formatTimeRange } from './time-options.js';
 
 export const map = L.map('map', { zoomControl: false }).setView([13.7563, 100.5018], 12);
 L.control.zoom({ position: 'topleft' }).addTo(map);
@@ -128,7 +129,7 @@ export function fetchPlaceDetails(act, day) {
                 <div class="panel-emoji">${cityEmoji[day.city] || '📍'}</div>
                 <div class="panel-head-text">
                     <div class="panel-title">${name}</div>
-                    <span class="panel-day-badge" style="background:${cityColors[day.city]}">יום ${day.day} · ${act.time}</span>
+                    <span class="panel-day-badge" style="background:${cityColors[day.city]}">יום ${day.day} · ${formatTimeRange(act.time, act.timeEnd)}</span>
                 </div>
             </div>
             <div class="panel-details" id="panelDetails">

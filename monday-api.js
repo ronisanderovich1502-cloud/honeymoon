@@ -1,4 +1,5 @@
 import { MONDAY_BOARD } from './monday-config.js';
+import { normalizeTimeToSlot, suggestEndTime } from './time-options.js';
 
 const API = 'https://api.monday.com/v2';
 const C = MONDAY_BOARD.columns;
@@ -31,6 +32,7 @@ function readItem(item) {
     weather: get('weather'),
     hotel: get('hotel'),
     time: get('time'),
+    timeEnd: get('time_end'),
     desc: get('desc'),
     lat: get('lat'),
     lng: get('lng'),
@@ -134,10 +136,13 @@ export function buildDataFromItems(items, country) {
     .forEach(a => {
       const day = dayMap[a.dayNumber];
       if (!day) return;
+      const start = normalizeTimeToSlot(a.time, { emptyAs: '' });
+      const end = normalizeTimeToSlot(a.timeEnd, { emptyAs: '' }) || (start ? suggestEndTime(start) : '');
       day.activities.push({
         mondayId: a.mondayId,
         name: a.name,
-        time: a.time || '?',
+        time: start || '?',
+        timeEnd: end,
         desc: a.desc || '',
         lat: a.lat,
         lng: a.lng,
@@ -195,6 +200,11 @@ export async function createDayItem(token, country, day) {
   return data.create_item.id;
 }
 
+function activityTimeForBoard(time) {
+  if (!time || time === '?') return '';
+  return normalizeTimeToSlot(time, { emptyAs: '' });
+}
+
 export async function createActivityItem(token, country, dayNum, city, activity, sortOrder) {
   const countryLabel = MONDAY_BOARD.countries[country];
   const cols = mergeCols(
@@ -202,7 +212,8 @@ export async function createActivityItem(token, country, dayNum, city, activity,
     colVal('country', countryLabel, 'dropdown'),
     colVal('city', city, 'dropdown'),
     colVal('day_number', dayNum),
-    colVal('time', activity.time),
+    colVal('time', activityTimeForBoard(activity.time)),
+    colVal('time_end', activityTimeForBoard(activity.timeEnd)),
     colVal('desc', activity.desc, 'long_text'),
     colVal('lat', activity.lat),
     colVal('lng', activity.lng),
@@ -220,7 +231,8 @@ export async function createActivityItem(token, country, dayNum, city, activity,
 
 export async function updateActivityItem(token, itemId, activity) {
   const cols = mergeCols(
-    colVal('time', activity.time),
+    colVal('time', activityTimeForBoard(activity.time)),
+    colVal('time_end', activityTimeForBoard(activity.timeEnd)),
     colVal('desc', activity.desc, 'long_text'),
     colVal('lat', activity.lat),
     colVal('lng', activity.lng),
