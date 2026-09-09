@@ -17,15 +17,25 @@ import {
 import { beginMondaySave, endMondaySaveOk, endMondaySaveError } from './monday-banner.js';
 import { validateApiKey, bindClearOnInput, shakeModal, clearOneField } from './validate.js';
 import { sortActivitiesByTime } from './time-options.js';
+import { durableGet, durableSet, durableRemove, requestPersistentStorage, isIosDevice, broadcastAuthChange, listenAuthAcrossTabs } from './durable-storage.js';
 
 const STORAGE_KEY = 'mondayApiKey';
 const CACHE_TTL_MS = 3 * 24 * 60 * 60 * 1000; // soft TTL for status label
 const CACHE_SCHEMA = 3; // day.notes from Monday updates
 const cacheKey = (country) => `mondayCache_${country}_v${CACHE_SCHEMA}`;
 
-export let mondayToken = localStorage.getItem(STORAGE_KEY) || '';
+export let mondayToken = '';
+try { mondayToken = localStorage.getItem(STORAGE_KEY) || ''; } catch { mondayToken = ''; }
 let currentCountry = 'japan';
 const revalidating = new Set();
+
+/** Restore token from IndexedDB if Safari wiped localStorage */
+export async function restoreMondayToken() {
+  const token = await durableGet(STORAGE_KEY);
+  mondayToken = token || '';
+  if (mondayToken) await requestPersistentStorage();
+  return mondayToken;
+}
 
 export function setCountry(country) { currentCountry = country; }
 
@@ -117,20 +127,24 @@ function updateCacheStatusLabel() {
 
 export async function connectMonday(apiKey) {
   await verifyToken(apiKey);
-  localStorage.setItem(STORAGE_KEY, apiKey);
-  localStorage.removeItem('mondayTokenEnc');
-  localStorage.removeItem('mondayTokenSalt');
-  localStorage.removeItem('mondayTokenIv');
-  localStorage.removeItem('ghToken');
+  await durableSet(STORAGE_KEY, apiKey);
+  try {
+    localStorage.removeItem('mondayTokenEnc');
+    localStorage.removeItem('mondayTokenSalt');
+    localStorage.removeItem('mondayTokenIv');
+    localStorage.removeItem('ghToken');
+  } catch { /* ignore */ }
   mondayToken = apiKey;
   setSyncDot('synced');
+  broadcastAuthChange(apiKey);
 }
 
 export function disconnectMonday() {
-  localStorage.removeItem(STORAGE_KEY);
-  clearMondayCache();
   mondayToken = '';
+  durableRemove(STORAGE_KEY);
+  clearMondayCache();
   setSyncDot('');
+  broadcastAuthChange('');
   window.dispatchEvent(new CustomEvent('monday-disconnected'));
   if (/japan\.html|thailand\.html/.test(location.pathname)) {
     location.replace('index.html');
@@ -445,10 +459,26 @@ export async function syncNoteDelete(dayNum, noteId) {
   }
 }
 
-export function initSync(country = 'japan', { autoLoad = true } = {}) {
+export async function initSync(country = 'japan', { autoLoad = true } = {}) {
   currentCountry = country;
+  await restoreMondayToken();
   const overlay = document.getElementById('syncModalOverlay');
   if (!overlay) return;
+
+  const iosTip = document.getElementById('iosStorageTip');
+  if (iosTip) iosTip.style.display = isIosDevice() ? '' : 'none';
+
+  // Keep token in sync across tabs (Chrome/Safari on iPhone included)
+  listenAuthAcrossTabs((token) => {
+    const prev = mondayToken;
+    mondayToken = token || '';
+    setSyncDot(mondayToken ? 'synced' : '');
+    if (!prev && mondayToken) {
+      window.dispatchEvent(new CustomEvent('monday-connected', { detail: { force: false } }));
+    } else if (prev && !mondayToken) {
+      window.dispatchEvent(new CustomEvent('monday-disconnected'));
+    }
+  });
 
   document.getElementById('syncSettingsBtn')?.addEventListener('click', () => openSyncModal());
   document.getElementById('syncModalCancel')?.addEventListener('click', () => overlay.classList.remove('open'));

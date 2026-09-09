@@ -774,7 +774,7 @@ async function boot() {
   }
   initMap();
   initResize(() => map.invalidateSize());
-  initSync('japan', { autoLoad: false });
+  await initSync('japan', { autoLoad: false });
   initSidekick({
     country: 'japan',
     getDays: () => days,

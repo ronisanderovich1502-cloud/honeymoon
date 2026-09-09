@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="ירח דבש">
+    <link rel="manifest" href="manifest.webmanifest">
     <title>ירח דבש ביפן 🇯🇵</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Noto+Sans+Hebrew:wght@300;400;600&display=swap" rel="stylesheet">
@@ -89,11 +91,17 @@
             <p>הנתונים נשמרים ב-<a href="https://shahar-monday.monday.com/boards/18430342548" target="_blank" rel="noopener">לוח Honeymoon Itinerary</a>. כל שינוי (הוספה/עריכה/מחיקה) יעודכן ב-Monday.</p>
             <div style="background:var(--gold-light);border-radius:10px;padding:10px 14px;font-size:0.78rem;color:var(--text-light);margin-bottom:4px;line-height:1.6">
                 1. <a href="https://shahar-monday.monday.com/apps/manage/tokens" target="_blank" rel="noopener"><strong>קבל API key מ-Monday ←</strong></a><br>
-                2. הדבק את ה-key ולחצי שמור — נשמר בדפדפן<br>
+                2. הדבק את ה-key ולחצי שמור — נשמר בדפדפן (וגם ב-IndexedDB לאייפון)<br>
                 3. הנתונים נשמרים במטמון ~3 ימים · רענון ידני מושך מחדש מ-Monday
             </div>
-            <label>🔑 Monday API Key</label>
-            <input type="password" id="mondayKeyInput" placeholder="API token..." autocomplete="off" />
+            <div id="iosStorageTip" class="ios-storage-tip" style="display:none">
+                📱 באייפון (Safari או Chrome): הוסיפי למסך הבית (Share → Add to Home Screen) ואשרי שמירת סיסמה. ה-key נשמר בין טאבים.
+            </div>
+            <form id="mondayKeyForm" autocomplete="on" onsubmit="return false">
+                <label>🔑 Monday API Key</label>
+                <input type="text" name="username" value="monday-honeymoon" autocomplete="username" tabindex="-1" aria-hidden="true" class="sr-only-autofill" />
+                <input type="password" id="mondayKeyInput" name="password" placeholder="API token..." autocomplete="current-password" />
+            </form>
             <div id="mondayCacheStatus" style="font-size:0.75rem;color:var(--text-light);margin:6px 0 2px"></div>
             <div class="sync-status-box" id="syncStatusBox"></div>
             <div class="modal-actions">

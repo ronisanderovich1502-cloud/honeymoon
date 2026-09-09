@@ -3,10 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="ירח דבש">
+    <link rel="manifest" href="manifest.webmanifest">
     <title>ירח דבש 2026 ✨</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Noto+Sans+Hebrew:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=20260909c">
+    <link rel="stylesheet" href="styles.css?v=20260909j">
 </head>
 <body class="selector-page">
     <div class="destination-selector">
@@ -23,10 +27,18 @@
             <div class="login-hint">
                 <a href="https://shahar-monday.monday.com/apps/manage/tokens" target="_blank" rel="noopener"><strong>קבל API key מ-Monday ←</strong></a>
             </div>
-            <label>🔑 Monday API Key</label>
-            <input type="password" id="loginKeyInput" placeholder="API token..." autocomplete="off" />
+            <div id="iosStorageTip" class="ios-storage-tip" style="display:none">
+                📱 באייפון (Safari או Chrome): אחרי התחברות, לחצי <strong>Share → Add to Home Screen</strong>.
+                כשהדפדפן מציע לשמור סיסמה — אשרי (זה ה-API key). ה-key נשמר גם בין טאבים.
+            </div>
+            <form id="loginForm" autocomplete="on" onsubmit="return false">
+                <label>🔑 Monday API Key</label>
+                <!-- Hidden username helps iOS Keychain associate this site password -->
+                <input type="text" name="username" value="monday-honeymoon" autocomplete="username" tabindex="-1" aria-hidden="true" class="sr-only-autofill" />
+                <input type="password" id="loginKeyInput" name="password" placeholder="API token..." autocomplete="current-password" />
+            </form>
             <div class="sync-status-box" id="loginStatusBox"></div>
-            <button class="btn-primary login-submit" id="loginSubmit">התחברי וטעני לו״ז</button>
+            <button class="btn-primary login-submit" id="loginSubmit" type="button">התחברי וטעני לו״ז</button>
         </div>
 
         <!-- DESTINATIONS (after login) -->
@@ -58,6 +70,6 @@
         <div class="selector-footer">✈️ בנינו ביחד את הטיול שתמיד חלמנו עליו ♥</div>
     </div>
 
-    <script type="module" src="login.js"></script>
+    <script type="module" src="login.js?v=20260909j"></script>
 </body>
 </html>

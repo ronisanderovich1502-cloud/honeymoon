@@ -682,7 +682,7 @@ async function boot() {
   }
   initMap();
   initResize(() => map.invalidateSize());
-  initSync('thailand', { autoLoad: false });
+  await initSync('thailand', { autoLoad: false });
   initSidekick({
     country: 'thailand',
     getDays: () => thailandDays,

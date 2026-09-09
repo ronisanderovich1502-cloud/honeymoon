@@ -1637,6 +1637,27 @@ body.dark .sk-inline-chip {
     font-size: 0.8rem;
     margin-bottom: 12px;
 }
+.ios-storage-tip {
+    background: var(--gold-light);
+    border: 1px solid rgba(184, 134, 46, 0.25);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 0.78rem;
+    color: var(--text);
+    line-height: 1.5;
+    margin: 0 0 12px;
+}
+.sr-only-autofill {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
 .login-card label {
     display: block;
     font-size: 0.72rem;

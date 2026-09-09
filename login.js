@@ -1,7 +1,8 @@
 import { MONDAY_BOARD } from './monday-config.js';
-import { connectMonday, disconnectMonday, isConnected, loadMondayData, revalidateMondayData, clearMondayCache } from './sync.js';
+import { connectMonday, disconnectMonday, isConnected, loadMondayData, revalidateMondayData, clearMondayCache, restoreMondayToken } from './sync.js';
 import { inlineChipSkeleton } from './skeleton.js';
 import { validateApiKey, bindClearOnInput, shakeModal, clearOneField } from './validate.js';
+import { isIosDevice, listenAuthAcrossTabs } from './durable-storage.js';
 
 const loginCard = document.getElementById('loginCard');
 const destPanel = document.getElementById('destinationsPanel');
@@ -105,9 +106,25 @@ document.getElementById('gotoThailand').addEventListener('click', () => {
   localStorage.setItem('honeymoon-country', 'thailand');
 });
 
-if (isConnected()) {
-  showDestinations();
-  prefetchBoards();
-} else {
-  showLogin();
+if (isIosDevice()) {
+  const tip = document.getElementById('iosStorageTip');
+  if (tip) tip.style.display = '';
 }
+
+(async () => {
+  await restoreMondayToken();
+  listenAuthAcrossTabs((token) => {
+    if (token) {
+      showDestinations();
+      prefetchBoards();
+    } else {
+      showLogin();
+    }
+  });
+  if (isConnected()) {
+    showDestinations();
+    prefetchBoards();
+  } else {
+    showLogin();
+  }
+})();
