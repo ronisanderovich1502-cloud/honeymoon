@@ -113,19 +113,22 @@ body.is-resizing .place-panel { transition: none; }
 
 .header-top {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    margin-bottom: 8px;
 }
 
 .header h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.45rem;
+    font-family: 'Playfair Display', 'Noto Sans Hebrew', serif;
+    font-size: 1.55rem;
+    font-weight: 700;
     color: var(--text);
-    flex: 1;
     text-align: center;
-    letter-spacing: -0.3px;
-    margin: 8px 0;
+    letter-spacing: -0.2px;
+    margin: 2px 0 0;
+    line-height: 1.25;
+    white-space: nowrap;
 }
 
 .header .subtitle {
@@ -137,7 +140,12 @@ body.is-resizing .place-panel { transition: none; }
     margin-bottom: 12px;
 }
 
-.header-actions { display: flex; gap: 6px; }
+.header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: flex-end;
+}
 
 .icon-btn {
     background: var(--bg);
@@ -1516,7 +1524,7 @@ body.dark .sk-inline-chip {
 
     /* Header compact on mobile */
     .header { padding: 14px 14px 10px; }
-    .header h1 { font-size: 1.3rem; }
+    .header h1 { font-size: 1.25rem; }
     .countdown-item .num { font-size: 1.1rem; }
     .countdown-item { min-width: 44px; padding: 4px 8px; }
 
