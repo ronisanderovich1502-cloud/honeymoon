@@ -2,9 +2,10 @@ import { thailandDays as days, thailandCityColors as cityColors } from './thaila
 
 export const map = L.map('map', { zoomControl: false }).setView([13.7563, 100.5018], 12);
 L.control.zoom({ position: 'topleft' }).addTo(map);
-L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+// Same provider as Japan — English labels worldwide
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
     attribution: 'Tiles &copy; Esri',
-    maxZoom: 16
+    maxZoom: 19
 }).addTo(map);
 
 export const dayMarkers = {};
