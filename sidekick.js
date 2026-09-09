@@ -587,6 +587,15 @@ function bindEvents() {
     setOpen(!!panel?.hidden);
   });
 
+  document.getElementById('sidekickHeaderBtn')?.addEventListener('click', () => {
+    if (!hasActiveKey()) {
+      openSidekickKeyModal();
+      return;
+    }
+    const panel = document.getElementById('sidekickPanel');
+    setOpen(!!panel?.hidden);
+  });
+
   document.getElementById('sidekickClose')?.addEventListener('click', () => setOpen(false));
   document.getElementById('sidekickSettings')?.addEventListener('click', () => openSidekickKeyModal());
   document.getElementById('sidekickClear')?.addEventListener('click', () => {
