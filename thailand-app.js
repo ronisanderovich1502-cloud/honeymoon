@@ -1,11 +1,11 @@
 import { thailandDays, thailandCityNames, thailandCityColors, thailandFoodGuide, thailandFoodCategories } from './thailand-data.js';
 import { map, dayMarkers, allMarkersList, selectedDayNum, selectDayOnMap, addMarkerToMap, fetchPlaceDetails, initMap, rebuildMap } from './thailand-map.js';
 import {
-  isConnected, requireMonday, initSync, loadMondayData,
+  isConnected, requireMonday, initSync, loadMondayData, revalidateMondayData,
   syncActivityCreate, syncActivityUpdate, syncActivityDelete, syncFoodCreate,
 } from './sync.js';
 import { initResize } from './resize.js';
-import { itinerarySkeleton, statsSkeleton, searchSkeleton, showPaneSkeletons, hidePaneSkeletons } from './skeleton.js';
+import { searchSkeleton, showPaneSkeletons, hidePaneSkeletons } from './skeleton.js';
 
 if (!isConnected()) {
   location.replace('index.html');
@@ -163,10 +163,11 @@ function renderItinerary() {
 }
 
 function showItineraryLoading(msg) {
+  // Pane overlays already cover loading UI — only inject message on error/empty
   const el = document.getElementById('itinerary');
-  if (el) el.innerHTML = itinerarySkeleton(6) + (msg ? `<div class="boot-loading">${msg}</div>` : '');
-  const stats = document.getElementById('statsBar');
-  if (stats && !stats.dataset.ready) stats.innerHTML = statsSkeleton();
+  if (!el) return;
+  if (msg) el.innerHTML = `<div class="boot-loading">${msg}</div>`;
+  else el.innerHTML = '';
 }
 
 function rebuildDaySelect() {
@@ -570,15 +571,7 @@ document.querySelectorAll('.sidebar-tab').forEach(tab => {
 // Panel back button
 document.getElementById('panelBackBtn')?.addEventListener('click', () => document.getElementById('placePanel').classList.remove('open'));
 
-async function refreshFromMonday(force = false) {
-  showPaneSkeletons();
-  showItineraryLoading();
-  const data = await loadMondayData('thailand', { force });
-  if (!data?.days?.length) {
-    hidePaneSkeletons();
-    showItineraryLoading('⚠️ לא נמצאו ימים ב-Monday. בדקו את הלוח או רעננו.');
-    return;
-  }
+function applyItineraryData(data, { toast } = {}) {
   replaceArray(thailandDays, data.days);
   replaceArray(thailandFoodGuide, data.foodGuide);
   rebuildDaySelect();
@@ -591,9 +584,36 @@ async function refreshFromMonday(force = false) {
   document.querySelector('.day-card')?.classList.add('active');
   selectDayOnMap(thailandDays[0]?.day || 1);
   setTimeout(() => map.invalidateSize(), 80);
+  if (toast) showToast(toast, 2500);
+}
+
+async function refreshFromMonday(force = false) {
+  const hadCache = !force && !!localStorage.getItem('mondayCache_thailand');
+  if (!hadCache) {
+    showPaneSkeletons();
+    showItineraryLoading();
+  }
+  const data = await loadMondayData('thailand', { force });
+  if (!data?.days?.length) {
+    hidePaneSkeletons();
+    showItineraryLoading('⚠️ לא נמצאו ימים ב-Monday. בדקו את הלוח או רעננו.');
+    return;
+  }
+  applyItineraryData(data, {
+    toast: force
+      ? '✅ נטען מ-Monday'
+      : (data.fromCache
+        ? (data.stale ? '⚡ מטמון · בודק עדכונים…' : '⚡ נטען מהמטמון')
+        : '✅ נטען מ-Monday'),
+  });
   hidePaneSkeletons();
-  if (data.fromCache) showToast(data.stale ? '⚠️ נטען ממטמון (שגיאת Monday)' : '✅ נטען מהמטמון', 2500);
-  else showToast('✅ נטען מ-Monday', 2500);
+
+  if (!force && data.fromCache) {
+    revalidateMondayData('thailand').then(fresh => {
+      if (!fresh?.days?.length) return;
+      applyItineraryData(fresh, { toast: '🔄 עודכן מ-Monday — יש שינויים בלוח' });
+    });
+  }
 }
 
 window.addEventListener('monday-connected', (e) => refreshFromMonday(!!e.detail?.force));
@@ -601,8 +621,13 @@ window.addEventListener('monday-disconnected', () => updateEditAccess());
 
 // --- INIT ---
 async function boot() {
-  showPaneSkeletons();
-  showItineraryLoading();
+  const hasCache = !!localStorage.getItem('mondayCache_thailand');
+  if (!hasCache) {
+    showPaneSkeletons();
+    showItineraryLoading();
+  } else {
+    hidePaneSkeletons();
+  }
   initMap();
   initResize(() => map.invalidateSize());
   initSync('thailand', { autoLoad: false });

@@ -62,6 +62,22 @@ export async function verifyToken(token) {
   return data.me;
 }
 
+/** Lightweight change detector — board updated_at + item count */
+export async function fetchBoardFingerprint(token) {
+  const data = await mondayQuery(token,
+    `query($id:[ID!]!) {
+      boards(ids:$id) {
+        updated_at
+        items_count
+      }
+    }`,
+    { id: [String(MONDAY_BOARD.boardId)] },
+  );
+  const board = data.boards?.[0];
+  if (!board) throw new Error('Board not found');
+  return `${board.updated_at}|${board.items_count}`;
+}
+
 export async function fetchAllItems(token) {
   const items = [];
   let cursor = null;

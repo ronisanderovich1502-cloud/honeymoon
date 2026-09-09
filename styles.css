@@ -946,22 +946,36 @@ body.dark .map-overlay { background: rgba(31,41,55,0.92); border-color: rgba(255
 .pane-skeleton {
     position: absolute;
     inset: 0;
-    z-index: 40;
-    background: var(--sidebar-bg);
+    z-index: 1200; /* above Leaflet tiles/controls */
     overflow: hidden;
-    transition: opacity 0.28s ease, visibility 0.28s;
+    transition: opacity 0.25s ease, visibility 0.25s;
 }
-.pane-skeleton[hidden] {
+.pane-skeleton[hidden],
+body:not(.app-loading) .pane-skeleton {
     display: block !important;
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
 }
-body:not(.app-loading) .pane-skeleton {
-    opacity: 0;
+body.app-loading .pane-skeleton {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+/* Hide real sidebar chrome while overlay is up — prevents double skeleton stack */
+body.app-loading .sidebar > :not(#sidebarSkeleton):not(.sidebar-drag-bar) {
     visibility: hidden;
     pointer-events: none;
 }
+body.app-loading .map-container > :not(#mapSkeleton) {
+    visibility: hidden;
+    pointer-events: none;
+}
+body.app-loading #mapSkeleton {
+    visibility: visible;
+}
+
 .sidebar-skeleton {
     display: flex;
     flex-direction: column;
@@ -987,32 +1001,31 @@ body:not(.app-loading) .pane-skeleton {
     overflow: hidden;
     padding-bottom: 20px;
 }
+
 .map-skeleton {
     background:
         linear-gradient(160deg,
             color-mix(in srgb, var(--bg) 70%, #dfe7ef) 0%,
             color-mix(in srgb, var(--bg) 40%, #eef2f6) 45%,
             color-mix(in srgb, var(--bg) 65%, #d7e2ec) 100%);
-    display: flex;
-    flex-direction: column;
 }
 .sk-map-surface {
-    position: relative;
-    flex: 1;
+    position: absolute;
+    inset: 0;
     overflow: hidden;
 }
 .sk-map-surface::before {
     content: '';
     position: absolute;
-    inset: -20%;
+    inset: -30%;
     background: linear-gradient(
         105deg,
-        transparent 30%,
-        rgba(255,255,255,0.45) 48%,
-        transparent 66%
+        transparent 28%,
+        rgba(255,255,255,0.55) 48%,
+        transparent 68%
     );
-    background-size: 200% 100%;
-    animation: sk-shimmer 1.4s ease-in-out infinite;
+    background-size: 220% 100%;
+    animation: sk-shimmer 1.35s ease-in-out infinite;
 }
 .sk-map-pin {
     position: absolute;
@@ -1041,7 +1054,6 @@ body:not(.app-loading) .pane-skeleton {
     border-radius: 3px;
     background: color-mix(in srgb, var(--rose) 35%, transparent);
     transform: rotate(28deg);
-    animation: sk-shimmer 1.4s ease-in-out infinite;
 }
 .sk-map-legend {
     position: absolute;
@@ -1050,9 +1062,10 @@ body:not(.app-loading) .pane-skeleton {
     width: 120px;
     padding: 12px;
     border-radius: 12px;
-    background: color-mix(in srgb, var(--sidebar-bg) 92%, transparent);
+    background: color-mix(in srgb, var(--sidebar-bg) 94%, transparent);
     border: 1px solid var(--border);
     box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    z-index: 2;
 }
 body.dark .sk-line,
 body.dark .sk-circle,
@@ -1342,6 +1355,16 @@ body.dark .sk-inline-chip {
         padding-top: 0;
     }
 
+    /* Map skeleton must cover full viewport behind the sheet */
+    .map-skeleton {
+        position: fixed !important;
+        inset: 0 !important;
+        z-index: 1 !important;
+    }
+    body.app-loading .map-skeleton {
+        z-index: 1 !important;
+    }
+
     /* Sidebar is a fixed bottom sheet */
     .sidebar {
         position: fixed;
@@ -1359,6 +1382,11 @@ body.dark .sk-inline-chip {
         -webkit-overflow-scrolling: touch;
         transition: height 0.35s cubic-bezier(.4,0,.2,1);
         padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .sidebar-skeleton {
+        border-radius: 16px 16px 0 0;
+        z-index: 60;
     }
 
     .map-overlay { display: none; }

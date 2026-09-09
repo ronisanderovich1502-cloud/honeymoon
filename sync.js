@@ -2,6 +2,7 @@ import { MONDAY_BOARD } from './monday-config.js';
 import {
   verifyToken,
   fetchAllItems,
+  fetchBoardFingerprint,
   buildDataFromItems,
   createActivityItem,
   updateActivityItem,
@@ -11,11 +12,12 @@ import {
 import { beginMondaySave, endMondaySaveOk, endMondaySaveError } from './monday-banner.js';
 
 const STORAGE_KEY = 'mondayApiKey';
-const CACHE_TTL_MS = 3 * 24 * 60 * 60 * 1000; // 3 days
+const CACHE_TTL_MS = 3 * 24 * 60 * 60 * 1000; // soft TTL for status label
 const cacheKey = (country) => `mondayCache_${country}`;
 
 export let mondayToken = localStorage.getItem(STORAGE_KEY) || '';
 let currentCountry = 'japan';
+const revalidating = new Set();
 
 export function setCountry(country) { currentCountry = country; }
 
@@ -43,25 +45,39 @@ export function requireMonday(message = '⚠️ חברי Monday API key כדי �
   return false;
 }
 
+/** Cache is used for instant paint even if soft TTL expired */
 function readCache(country) {
   try {
     const raw = localStorage.getItem(cacheKey(country));
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     if (!parsed?.savedAt || !Array.isArray(parsed.days)) return null;
-    if (Date.now() - parsed.savedAt > CACHE_TTL_MS) return null;
     return parsed;
   } catch {
     return null;
   }
 }
 
-function writeCache(country, data) {
+function isCacheFresh(cached) {
+  return cached && (Date.now() - cached.savedAt <= CACHE_TTL_MS);
+}
+
+function writeCache(country, data, fingerprint = null) {
+  const prev = readCache(country);
   localStorage.setItem(cacheKey(country), JSON.stringify({
     savedAt: Date.now(),
+    fingerprint: fingerprint ?? prev?.fingerprint ?? null,
     days: data.days,
     foodGuide: data.foodGuide || [],
   }));
+  updateCacheStatusLabel();
+}
+
+async function rememberFingerprint(country, fingerprint) {
+  const cached = readCache(country);
+  if (!cached) return;
+  cached.fingerprint = fingerprint;
+  localStorage.setItem(cacheKey(country), JSON.stringify(cached));
   updateCacheStatusLabel();
 }
 
@@ -83,8 +99,9 @@ function updateCacheStatusLabel() {
     return;
   }
   const ageH = Math.round((Date.now() - cached.savedAt) / 3600000);
-  const leftH = Math.max(0, Math.round((CACHE_TTL_MS - (Date.now() - cached.savedAt)) / 3600000));
-  el.textContent = `מטמון פעיל · נשמר לפני ~${ageH} שע׳ · תוקף עוד ~${leftH} שע׳`;
+  el.textContent = isCacheFresh(cached)
+    ? `מטמון פעיל · נשמר לפני ~${ageH} שע׳ · בדיקת שינויים ברקע`
+    : `מטמון ישן (~${ageH} שע׳) · מוצג מיד ואז נבדק מול Monday`;
 }
 
 export async function connectMonday(apiKey) {
@@ -109,37 +126,87 @@ export function disconnectMonday() {
   }
 }
 
-/** @param {{ force?: boolean }} opts force=true bypasses cache (hard refresh) */
+async function fetchAndCache(country) {
+  const [items, fingerprint] = await Promise.all([
+    fetchAllItems(mondayToken),
+    fetchBoardFingerprint(mondayToken),
+  ]);
+  const data = buildDataFromItems(items, country);
+  writeCache(country, data, fingerprint);
+  return { ...data, fingerprint, fromCache: false };
+}
+
+/**
+ * Cache-first:
+ * - force → always pull Monday
+ * - else return cache immediately when present
+ * Then call revalidateMondayData() to check Monday for changes.
+ */
 export async function loadMondayData(country, opts = {}) {
   if (!mondayToken) return null;
   const force = !!opts.force;
 
   if (!force) {
     const cached = readCache(country);
-    if (cached) {
+    if (cached?.days?.length) {
       setSyncDot('synced');
-      return { days: cached.days, foodGuide: cached.foodGuide || [], fromCache: true };
+      return {
+        days: cached.days,
+        foodGuide: cached.foodGuide || [],
+        fromCache: true,
+        fingerprint: cached.fingerprint || null,
+        stale: !isCacheFresh(cached),
+      };
     }
   }
 
   setSyncDot('syncing');
   try {
-    const items = await fetchAllItems(mondayToken);
-    const data = buildDataFromItems(items, country);
-    writeCache(country, data);
+    const data = await fetchAndCache(country);
     setSyncDot('synced');
-    return { ...data, fromCache: false };
+    return data;
   } catch (e) {
     console.error('Monday load:', e);
-    const stale = (() => {
-      try { return JSON.parse(localStorage.getItem(cacheKey(country)) || 'null'); } catch { return null; }
-    })();
+    const stale = readCache(country);
     if (stale?.days?.length) {
       setSyncDot('error');
       return { days: stale.days, foodGuide: stale.foodGuide || [], fromCache: true, stale: true };
     }
     setSyncDot('error');
     throw e;
+  }
+}
+
+/**
+ * Lightweight board fingerprint check.
+ * Returns fresh data if Monday changed, otherwise null.
+ */
+export async function revalidateMondayData(country) {
+  if (!mondayToken) return null;
+  if (revalidating.has(country)) return null;
+  revalidating.add(country);
+  setSyncDot('syncing');
+  try {
+    const cached = readCache(country);
+    const fingerprint = await fetchBoardFingerprint(mondayToken);
+
+    if (cached?.fingerprint && cached.fingerprint === fingerprint) {
+      cached.savedAt = Date.now();
+      localStorage.setItem(cacheKey(country), JSON.stringify(cached));
+      setSyncDot('synced');
+      updateCacheStatusLabel();
+      return null;
+    }
+
+    const data = await fetchAndCache(country);
+    setSyncDot('synced');
+    return { ...data, changed: true };
+  } catch (e) {
+    console.error('Monday revalidate:', e);
+    setSyncDot('error');
+    return null;
+  } finally {
+    revalidating.delete(country);
   }
 }
 
@@ -150,7 +217,13 @@ function patchCachedActivity(country, mutator) {
   if (!cached?.days) return;
   mutator(cached);
   cached.savedAt = Date.now();
+  cached.fingerprint = null; // local edit changed Monday — re-check next time
   localStorage.setItem(cacheKey(country), JSON.stringify(cached));
+  if (mondayToken) {
+    fetchBoardFingerprint(mondayToken)
+      .then(fp => rememberFingerprint(country, fp))
+      .catch(() => {});
+  }
 }
 
 export async function syncActivityCreate(dayNum, city, activity, sortOrder) {

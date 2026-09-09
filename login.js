@@ -1,5 +1,5 @@
 import { MONDAY_BOARD } from './monday-config.js';
-import { connectMonday, disconnectMonday, isConnected, loadMondayData, clearMondayCache } from './sync.js';
+import { connectMonday, disconnectMonday, isConnected, loadMondayData, revalidateMondayData, clearMondayCache } from './sync.js';
 import { inlineChipSkeleton } from './skeleton.js';
 
 const loginCard = document.getElementById('loginCard');
@@ -17,22 +17,39 @@ function showDestinations() {
   destPanel.style.display = '';
 }
 
+function paintCounts(jp, th) {
+  const jpDays = jp?.days?.length || 0;
+  const jpActs = jp?.days?.reduce((s, d) => s + d.activities.length, 0) || 0;
+  const thDays = th?.days?.length || 0;
+  const thActs = th?.days?.reduce((s, d) => s + d.activities.length, 0) || 0;
+  document.getElementById('japanDaysCount').textContent = `${jpDays} ימים · ${jpActs} פעילויות`;
+  document.getElementById('thailandDaysCount').textContent = `${thDays} ימים · ${thActs} פעילויות`;
+  document.getElementById('loginReadyLabel').textContent =
+    `✅ מחובר · נטען מלוח ${MONDAY_BOARD.boardId}`;
+}
+
 async function prefetchBoards() {
   document.getElementById('japanDaysCount').innerHTML = inlineChipSkeleton();
   document.getElementById('thailandDaysCount').innerHTML = inlineChipSkeleton();
   try {
+    // Cache-first for instant counts
     const [jp, th] = await Promise.all([
-      loadMondayData('japan', { force: true }),
-      loadMondayData('thailand', { force: true }),
+      loadMondayData('japan', { force: false }),
+      loadMondayData('thailand', { force: false }),
     ]);
-    const jpDays = jp?.days?.length || 0;
-    const jpActs = jp?.days?.reduce((s, d) => s + d.activities.length, 0) || 0;
-    const thDays = th?.days?.length || 0;
-    const thActs = th?.days?.reduce((s, d) => s + d.activities.length, 0) || 0;
-    document.getElementById('japanDaysCount').textContent = `${jpDays} ימים · ${jpActs} פעילויות`;
-    document.getElementById('thailandDaysCount').textContent = `${thDays} ימים · ${thActs} פעילויות`;
-    document.getElementById('loginReadyLabel').textContent =
-      `✅ מחובר · נטען מלוח ${MONDAY_BOARD.boardId}`;
+    paintCounts(jp, th);
+
+    // Revalidate in background — update counts only if board changed
+    Promise.all([
+      revalidateMondayData('japan'),
+      revalidateMondayData('thailand'),
+    ]).then(([jpFresh, thFresh]) => {
+      if (!jpFresh && !thFresh) return;
+      paintCounts(
+        jpFresh || jp,
+        thFresh || th,
+      );
+    });
   } catch (e) {
     document.getElementById('japanDaysCount').textContent = 'שגיאה בטעינה';
     document.getElementById('thailandDaysCount').textContent = 'שגיאה בטעינה';
