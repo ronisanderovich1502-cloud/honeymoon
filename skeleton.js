@@ -78,3 +78,22 @@ export function statsSkeleton() {
       <div class="sk-stat"><div class="sk-line sk-w40"></div><div class="sk-line sk-w24"></div></div>
     </div>`;
 }
+
+/** Show shimmer overlays on sidebar + map panes */
+export function showPaneSkeletons() {
+  document.body.classList.add('app-loading');
+  const side = document.getElementById('sidebarSkeleton');
+  const mapSk = document.getElementById('mapSkeleton');
+  if (side) side.hidden = false;
+  if (mapSk) mapSk.hidden = false;
+}
+
+/** Hide pane shimmer overlays after data/map are ready */
+export function hidePaneSkeletons() {
+  document.body.classList.remove('app-loading');
+  const side = document.getElementById('sidebarSkeleton');
+  const mapSk = document.getElementById('mapSkeleton');
+  if (side) side.hidden = true;
+  if (mapSk) mapSk.hidden = true;
+}
+

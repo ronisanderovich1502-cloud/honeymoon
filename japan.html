@@ -12,11 +12,52 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="app-loading">
     <div class="container">
         <div class="sidebar">
             <div class="sidebar-drag-bar" id="sidebarDragBar">
                 <div class="sidebar-drag-pill"></div>
+            </div>
+            <div class="pane-skeleton sidebar-skeleton" id="sidebarSkeleton" aria-busy="true" aria-label="טוען לו״ז">
+                <div class="sk-pane-header">
+                    <div class="sk-line sk-w40" style="height:18px;margin:0 auto 10px"></div>
+                    <div class="sk-line sk-w60" style="height:10px;margin:0 auto 14px"></div>
+                    <div class="sk-stats">
+                        <div class="sk-stat"><div class="sk-line sk-w50"></div><div class="sk-line sk-w24"></div></div>
+                        <div class="sk-stat"><div class="sk-line sk-w50"></div><div class="sk-line sk-w24"></div></div>
+                        <div class="sk-stat"><div class="sk-line sk-w50"></div><div class="sk-line sk-w24"></div></div>
+                    </div>
+                </div>
+                <div class="sk-pane-tabs">
+                    <div class="sk-chip"></div>
+                    <div class="sk-chip"></div>
+                </div>
+                <div class="sk-pane-search"><div class="sk-line sk-w90" style="height:36px;border-radius:12px;margin:0"></div></div>
+                <div class="sk-pane-filters">
+                    <div class="sk-chip" style="flex:0 0 52px;height:28px"></div>
+                    <div class="sk-chip" style="flex:0 0 72px;height:28px"></div>
+                    <div class="sk-chip" style="flex:0 0 72px;height:28px"></div>
+                    <div class="sk-chip" style="flex:0 0 72px;height:28px"></div>
+                </div>
+                <div class="sk-pane-list">
+                    <div class="sk-day-card">
+                        <div class="sk-day-header"><div class="sk-line sk-w24"></div><div class="sk-line sk-w60"></div><div class="sk-line sk-w40"></div></div>
+                        <div class="sk-act"><div class="sk-circle"></div><div class="sk-line sk-w70"></div></div>
+                        <div class="sk-act"><div class="sk-circle"></div><div class="sk-line sk-w55"></div></div>
+                        <div class="sk-act"><div class="sk-circle"></div><div class="sk-line sk-w65"></div></div>
+                    </div>
+                    <div class="sk-day-card">
+                        <div class="sk-day-header"><div class="sk-line sk-w24"></div><div class="sk-line sk-w55"></div><div class="sk-line sk-w40"></div></div>
+                        <div class="sk-act"><div class="sk-circle"></div><div class="sk-line sk-w60"></div></div>
+                        <div class="sk-act"><div class="sk-circle"></div><div class="sk-line sk-w70"></div></div>
+                    </div>
+                    <div class="sk-day-card">
+                        <div class="sk-day-header"><div class="sk-line sk-w24"></div><div class="sk-line sk-w50"></div><div class="sk-line sk-w40"></div></div>
+                        <div class="sk-act"><div class="sk-circle"></div><div class="sk-line sk-w65"></div></div>
+                        <div class="sk-act"><div class="sk-circle"></div><div class="sk-line sk-w45"></div></div>
+                        <div class="sk-act"><div class="sk-circle"></div><div class="sk-line sk-w55"></div></div>
+                    </div>
+                </div>
             </div>
             <div class="header">
                 <div class="header-top">
@@ -62,6 +103,21 @@
         <div class="pane-splitter" id="paneSplitter" title="גרור לשינוי רוחב"></div>
 
         <div class="map-container">
+            <div class="pane-skeleton map-skeleton" id="mapSkeleton" aria-busy="true" aria-label="טוען מפה">
+                <div class="sk-map-surface">
+                    <div class="sk-map-pin" style="top:28%;left:42%"></div>
+                    <div class="sk-map-pin" style="top:46%;left:58%"></div>
+                    <div class="sk-map-pin" style="top:38%;left:51%"></div>
+                    <div class="sk-map-pin" style="top:62%;left:36%"></div>
+                    <div class="sk-map-pin" style="top:55%;left:64%"></div>
+                    <div class="sk-map-route"></div>
+                </div>
+                <div class="sk-map-legend">
+                    <div class="sk-line sk-w40"></div>
+                    <div class="sk-line sk-w55"></div>
+                    <div class="sk-line sk-w45"></div>
+                </div>
+            </div>
             <div id="map"></div>
             <div class="place-panel" id="placePanel">
                 <div class="panel-handle" title="גרור לשינוי גובה"><div class="panel-handle-bar"></div></div>
