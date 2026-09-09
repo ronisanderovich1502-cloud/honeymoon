@@ -1,5 +1,14 @@
 import { thailandDays, thailandCityNames, thailandCityColors, thailandFoodGuide, thailandFoodCategories } from './thailand-data.js';
-import { map, dayMarkers, allMarkersList, selectedDayNum, selectDayOnMap, addMarkerToMap, fetchPlaceDetails, initMap } from './thailand-map.js';
+import { map, dayMarkers, allMarkersList, selectedDayNum, selectDayOnMap, addMarkerToMap, fetchPlaceDetails, initMap, rebuildMap } from './thailand-map.js';
+import {
+  isConnected, initSync, loadMondayData,
+  syncActivityCreate, syncActivityUpdate, syncActivityDelete, syncFoodCreate,
+} from './sync.js';
+
+function replaceArray(target, source) {
+  target.length = 0;
+  source.forEach(item => target.push(item));
+}
 
 localStorage.setItem('honeymoon-country', 'thailand');
 
@@ -77,7 +86,10 @@ const typeIcons  = { attraction: '🏛️', cafe: '☕', restaurant: '🍽️' }
 const typeLabels = { attraction: 'אטרקציה', cafe: 'בית קפה', restaurant: 'מסעדה' };
 let currentCity = '';
 
-thailandDays.forEach(day => {
+function renderItinerary() {
+    itineraryEl.innerHTML = '';
+    currentCity = '';
+    thailandDays.forEach(day => {
     if (day.city !== currentCity) {
         currentCity = day.city;
         const divider = document.createElement('div');
@@ -139,7 +151,10 @@ thailandDays.forEach(day => {
     });
 
     itineraryEl.appendChild(card);
-});
+    });
+}
+
+renderItinerary();
 
 // Activity click → map
 document.addEventListener('click', e => {
@@ -300,9 +315,13 @@ document.getElementById('modalConfirm').addEventListener('click', function() {
         </div>`;
     card.querySelector('.activities').insertBefore(actDiv, notesWrap);
     updateStats();
+    (async () => {
+      const id = await syncActivityCreate(dayNum, day.city, newAct, i);
+      if (id) newAct.mondayId = id;
+    })();
     modalOverlay.classList.remove('open');
     resetModal();
-    showToast(`✅ ${name} נוסף`, 3000);
+    showToast(isConnected() ? `✅ ${name} נוסף — נשמר ב-Monday` : `✅ ${name} נוסף מקומית`, 3000);
 });
 
 // Edit / Remove
@@ -311,14 +330,16 @@ document.addEventListener('click', e => {
         const btn = e.target.closest('.remove-btn');
         const dayNum = parseInt(btn.dataset.day), idx = parseInt(btn.dataset.idx);
         const day = thailandDays.find(d => d.day === dayNum);
-        if (!confirm(`מחק "${day.activities[idx].name}"?`)) return;
+        const act = day.activities[idx];
+        if (!confirm(`מחק "${act.name}"?`)) return;
         const marker = dayMarkers[dayNum]?.[idx];
         if (marker) { map.removeLayer(marker); dayMarkers[dayNum].splice(idx, 1); }
+        syncActivityDelete(act.mondayId);
         day.activities.splice(idx, 1);
         document.getElementById(`act-${dayNum}-${idx}`)?.remove();
         if (selectedDayNum === dayNum) selectDayOnMap(dayNum);
         updateStats();
-        showToast('🗑️ נמחק', 2000);
+        showToast(isConnected() ? '🗑️ מחוק מ-Monday' : '🗑️ נמחק', 2000);
         return;
     }
     if (e.target.closest('.edit-btn')) {
@@ -357,11 +378,12 @@ document.getElementById('modalConfirm').addEventListener('click', function() {
         actEl.querySelector('.activity-desc').textContent = act.desc;
         actEl.querySelector('.activity-time').textContent = act.time;
     }
+    syncActivityUpdate(act);
     this.textContent = 'הוסף לתוכנית ✓';
     delete this.dataset.editDay; delete this.dataset.editIdx;
     modalOverlay.classList.remove('open');
     resetModal();
-    showToast(`✅ ${name} עודכן`, 2500);
+    showToast(isConnected() ? `✅ ${name} עודכן ב-Monday` : `✅ ${name} עודכן`, 2500);
 });
 
 // --- FOOD GUIDE ---
@@ -434,11 +456,15 @@ document.getElementById('foodModalConfirm').addEventListener('click', () => {
     if (!name || !area) { showToast('נא למלא שם ואיזור', 2000); return; }
     const entry = { name, city, area, category, desc };
     if (dayVal) entry.day = parseInt(dayVal);
-    thailandFoodGuide.push(entry);
-    document.getElementById('foodModalOverlay').classList.remove('open');
-    resetFoodModal();
-    renderFoodGuide(_foodGuideCurrentCity);
-    showToast(`✅ ${name} נוסף למדריך`, 2500);
+    (async () => {
+      const id = await syncFoodCreate(entry);
+      if (id) entry.mondayId = id;
+      thailandFoodGuide.push(entry);
+      document.getElementById('foodModalOverlay').classList.remove('open');
+      resetFoodModal();
+      renderFoodGuide(_foodGuideCurrentCity);
+      showToast(isConnected() ? `✅ ${name} נוסף למדריך ול-Monday` : `✅ ${name} נוסף למדריך`, 2500);
+    })();
 });
 
 // Tab switching
@@ -478,8 +504,24 @@ document.querySelectorAll('.sidebar-tab').forEach(tab => {
 // Panel back button
 document.getElementById('panelBackBtn')?.addEventListener('click', () => document.getElementById('placePanel').classList.remove('open'));
 
+async function refreshFromMonday() {
+  const data = await loadMondayData('thailand');
+  if (!data?.days?.length) return;
+  replaceArray(thailandDays, data.days);
+  replaceArray(thailandFoodGuide, data.foodGuide);
+  renderItinerary();
+  rebuildMap();
+  updateStats();
+  document.querySelector('.day-card')?.classList.add('active');
+  selectDayOnMap(thailandDays[0]?.day || 1);
+  showToast('✅ נטען מ-Monday', 2500);
+}
+
+window.addEventListener('monday-connected', () => refreshFromMonday());
+
 // --- INIT ---
 initMap();
+initSync('thailand');
 document.querySelector('.day-card')?.classList.add('active');
 selectDayOnMap(1);
 updateStats();

@@ -294,6 +294,16 @@ export async function calcTransitOptions(fromLat, fromLng, toLat, toLng, city) {
     }).join('');
 }
 
+export function rebuildMap() {
+    Object.values(dayMarkers).flat().forEach(m => map.removeLayer(m));
+    Object.keys(dayMarkers).forEach(k => delete dayMarkers[k]);
+    allMarkersList.length = 0;
+    days.forEach(day => {
+        dayMarkers[day.day] = [];
+        day.activities.forEach(act => addMarkerToMap(day, act));
+    });
+}
+
 export function initMap() {
     days.forEach(day => {
         dayMarkers[day.day] = [];

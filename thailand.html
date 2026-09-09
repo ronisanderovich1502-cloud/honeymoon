@@ -25,6 +25,9 @@
                     <div class="header-actions">
                         <a href="index.html" class="icon-btn" title="דף הבית" style="text-decoration:none" onclick="localStorage.removeItem('honeymoon-country')">🏠</a>
                         <a href="japan.html" class="icon-btn" title="לפרק יפן" style="text-decoration:none" onclick="localStorage.setItem('honeymoon-country','japan')">🇯🇵</a>
+                        <button class="icon-btn" id="syncSettingsBtn" title="סנכרון Monday">
+                            <div class="sync-dot" id="syncDot"></div>☁️
+                        </button>
                         <button class="icon-btn" id="darkToggle" title="מצב לילה">🌙</button>
                         <button class="icon-btn" id="shareBtn" title="שיתוף">🔗</button>
                     </div>
@@ -69,6 +72,29 @@
     </div>
 
     <div class="toast" id="toast"></div>
+
+    <!-- MONDAY SYNC MODAL -->
+    <div class="modal-overlay" id="syncModalOverlay">
+        <div class="sync-modal">
+            <h3>📋 סנכרון Monday</h3>
+            <p>הנתונים נשמרים ב-<a href="https://shahar-monday.monday.com/boards/18430342548" target="_blank" rel="noopener">לוח Honeymoon Itinerary</a>.</p>
+            <div style="background:var(--gold-light);border-radius:10px;padding:10px 14px;font-size:0.78rem;color:var(--text-light);margin-bottom:4px;line-height:1.6">
+                1. <a href="https://shahar-monday.monday.com/apps/manage/tokens" target="_blank" rel="noopener"><strong>קבל API key מ-Monday ←</strong></a><br>
+                2. הדבק key + PIN · בכניסה הבאה רק PIN
+            </div>
+            <label>🔑 Monday API Key</label>
+            <input type="password" id="mondayKeyInput" placeholder="API token..." autocomplete="off" />
+            <label>🔒 PIN</label>
+            <input type="password" id="mondayPinInput" placeholder="PIN..." autocomplete="off" />
+            <div class="sync-status-box" id="syncStatusBox"></div>
+            <div class="modal-actions" style="flex-wrap:wrap;gap:6px;">
+                <button class="btn-secondary" id="syncModalCancel">סגור</button>
+                <button class="btn-secondary" id="syncDisconnect" style="color:#f44336;border-color:#f44336">נתק</button>
+                <button class="btn-secondary" id="syncUnlock">פתח עם PIN</button>
+                <button class="btn-primary" id="syncConnect">שמור וחבר</button>
+            </div>
+        </div>
+    </div>
 
     <!-- ADD PLACE MODAL -->
     <div class="modal-overlay" id="modalOverlay">

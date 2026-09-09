@@ -1,7 +1,15 @@
 import { days, cityNames, cityColors, dayTitlesEn, weekdayEn, TR, foodGuide, foodCategories } from './data.js';
 localStorage.setItem('honeymoon-country', 'japan');
-import { map, dayMarkers, allMarkersList, selectedDayNum, selectDayOnMap, addMarkerToMap, fetchPlaceDetails, initMap } from './map.js';
-import { ghToken, syncSave, initSync } from './sync.js';
+import { map, dayMarkers, allMarkersList, selectedDayNum, selectDayOnMap, addMarkerToMap, fetchPlaceDetails, initMap, rebuildMap } from './map.js';
+import {
+  isConnected, initSync, loadMondayData,
+  syncActivityCreate, syncActivityUpdate, syncActivityDelete, syncFoodCreate,
+} from './sync.js';
+
+function replaceArray(target, source) {
+  target.length = 0;
+  source.forEach(item => target.push(item));
+}
 
 // --- LANGUAGE ---
 let currentLang = localStorage.getItem('lang') || 'he';
@@ -129,7 +137,10 @@ const typeLabels = { attraction: 'אטרקציה', cafe: 'בית קפה', restau
 const itineraryEl = document.getElementById('itinerary');
 let currentCity = '';
 
-days.forEach(day => {
+function renderItinerary() {
+    itineraryEl.innerHTML = '';
+    currentCity = '';
+    days.forEach(day => {
     if (day.city !== currentCity) {
         currentCity = day.city;
         const divider = document.createElement('div');
@@ -198,7 +209,11 @@ days.forEach(day => {
     });
 
     itineraryEl.appendChild(card);
-});
+    });
+    updateAllProgressBars();
+}
+
+renderItinerary();
 
 // Activity content click → focus map + open place panel
 document.addEventListener('click', e => {
@@ -380,11 +395,14 @@ document.getElementById('modalConfirm').addEventListener('click', () => {
     activitiesEl.insertBefore(actDiv, notesWrap);
     updateStats();
     if (selectedDayNum === dayNum) selectDayOnMap(dayNum);
-    syncSave(`Add place: ${name} (Day ${dayNum})`);
+    (async () => {
+      const id = await syncActivityCreate(dayNum, day.city, newAct, i);
+      if (id) newAct.mondayId = id;
+    })();
     modalOverlay.classList.remove('open');
     resetModal();
 
-    showToast(ghToken ? `✅ ${name} נוסף — מעלה ל-GitHub...` : `✅ ${name} נוסף מקומית — לא מחובר ל-GitHub ☁️`, 3000);
+    showToast(isConnected() ? `✅ ${name} נוסף — נשמר ב-Monday` : `✅ ${name} נוסף מקומית — לא מחובר ל-Monday`, 3000);
 });
 
 // --- EDIT / REMOVE ---
@@ -407,8 +425,8 @@ document.addEventListener('click', e => {
 
         if (selectedDayNum === dayNum) selectDayOnMap(dayNum);
         updateStats();
-        showToast(ghToken ? '🗑️ מחוק ומסונכרן...' : '🗑️ מחוק מקומית — לא מחובר לסנכרון ☁️', 3000);
-        syncSave(`Remove place: ${act.name} (Day ${dayNum})`);
+        syncActivityDelete(act.mondayId);
+        showToast(isConnected() ? '🗑️ מחוק מ-Monday' : '🗑️ מחוק מקומית — לא מחובר ל-Monday', 3000);
         return;
     }
 
@@ -467,7 +485,7 @@ document.getElementById('modalConfirm').addEventListener('click', function() {
     }
 
     if (selectedDayNum === dayNum) selectDayOnMap(dayNum);
-    syncSave(`Edit place: ${name} (Day ${dayNum})`);
+    syncActivityUpdate(act);
 
     this.textContent = 'הוסף לתוכנית ✓';
     delete this.dataset.editDay;
@@ -475,7 +493,7 @@ document.getElementById('modalConfirm').addEventListener('click', function() {
     modalOverlay.classList.remove('open');
     resetModal();
 
-    showToast(ghToken ? `✅ ${name} עודכן ומסונכרן!` : `✅ ${name} עודכן מקומית — לא מחובר לסנכרון ☁️`, 3000);
+    showToast(isConnected() ? `✅ ${name} עודכן ב-Monday` : `✅ ${name} עודכן מקומית — לא מחובר ל-Monday`, 3000);
 });
 
 // --- FOOD GUIDE ---
@@ -552,11 +570,15 @@ document.getElementById('foodModalConfirm').addEventListener('click', () => {
     if (!name || !area) { showToast('נא למלא שם ואיזור', 2000); return; }
     const entry = { name, city, area, category, desc };
     if (dayVal) entry.day = parseInt(dayVal);
-    foodGuide.push(entry);
-    document.getElementById('foodModalOverlay').classList.remove('open');
-    resetFoodModal();
-    renderFoodGuide(_foodGuideCurrentCity);
-    showToast(`✅ ${name} נוסף למדריך האוכל`, 2500);
+    (async () => {
+      const id = await syncFoodCreate(entry);
+      if (id) entry.mondayId = id;
+      foodGuide.push(entry);
+      document.getElementById('foodModalOverlay').classList.remove('open');
+      resetFoodModal();
+      renderFoodGuide(_foodGuideCurrentCity);
+      showToast(isConnected() ? `✅ ${name} נוסף למדריך ול-Monday` : `✅ ${name} נוסף למדריך האוכל`, 2500);
+    })();
 });
 
 document.querySelectorAll('.sidebar-tab').forEach(tab => {
@@ -617,10 +639,25 @@ document.getElementById('panelBackBtn')?.addEventListener('click', () => {
     document.getElementById('placePanel').classList.remove('open');
 });
 
+async function refreshFromMonday() {
+  const data = await loadMondayData('japan');
+  if (!data?.days?.length) return;
+  replaceArray(days, data.days);
+  replaceArray(foodGuide, data.foodGuide);
+  renderItinerary();
+  rebuildMap();
+  updateStats();
+  document.querySelector('.day-card')?.classList.add('active');
+  selectDayOnMap(days[0]?.day || 1);
+  showToast('✅ נטען מ-Monday', 2500);
+}
+
+window.addEventListener('monday-connected', () => refreshFromMonday());
+
 // --- INIT ---
 initMap();
-initSync();
-document.querySelector('.day-card').classList.add('active');
+initSync('japan');
+document.querySelector('.day-card')?.classList.add('active');
 selectDayOnMap(1);
 updateStats();
 if (currentLang !== 'he') applyLang(currentLang);

@@ -80,24 +80,26 @@
 
     <div class="toast" id="toast">🔗 הקישור הועתק!</div>
 
-    <!-- SYNC SETTINGS MODAL -->
+    <!-- MONDAY SYNC MODAL -->
     <div class="modal-overlay" id="syncModalOverlay">
         <div class="sync-modal">
-            <h3>🐙 סנכרון GitHub</h3>
-            <p>כל שינוי (הוספה/עריכה/מחיקה) יישמר ישירות ב-GitHub ויעלה לאתר תוך ~30 שניות.</p>
+            <h3>📋 סנכרון Monday</h3>
+            <p>הנתונים נשמרים ב-<a href="https://shahar-monday.monday.com/boards/18430342548" target="_blank" rel="noopener">לוח Honeymoon Itinerary</a>. כל שינוי (הוספה/עריכה/מחיקה) יעודכן ב-Monday.</p>
             <div style="background:var(--gold-light);border-radius:10px;padding:10px 14px;font-size:0.78rem;color:var(--text-light);margin-bottom:4px;line-height:1.6">
-                1. GitHub → Settings → Developer settings → Personal access tokens → <strong>Fine-grained tokens</strong><br>
-                2. Repository access: <strong>ronisanderovich1502-cloud/honeymoon</strong><br>
-                3. Permissions → Contents: <strong>Read and write</strong><br>
-                4. הדבק את ה-token למטה ולחץ שמור
+                1. <a href="https://shahar-monday.monday.com/apps/manage/tokens" target="_blank" rel="noopener"><strong>קבל API key מ-Monday ←</strong></a><br>
+                2. הדבק את ה-key + בחר PIN (לשמירה מוצפנת בדפדפן)<br>
+                3. בכניסה הבאה — רק PIN נדרש לפתיחה
             </div>
-            <label>🔑 GitHub Token</label>
-            <input type="password" id="ghTokenInput" placeholder="github_pat_..." autocomplete="off" />
+            <label>🔑 Monday API Key</label>
+            <input type="password" id="mondayKeyInput" placeholder="API token..." autocomplete="off" />
+            <label>🔒 PIN (לשמירה מוצפנת)</label>
+            <input type="password" id="mondayPinInput" placeholder="PIN..." autocomplete="off" />
             <div class="sync-status-box" id="syncStatusBox"></div>
             <div class="modal-actions" style="flex-wrap:wrap;gap:6px;">
                 <button class="btn-secondary" id="syncModalCancel">סגור</button>
                 <button class="btn-secondary" id="syncDisconnect" style="color:#f44336;border-color:#f44336">נתק</button>
-                <button class="btn-primary" id="syncConnect">שמור Token</button>
+                <button class="btn-secondary" id="syncUnlock">פתח עם PIN</button>
+                <button class="btn-primary" id="syncConnect">שמור וחבר</button>
             </div>
         </div>
     </div>
