@@ -8,6 +8,7 @@ import {
   deleteItem,
   createFoodItem,
 } from './monday-api.js';
+import { beginMondaySave, endMondaySaveOk, endMondaySaveError } from './monday-banner.js';
 
 const STORAGE_KEY = 'mondayApiKey';
 const CACHE_TTL_MS = 3 * 24 * 60 * 60 * 1000; // 3 days
@@ -153,8 +154,9 @@ function patchCachedActivity(country, mutator) {
 }
 
 export async function syncActivityCreate(dayNum, city, activity, sortOrder) {
-  if (!mondayToken) return null;
+  if (!mondayToken) return { ok: false, error: new Error('לא מחובר ל-Monday') };
   setSyncDot('syncing');
+  beginMondaySave('שומר ב-Monday.com...');
   try {
     const id = await createActivityItem(mondayToken, currentCountry, dayNum, city, activity, sortOrder);
     activity.mondayId = id;
@@ -163,17 +165,22 @@ export async function syncActivityCreate(dayNum, city, activity, sortOrder) {
       if (day) day.activities.push({ ...activity, mondayId: id });
     });
     setSyncDot('synced');
-    return id;
+    endMondaySaveOk('נשמר ב-Monday.com ✓');
+    return { ok: true, id };
   } catch (e) {
     console.error('Monday create:', e);
     setSyncDot('error');
-    return null;
+    endMondaySaveError(e);
+    return { ok: false, error: e };
   }
 }
 
 export async function syncActivityUpdate(activity) {
-  if (!mondayToken || !activity.mondayId) return;
+  if (!mondayToken || !activity.mondayId) {
+    return { ok: false, error: new Error('חסר מזהה Monday לפריט') };
+  }
   setSyncDot('syncing');
+  beginMondaySave('שומר ב-Monday.com...');
   try {
     await updateActivityItem(mondayToken, activity.mondayId, activity);
     patchCachedActivity(currentCountry, (cached) => {
@@ -183,15 +190,22 @@ export async function syncActivityUpdate(activity) {
       }
     });
     setSyncDot('synced');
+    endMondaySaveOk('נשמר ב-Monday.com ✓');
+    return { ok: true };
   } catch (e) {
     console.error('Monday update:', e);
     setSyncDot('error');
+    endMondaySaveError(e);
+    return { ok: false, error: e };
   }
 }
 
 export async function syncActivityDelete(itemId) {
-  if (!mondayToken || !itemId) return;
+  if (!mondayToken || !itemId) {
+    return { ok: false, error: new Error('חסר מזהה Monday לפריט') };
+  }
   setSyncDot('syncing');
+  beginMondaySave('מוחק ב-Monday.com...');
   try {
     await deleteItem(mondayToken, itemId);
     patchCachedActivity(currentCountry, (cached) => {
@@ -200,15 +214,20 @@ export async function syncActivityDelete(itemId) {
       }
     });
     setSyncDot('synced');
+    endMondaySaveOk('נמחק מ-Monday.com ✓');
+    return { ok: true };
   } catch (e) {
     console.error('Monday delete:', e);
     setSyncDot('error');
+    endMondaySaveError(e);
+    return { ok: false, error: e };
   }
 }
 
 export async function syncFoodCreate(entry) {
-  if (!mondayToken) return null;
+  if (!mondayToken) return { ok: false, error: new Error('לא מחובר ל-Monday') };
   setSyncDot('syncing');
+  beginMondaySave('שומר ב-Monday.com...');
   try {
     const id = await createFoodItem(mondayToken, currentCountry, entry);
     entry.mondayId = id;
@@ -217,11 +236,13 @@ export async function syncFoodCreate(entry) {
       cached.foodGuide.push({ ...entry, mondayId: id });
     });
     setSyncDot('synced');
-    return id;
+    endMondaySaveOk('נשמר ב-Monday.com ✓');
+    return { ok: true, id };
   } catch (e) {
     console.error('Monday food create:', e);
     setSyncDot('error');
-    return null;
+    endMondaySaveError(e);
+    return { ok: false, error: e };
   }
 }
 

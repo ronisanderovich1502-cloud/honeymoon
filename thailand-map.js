@@ -1,3 +1,4 @@
+import { detailsRowsSkeleton, transitSkeleton } from './skeleton.js';
 import { thailandDays as days, thailandCityColors as cityColors } from './thailand-data.js';
 
 export const map = L.map('map', { zoomControl: false }).setView([13.7563, 100.5018], 12);
@@ -132,6 +133,7 @@ export function fetchPlaceDetails(act, day) {
             </div>
             <div class="panel-details" id="panelDetails">
                 ${act.desc ? `<div class="panel-row"><span class="panel-row-icon">📝</span><span class="panel-row-val">${act.desc}</span></div>` : ''}
+                ${detailsRowsSkeleton()}
             </div>
             <div class="panel-actions">
                 <a class="panel-action" href="https://www.google.com/maps?q=${lat},${lng}" target="_blank" rel="noopener">🗺️ Maps</a>
@@ -176,6 +178,7 @@ export function fetchPlaceDetails(act, day) {
             if (`${placePanel.dataset.lat},${placePanel.dataset.lng}` !== panelKey) return;
             const detailsEl = document.getElementById('panelDetails');
             if (!detailsEl) return;
+            detailsEl.querySelectorAll('.sk-details').forEach(el => el.remove());
             const t = (ovData?.elements?.[0]?.tags) || {};
             const rows = [
                 t.opening_hours && `<div class="panel-row"><span class="panel-row-icon">🕐</span><span class="panel-row-val">${t.opening_hours}</span></div>`,
@@ -196,7 +199,7 @@ function haversineKm(lat1, lng1, lat2, lng2) {
 export async function calcTransitOptions(fromLat, fromLng, toLat, toLng) {
     const container = document.getElementById('transitOptions');
     if (!container) return;
-    container.innerHTML = '<div class="transit-loading">⏳ מחשב מסלולים...</div>';
+    container.innerHTML = transitSkeleton();
     const km = haversineKm(fromLat, fromLng, toLat, toLng);
 
     let walkMin = Math.round(km / 0.08);

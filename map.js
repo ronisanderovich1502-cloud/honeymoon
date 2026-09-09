@@ -1,3 +1,4 @@
+import { detailsRowsSkeleton, transitSkeleton } from './skeleton.js';
 import { days, cityColors } from './data.js';
 
 export const map = L.map('map', { zoomControl: false }).setView([35.6762, 139.6503], 11);
@@ -154,6 +155,7 @@ export function fetchPlaceDetails(act, day) {
             </div>
             <div class="panel-details" id="panelDetails">
                 ${act.desc ? `<div class="panel-row"><span class="panel-row-icon">📝</span><span class="panel-row-val">${act.desc}</span></div>` : ''}
+                ${detailsRowsSkeleton()}
             </div>
             <div class="panel-actions">
                 <a class="panel-action" href="https://www.google.com/maps?q=${lat},${lng}" target="_blank" rel="noopener">🗺️ Maps</a>
@@ -202,6 +204,7 @@ export function fetchPlaceDetails(act, day) {
             if (`${placePanel.dataset.lat},${placePanel.dataset.lng}` !== panelKey) return;
             const detailsEl = document.getElementById('panelDetails');
             if (!detailsEl) return;
+            detailsEl.querySelectorAll('.sk-details').forEach(el => el.remove());
             const el = ovData && ovData.elements && ovData.elements[0];
             const t = (el && el.tags) || {};
             const hours   = t.opening_hours || null;
@@ -245,7 +248,7 @@ function taxiPrice(km) {
 export async function calcTransitOptions(fromLat, fromLng, toLat, toLng, city) {
     const container = document.getElementById('transitOptions');
     if (!container) return;
-    container.innerHTML = '<div class="transit-loading">⏳ מחשב מסלולים...</div>';
+    container.innerHTML = transitSkeleton();
 
     const km = haversineKm(fromLat, fromLng, toLat, toLng);
     const prices = japanTransitPrice(km, city);

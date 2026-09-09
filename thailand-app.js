@@ -5,6 +5,7 @@ import {
   syncActivityCreate, syncActivityUpdate, syncActivityDelete, syncFoodCreate,
 } from './sync.js';
 import { initResize } from './resize.js';
+import { itinerarySkeleton, statsSkeleton, searchSkeleton } from './skeleton.js';
 
 if (!isConnected()) {
   location.replace('index.html');
@@ -161,9 +162,11 @@ function renderItinerary() {
     });
 }
 
-function showItineraryLoading(msg = '⏳ טוען לו״ז מ-Monday...') {
+function showItineraryLoading(msg) {
   const el = document.getElementById('itinerary');
-  if (el) el.innerHTML = `<div class="boot-loading">${msg}</div>`;
+  if (el) el.innerHTML = itinerarySkeleton(6) + (msg ? `<div class="boot-loading">${msg}</div>` : '');
+  const stats = document.getElementById('statsBar');
+  if (stats && !stats.dataset.ready) stats.innerHTML = statsSkeleton();
 }
 
 function rebuildDaySelect() {
@@ -303,10 +306,12 @@ document.getElementById('placesSearchInput').addEventListener('input', function(
     const q = this.value.trim();
     if (q.length < 2) { document.getElementById('places-search-results').style.display = 'none'; return; }
     searchTimeout = setTimeout(() => {
+        const container = document.getElementById('places-search-results');
+        container.innerHTML = searchSkeleton(3);
+        container.style.display = 'block';
         fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q + ' Thailand')}&format=json&limit=5`)
             .then(r => r.json())
             .then(results => {
-                const container = document.getElementById('places-search-results');
                 if (!results.length) { container.innerHTML = '<div class="place-result">לא נמצאו תוצאות</div>'; container.style.display = 'block'; return; }
                 container.innerHTML = results.map(p => `
                     <div class="place-result" data-lat="${p.lat}" data-lng="${p.lon}" data-name="${p.display_name.split(',')[0]}">
@@ -323,11 +328,13 @@ document.getElementById('placesSearchInput').addEventListener('input', function(
                         map.setView([selectedPlace.lat, selectedPlace.lng], 15, { animate: true });
                     });
                 });
-            }).catch(() => {});
+            }).catch(() => {
+                container.innerHTML = '<div class="place-result">שגיאה בחיפוש</div>';
+            });
     }, 450);
 });
 
-// Add place confirm
+// Add place confirm — optimistic
 document.getElementById('modalConfirm').addEventListener('click', function() {
     if (this.dataset.editDay) return;
     if (!requireMonday()) return;
@@ -359,13 +366,17 @@ document.getElementById('modalConfirm').addEventListener('click', function() {
         </div>`;
     card.querySelector('.activities').insertBefore(actDiv, notesWrap);
     updateStats();
-    (async () => {
-      const id = await syncActivityCreate(dayNum, day.city, newAct, i);
-      if (id) newAct.mondayId = id;
-    })();
     modalOverlay.classList.remove('open');
     resetModal();
-    showToast(`✅ ${name} נוסף — נשמר ב-Monday`, 3000);
+    (async () => {
+      const result = await syncActivityCreate(dayNum, day.city, newAct, i);
+      if (result.ok) return;
+      const idx = day.activities.indexOf(newAct);
+      if (idx >= 0) day.activities.splice(idx, 1);
+      renderItinerary();
+      rebuildMap();
+      updateStats();
+    })();
 });
 
 // Edit / Remove
@@ -377,14 +388,23 @@ document.addEventListener('click', e => {
         const day = thailandDays.find(d => d.day === dayNum);
         const act = day.activities[idx];
         if (!confirm(`מחק "${act.name}"?`)) return;
+        const snapshot = { ...act };
+        const mondayId = act.mondayId;
         const marker = dayMarkers[dayNum]?.[idx];
         if (marker) { map.removeLayer(marker); dayMarkers[dayNum].splice(idx, 1); }
-        syncActivityDelete(act.mondayId);
         day.activities.splice(idx, 1);
-        document.getElementById(`act-${dayNum}-${idx}`)?.remove();
+        renderItinerary();
         if (selectedDayNum === dayNum) selectDayOnMap(dayNum);
         updateStats();
-        showToast('🗑️ מחוק מ-Monday', 2000);
+        (async () => {
+          const result = await syncActivityDelete(mondayId);
+          if (result.ok) return;
+          day.activities.splice(idx, 0, snapshot);
+          renderItinerary();
+          rebuildMap();
+          updateStats();
+          if (selectedDayNum === dayNum) selectDayOnMap(dayNum);
+        })();
         return;
     }
     if (e.target.closest('.edit-btn')) {
@@ -406,13 +426,14 @@ document.addEventListener('click', e => {
     }
 });
 
-// Edit confirm
+// Edit confirm — optimistic
 document.getElementById('modalConfirm').addEventListener('click', function() {
     if (!this.dataset.editDay) return;
     if (!requireMonday()) return;
     const dayNum = parseInt(this.dataset.editDay), idx = parseInt(this.dataset.editIdx);
     const day = thailandDays.find(d => d.day === dayNum);
     const act = day.activities[idx];
+    const snapshot = { name: act.name, desc: act.desc, time: act.time, lat: act.lat, lng: act.lng };
     const name = document.getElementById('newPlaceName').value.trim();
     if (!name) return;
     act.name = name;
@@ -425,12 +446,25 @@ document.getElementById('modalConfirm').addEventListener('click', function() {
         actEl.querySelector('.activity-desc').textContent = act.desc;
         actEl.querySelector('.activity-time').textContent = act.time;
     }
-    syncActivityUpdate(act);
+    if (selectedPlace && dayMarkers[dayNum]?.[idx]) {
+        dayMarkers[dayNum][idx].setLatLng([act.lat, act.lng]);
+    }
     this.textContent = 'הוסף לתוכנית ✓';
     delete this.dataset.editDay; delete this.dataset.editIdx;
     modalOverlay.classList.remove('open');
     resetModal();
-    showToast(`✅ ${name} עודכן ב-Monday`, 2500);
+    (async () => {
+      const result = await syncActivityUpdate(act);
+      if (result.ok) return;
+      Object.assign(act, snapshot);
+      const el = document.getElementById(`act-${dayNum}-${idx}`);
+      if (el) {
+        el.querySelector('.activity-name').textContent = ` ${snapshot.name}`;
+        el.querySelector('.activity-desc').textContent = snapshot.desc || '';
+        el.querySelector('.activity-time').textContent = snapshot.time || '';
+      }
+      if (dayMarkers[dayNum]?.[idx]) dayMarkers[dayNum][idx].setLatLng([snapshot.lat, snapshot.lng]);
+    })();
 });
 
 // --- FOOD GUIDE ---
@@ -506,14 +540,16 @@ document.getElementById('foodModalConfirm').addEventListener('click', () => {
     if (!name || !area) { showToast('נא למלא שם ואיזור', 2000); return; }
     const entry = { name, city, area, category, desc };
     if (dayVal) entry.day = parseInt(dayVal);
+    thailandFoodGuide.push(entry);
+    document.getElementById('foodModalOverlay').classList.remove('open');
+    resetFoodModal();
+    renderFoodGuide(_foodGuideCurrentCity);
     (async () => {
-      const id = await syncFoodCreate(entry);
-      if (id) entry.mondayId = id;
-      thailandFoodGuide.push(entry);
-      document.getElementById('foodModalOverlay').classList.remove('open');
-      resetFoodModal();
+      const result = await syncFoodCreate(entry);
+      if (result.ok) return;
+      const i = thailandFoodGuide.indexOf(entry);
+      if (i >= 0) thailandFoodGuide.splice(i, 1);
       renderFoodGuide(_foodGuideCurrentCity);
-      showToast(`✅ ${name} נוסף למדריך ול-Monday`, 2500);
     })();
 });
 
@@ -535,6 +571,7 @@ document.querySelectorAll('.sidebar-tab').forEach(tab => {
 document.getElementById('panelBackBtn')?.addEventListener('click', () => document.getElementById('placePanel').classList.remove('open'));
 
 async function refreshFromMonday(force = false) {
+  showItineraryLoading();
   const data = await loadMondayData('thailand', { force });
   if (!data?.days?.length) {
     showItineraryLoading('⚠️ לא נמצאו ימים ב-Monday. בדקו את הלוח או רעננו.');
@@ -543,6 +580,8 @@ async function refreshFromMonday(force = false) {
   replaceArray(thailandDays, data.days);
   replaceArray(thailandFoodGuide, data.foodGuide);
   rebuildDaySelect();
+  const stats = document.getElementById('statsBar');
+  if (stats) stats.dataset.ready = '1';
   renderItinerary();
   rebuildMap();
   updateStats();

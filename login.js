@@ -1,5 +1,6 @@
 import { MONDAY_BOARD } from './monday-config.js';
 import { connectMonday, disconnectMonday, isConnected, loadMondayData, clearMondayCache } from './sync.js';
+import { inlineChipSkeleton } from './skeleton.js';
 
 const loginCard = document.getElementById('loginCard');
 const destPanel = document.getElementById('destinationsPanel');
@@ -17,8 +18,8 @@ function showDestinations() {
 }
 
 async function prefetchBoards() {
-  document.getElementById('japanDaysCount').textContent = 'טוען מ-Monday…';
-  document.getElementById('thailandDaysCount').textContent = 'טוען מ-Monday…';
+  document.getElementById('japanDaysCount').innerHTML = inlineChipSkeleton();
+  document.getElementById('thailandDaysCount').innerHTML = inlineChipSkeleton();
   try {
     const [jp, th] = await Promise.all([
       loadMondayData('japan', { force: true }),
