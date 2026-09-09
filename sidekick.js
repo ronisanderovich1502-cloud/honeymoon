@@ -12,7 +12,7 @@ import {
   pendingStorageKey,
   APPROVE_RE,
 } from './sidekick-config.js';
-import { verifyGeminiKey, geminiChat } from './gemini-api.js';
+import { verifyGeminiKey, geminiChat, looksLikeGeminiKey } from './gemini-api.js';
 import { verifyOpenAIKey, openaiChat } from './openai-api.js';
 import { verifyClaudeKey, claudeChat } from './claude-api.js';
 import { buildItinerarySnapshot, buildSystemPrompt, parseProposalFromText } from './sidekick-prompt.js';
@@ -187,8 +187,8 @@ async function connectActiveProvider(apiKey) {
     localStorage.setItem(STORAGE_CLAUDE_KEY, apiKey);
     claudeToken = apiKey;
   } else {
-    if (!/^AIza/i.test(apiKey)) {
-      throw new Error('מפתח Gemini צריך להתחיל ב-AIza… — צרי מפתח ב-AI Studio (לא OAuth / Monday key)');
+    if (!looksLikeGeminiKey(apiKey)) {
+      throw new Error('מפתח Gemini צריך להתחיל ב-AIza… או AQ.… — העתיקי מפתח מלא מ-AI Studio');
     }
     await verifyGeminiKey(apiKey);
     localStorage.setItem(STORAGE_GEMINI_KEY, apiKey);
@@ -369,7 +369,7 @@ function modalMarkup() {
         <div class="sidekick-key-hint">
           1. <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener"><strong>צרי Gemini API key חינמי ←</strong></a><br>
           2. הדביקי ולחצי שמור — נשמר בדפדפן<br>
-          3. מודל: <code>gemini-3.5-flash-lite</code> (חינם ב-AI Studio)
+          3. מודל: <code>gemini-3.5-flash-lite</code> · מפתח מתחיל ב-<code>AIza</code> או <code>AQ.</code>
         </div>
         <label>🔑 Gemini API Key</label>
         <input type="password" id="geminiKeyInput" placeholder="AIza..." autocomplete="off" />
