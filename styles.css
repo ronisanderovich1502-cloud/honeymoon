@@ -1044,8 +1044,6 @@ body.dark .sk-inline-chip {
     font-weight: 500;
     color: var(--text-light);
 }
-    text-align: left;
-}
 
 .fastest-badge {
     font-size: 0.58rem;
