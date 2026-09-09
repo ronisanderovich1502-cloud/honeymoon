@@ -395,11 +395,10 @@ function ensureDom() {
     document.body.appendChild(root);
   }
 
-  // Keep launcher on the map (not over the RTL sidebar)
-  const mapBox = document.querySelector('.map-container');
+  // Keep launcher fixed to the viewport top-right (not inside map/sidebar layout)
   const rootEl = document.getElementById('sidekickRoot');
-  if (mapBox && rootEl && rootEl.parentElement !== mapBox) {
-    mapBox.appendChild(rootEl);
+  if (rootEl && rootEl.parentElement !== document.body) {
+    document.body.appendChild(rootEl);
   }
 
   let overlay = document.getElementById('sidekickKeyModalOverlay')
