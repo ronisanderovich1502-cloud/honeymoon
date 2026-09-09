@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Noto+Sans+Hebrew:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="styles.css?v=20260909j">
+    <link rel="stylesheet" href="styles.css?v=20260909k">
 </head>
 <body>
     <div class="container">
@@ -72,6 +72,7 @@
                 <button class="panel-back-btn" id="panelBackBtn">← חזרה ללו״ז</button>
                 <div id="panelContent"></div>
             </div>
+            <!-- legend mounted by map-legend.js -->
         </div>
     </div>
 
@@ -111,7 +112,7 @@
         <div class="modal">
             <h3>➕ הוסף מקום לתוכנית</h3>
             <label>🔍 חפש מקום / הדביקי קישור</label>
-            <input type="text" id="placesSearchInput" placeholder="שם או קישור Google Maps..." autocomplete="off" />
+            <input type="text" id="placesSearchInput" placeholder="שם, קישור Google Maps או Tabelog..." autocomplete="off" />
             <div id="places-search-results"></div>
             <div class="api-key-hint" id="apiKeyHint"></div>
             <label>📛 שם המקום</label>
@@ -207,6 +208,6 @@
         </div>
     </div>
 
-    <script type="module" src="thailand-app.js?v=20260909j"></script>
+    <script type="module" src="thailand-app.js?v=20260909k"></script>
 </body>
 </html>

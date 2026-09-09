@@ -14,6 +14,7 @@ import {
 import { fillTimeSelect, setTimeSelectValue, suggestEndTime, formatTimeRange, sortActivitiesByTime } from './time-options.js';
 import { searchPlaces, placeSearchEmptyHtml } from './place-search.js';
 import { initSidekick } from './sidekick.js';
+import { mountMapLegend, updateLegendProgress, legendLabelFromCityName } from './map-legend.js';
 
 if (localStorage.getItem('mondayCache_thailand')) hidePaneSkeletons();
 fillTimeSelect(document.getElementById('newPlaceTime'));
@@ -99,12 +100,13 @@ function updateStats() {
         <div class="stat">🏙️ <strong>${[...new Set(thailandDays.map(d=>d.city))].length}</strong> יעדים</div>
         <div class="stat">📍 <strong>${total}</strong> פעילויות</div>
         <div class="stat">✅ <strong>${done}/${total}</strong> (${pct}%)</div>`;
+    updateLegendProgress(done, total);
     const checked = getChecked();
     thailandDays.forEach(day => {
         const tot = day.activities.length;
         const dn = day.activities.filter((_, i) => checked[`${day.day}-${i}`]).length;
         const bar = document.getElementById(`bar-fill-${day.day}`);
-        if (bar) bar.style.width = (dn / tot * 100) + '%';
+        if (bar) bar.style.width = (tot ? dn / tot * 100 : 0) + '%';
     });
 }
 
@@ -265,7 +267,7 @@ const modalOverlay = document.getElementById('modalOverlay');
 const daySelect    = document.getElementById('newPlaceDay');
 
 document.getElementById('apiKeyHint').textContent =
-  '💡 מסעדות: הדביקי קישור Google Maps. ציוני דרך: חיפוש טקסט (OpenStreetMap).';
+  '💡 מסעדות: הדביקי קישור Tabelog / Google Maps. ציוני דרך: חיפוש טקסט (OpenStreetMap).';
 
 function updateEditAccess() {
     const connected = isConnected();
@@ -672,6 +674,18 @@ window.addEventListener('monday-connected', (e) => refreshFromMonday(!!e.detail?
 window.addEventListener('monday-disconnected', () => updateEditAccess());
 
 // --- INIT ---
+function mountThailandLegend() {
+  const order = ['bangkok', 'samui', 'krabi', 'phiphi', 'phuket'];
+  const cities = order
+    .filter(k => thailandCityColors[k])
+    .map(k => ({
+      key: k,
+      label: legendLabelFromCityName(thailandCityNames[k] || k),
+      color: thailandCityColors[k],
+    }));
+  mountMapLegend(document.querySelector('.map-container'), cities, { title: 'מקרא' });
+}
+
 async function boot() {
   const hasCache = !!localStorage.getItem('mondayCache_thailand');
   if (!hasCache) {
@@ -681,6 +695,7 @@ async function boot() {
     hidePaneSkeletons();
   }
   initMap();
+  mountThailandLegend();
   initResize(() => map.invalidateSize());
   await initSync('thailand', { autoLoad: false });
   initSidekick({

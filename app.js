@@ -15,6 +15,7 @@ import {
 import { fillTimeSelect, setTimeSelectValue, suggestEndTime, formatTimeRange, sortActivitiesByTime } from './time-options.js';
 import { searchPlaces, placeSearchEmptyHtml } from './place-search.js';
 import { initSidekick } from './sidekick.js';
+import { mountMapLegend, updateLegendProgress, legendLabelFromCityName } from './map-legend.js';
 
 if (localStorage.getItem('mondayCache_japan')) hidePaneSkeletons();
 fillTimeSelect(document.getElementById('newPlaceTime'));
@@ -44,6 +45,18 @@ function replaceArray(target, source) {
 // --- LANGUAGE ---
 let currentLang = localStorage.getItem('lang') || 'he';
 
+function mountJapanLegend() {
+  const tr = TR[currentLang] || TR.he;
+  const cities = [
+    { key: 'tokyo', label: tr.legend_tokyo || legendLabelFromCityName(cityNames.tokyo), color: cityColors.tokyo },
+    { key: 'kyoto', label: tr.legend_kyoto || legendLabelFromCityName(cityNames.kyoto), color: cityColors.kyoto },
+    { key: 'osaka', label: tr.legend_osaka || legendLabelFromCityName(cityNames.osaka), color: cityColors.osaka },
+  ];
+  mountMapLegend(document.querySelector('.map-container'), cities, {
+    title: tr.legend_title || 'מקרא',
+  });
+}
+
 function applyLang(lang) {
     currentLang = lang;
     localStorage.setItem('lang', lang);
@@ -57,6 +70,7 @@ function applyLang(lang) {
         const k = el.dataset.i18nPh; if (tr[k] !== undefined) el.placeholder = tr[k];
     });
     document.getElementById('langBtn').textContent = tr.lang_btn;
+    mountJapanLegend();
     updateCountdown();
     updateStats();
     days.forEach(d => {
@@ -142,7 +156,7 @@ function updateStats() {
         <div class="stat">📍 <strong>${total}</strong> ${str.stat_acts}</div>
         <div class="stat">✅ <strong>${done}/${total}</strong> (${pct}%)</div>
     `;
-    document.getElementById('overlayProgress').innerHTML = `✅ ${done}/${total} פעילויות (${pct}%)`;
+    updateLegendProgress(done, total);
     updateAllProgressBars();
 }
 
@@ -773,6 +787,7 @@ async function boot() {
     hidePaneSkeletons();
   }
   initMap();
+  mountJapanLegend();
   initResize(() => map.invalidateSize());
   await initSync('japan', { autoLoad: false });
   initSidekick({

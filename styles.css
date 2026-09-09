@@ -574,6 +574,8 @@ body.dark .map-overlay { background: rgba(31,41,55,0.92); border-color: rgba(255
 
 .map-legend-item { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; color: var(--text); }
 .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.map-overlay-divider { margin: 8px 0; border: none; border-top: 1px solid var(--border); }
+.map-overlay-progress { font-size: 0.72rem; color: var(--text-light); }
 
 /* ── TOAST ── */
 .toast {
@@ -1523,7 +1525,24 @@ body.dark .sk-inline-chip {
         z-index: 60;
     }
 
-    .map-overlay { display: none; }
+    .map-overlay {
+        display: block;
+        bottom: auto;
+        top: 10px;
+        left: 10px;
+        right: auto;
+        padding: 8px 10px;
+        font-size: 0.68rem;
+        min-width: 0;
+        max-width: min(150px, 44vw);
+        z-index: 450;
+        box-shadow: var(--shadow-sm, 0 1px 4px rgba(0,0,0,0.12));
+    }
+    .map-overlay-title { margin-bottom: 4px; font-size: 0.65rem; }
+    .map-legend-item { margin-bottom: 2px; gap: 5px; }
+    .legend-dot { width: 8px; height: 8px; }
+    .map-overlay-divider { margin: 5px 0; }
+    .map-overlay-progress { font-size: 0.65rem; }
 
     /* Bigger touch targets */
     .day-card { padding: 14px 16px; }
