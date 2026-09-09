@@ -1,8 +1,10 @@
-/** Sidekick AI config — Gemini + ChatGPT + Claude */
+/** Sidekick AI config — prefer free-tier Gemini Flash-Lite */
 
-export const GEMINI_MODEL = 'gemini-3.6-flash';
+// Free on Google AI Studio (~500 req/day). Avoid Pro / paid-only models.
+export const GEMINI_MODEL = 'gemini-3.5-flash-lite';
 export const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
 
+// OpenAI / Anthropic have no free API tier — cheapest paid models.
 export const OPENAI_MODEL = 'gpt-4o-mini';
 export const OPENAI_API_BASE = 'https://api.openai.com/v1';
 
@@ -15,9 +17,9 @@ export const STORAGE_CLAUDE_KEY = 'claudeApiKey';
 export const STORAGE_PROVIDER = 'sidekickProvider'; // 'gemini' | 'openai' | 'claude'
 
 export const PROVIDERS = {
-  gemini: { id: 'gemini', label: 'Gemini', keyHint: 'AIza...', inputId: 'geminiKeyInput' },
-  openai: { id: 'openai', label: 'ChatGPT', keyHint: 'sk-...', inputId: 'openaiKeyInput' },
-  claude: { id: 'claude', label: 'Claude', keyHint: 'sk-ant-...', inputId: 'claudeKeyInput' },
+  gemini: { id: 'gemini', label: 'Gemini', keyHint: 'AIza...', inputId: 'geminiKeyInput', free: true },
+  openai: { id: 'openai', label: 'ChatGPT', keyHint: 'sk-...', inputId: 'openaiKeyInput', free: false },
+  claude: { id: 'claude', label: 'Claude', keyHint: 'sk-ant-...', inputId: 'claudeKeyInput', free: false },
 };
 
 export function chatStorageKey(country) {

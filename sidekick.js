@@ -359,16 +359,17 @@ function modalMarkup() {
   return `
     <div class="sync-modal sidekick-key-modal">
       <h3>✨ Trip Planner Sidekick</h3>
-      <p>חברי Gemini, ChatGPT או Claude. השינויים ל-Monday רצים רק אחרי approve / אשר.</p>
+      <p>מומלץ: Gemini חינם. ChatGPT/Claude דורשים תשלום. שינויים ל-Monday רק אחרי approve / אשר.</p>
       <div class="sidekick-provider-tabs" role="tablist">
-        <button type="button" class="sidekick-provider-tab" data-sidekick-provider="gemini" role="tab">Gemini</button>
+        <button type="button" class="sidekick-provider-tab" data-sidekick-provider="gemini" role="tab">Gemini · חינם</button>
         <button type="button" class="sidekick-provider-tab" data-sidekick-provider="openai" role="tab">ChatGPT</button>
         <button type="button" class="sidekick-provider-tab" data-sidekick-provider="claude" role="tab">Claude</button>
       </div>
       <div data-provider-panel="gemini">
         <div class="sidekick-key-hint">
-          1. <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener"><strong>צרי Gemini API key ←</strong></a><br>
-          2. הדביקי ולחצי שמור — נשמר בדפדפן
+          1. <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener"><strong>צרי Gemini API key חינמי ←</strong></a><br>
+          2. הדביקי ולחצי שמור — נשמר בדפדפן<br>
+          3. מודל: <code>gemini-3.5-flash-lite</code> (חינם ב-AI Studio)
         </div>
         <label>🔑 Gemini API Key</label>
         <input type="password" id="geminiKeyInput" placeholder="AIza..." autocomplete="off" />
@@ -376,7 +377,8 @@ function modalMarkup() {
       <div data-provider-panel="openai" hidden>
         <div class="sidekick-key-hint">
           1. <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener"><strong>צרי OpenAI API key ←</strong></a><br>
-          2. הדביקי ולחצי שמור — נשמר בדפדפן
+          2. הדביקי ולחצי שמור — נשמר בדפדפן<br>
+          3. ⚠️ ChatGPT API הוא בתשלום (gpt-4o-mini)
         </div>
         <label>🔑 ChatGPT (OpenAI) API Key</label>
         <input type="password" id="openaiKeyInput" placeholder="sk-..." autocomplete="off" />
@@ -384,7 +386,8 @@ function modalMarkup() {
       <div data-provider-panel="claude" hidden>
         <div class="sidekick-key-hint">
           1. <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener"><strong>צרי Claude API key ←</strong></a><br>
-          2. הדביקי ולחצי שמור — נשמר בדפדפן
+          2. הדביקי ולחצי שמור — נשמר בדפדפן<br>
+          3. ⚠️ Claude API הוא בתשלום (Haiku)
         </div>
         <label>🔑 Claude (Anthropic) API Key</label>
         <input type="password" id="claudeKeyInput" placeholder="sk-ant-..." autocomplete="off" />
