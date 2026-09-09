@@ -12,6 +12,7 @@ import {
   clearFieldErrors, bindClearOnInput, shakeModal,
 } from './validate.js';
 import { fillTimeSelect, setTimeSelectValue, suggestEndTime, formatTimeRange, sortActivitiesByTime } from './time-options.js';
+import { searchPlaces, placeSearchEmptyHtml } from './place-search.js';
 
 if (localStorage.getItem('mondayCache_thailand')) hidePaneSkeletons();
 fillTimeSelect(document.getElementById('newPlaceTime'));
@@ -116,6 +117,7 @@ function renderItinerary() {
     itineraryEl.innerHTML = '';
     currentCity = '';
     thailandDays.forEach(day => {
+    sortActivitiesByTime(day.activities);
     if (day.city !== currentCity) {
         currentCity = day.city;
         const divider = document.createElement('div');
@@ -261,7 +263,8 @@ let selectedPlace = null;
 const modalOverlay = document.getElementById('modalOverlay');
 const daySelect    = document.getElementById('newPlaceDay');
 
-document.getElementById('apiKeyHint').textContent = '🗺️ חיפוש חופשי באמצעות OpenStreetMap';
+document.getElementById('apiKeyHint').textContent =
+  '💡 מסעדות: הדביקי קישור Google Maps. ציוני דרך: חיפוש טקסט (OpenStreetMap).';
 
 function updateEditAccess() {
     const connected = isConnected();
@@ -309,34 +312,37 @@ document.getElementById('placesSearchInput').addEventListener('input', function(
     clearTimeout(searchTimeout);
     const q = this.value.trim();
     if (q.length < 2) { document.getElementById('places-search-results').style.display = 'none'; return; }
-    searchTimeout = setTimeout(() => {
-        const container = document.getElementById('places-search-results');
-        container.innerHTML = searchSkeleton(3);
-        container.style.display = 'block';
-        fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q + ' Thailand')}&format=json&limit=5`)
-            .then(r => r.json())
-            .then(results => {
-                if (!results.length) { container.innerHTML = '<div class="place-result">לא נמצאו תוצאות</div>'; container.style.display = 'block'; return; }
-                container.innerHTML = results.map(p => `
-                    <div class="place-result" data-lat="${p.lat}" data-lng="${p.lon}" data-name="${p.display_name.split(',')[0]}">
-                        ${p.display_name.split(',')[0]}
-                        <small>${p.display_name.split(',').slice(1,3).join(',')}</small>
-                    </div>`).join('');
-                container.style.display = 'block';
-                container.querySelectorAll('.place-result').forEach(el => {
-                    el.addEventListener('click', () => {
-                        selectedPlace = { name: el.dataset.name, lat: parseFloat(el.dataset.lat), lng: parseFloat(el.dataset.lng) };
-                        document.getElementById('newPlaceName').value = el.dataset.name;
-                        document.getElementById('placesSearchInput').value = el.dataset.name;
-                        container.style.display = 'none';
-                        map.setView([selectedPlace.lat, selectedPlace.lng], 15, { animate: true });
-                    });
-                });
-            }).catch(() => {
-                container.innerHTML = '<div class="place-result">שגיאה בחיפוש</div>';
-            });
-    }, 450);
+    searchTimeout = setTimeout(() => runPlaceSearch(q), 450);
 });
+
+async function runPlaceSearch(query) {
+    const container = document.getElementById('places-search-results');
+    container.innerHTML = searchSkeleton(3);
+    container.style.display = 'block';
+    try {
+      const { results, hint } = await searchPlaces(query, { countrySuffix: 'Thailand' });
+      if (!results.length) {
+        container.innerHTML = placeSearchEmptyHtml(hint);
+        return;
+      }
+      container.innerHTML = results.map(p => `
+          <div class="place-result" data-lat="${p.lat}" data-lng="${p.lng}" data-name="${String(p.name).replace(/"/g, '&quot;')}">
+              ${p.name}
+              <small>${p.address || `${p.lat.toFixed(4)}, ${p.lng.toFixed(4)}`}</small>
+          </div>`).join('');
+      container.querySelectorAll('.place-result').forEach(el => {
+          el.addEventListener('click', () => {
+              selectedPlace = { name: el.dataset.name, lat: parseFloat(el.dataset.lat), lng: parseFloat(el.dataset.lng) };
+              document.getElementById('newPlaceName').value = el.dataset.name;
+              document.getElementById('placesSearchInput').value = el.dataset.name;
+              container.style.display = 'none';
+              map.setView([selectedPlace.lat, selectedPlace.lng], 16, { animate: true });
+          });
+      });
+    } catch {
+      container.innerHTML = placeSearchEmptyHtml('שגיאה בחיפוש');
+    }
+}
 
 // Add place confirm — optimistic
 document.getElementById('modalConfirm').addEventListener('click', function() {

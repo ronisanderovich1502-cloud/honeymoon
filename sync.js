@@ -170,6 +170,7 @@ export async function loadMondayData(country, opts = {}) {
   if (!force) {
     const cached = readCache(country);
     if (cached?.days?.length) {
+      cached.days.forEach(d => sortActivitiesByTime(d.activities || []));
       setSyncDot('synced');
       return {
         days: cached.days,

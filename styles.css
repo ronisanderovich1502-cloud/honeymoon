@@ -829,6 +829,13 @@ body.dark .map-overlay { background: rgba(31,41,55,0.92); border-color: rgba(255
 .place-result:last-child { border-bottom: none; }
 .place-result:hover { background: var(--card-hover); }
 .place-result small { color: var(--text-light); display: block; font-size: 0.72rem; }
+.place-result-empty {
+    cursor: default;
+    color: var(--text-light);
+    line-height: 1.45;
+    white-space: normal;
+}
+.place-result-empty:hover { background: transparent; }
 
 .api-key-hint {
     font-size: 0.72rem;
