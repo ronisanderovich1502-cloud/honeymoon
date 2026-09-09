@@ -395,6 +395,13 @@ function ensureDom() {
     document.body.appendChild(root);
   }
 
+  // Keep launcher on the map (not over the RTL sidebar)
+  const mapBox = document.querySelector('.map-container');
+  const rootEl = document.getElementById('sidekickRoot');
+  if (mapBox && rootEl && rootEl.parentElement !== mapBox) {
+    mapBox.appendChild(rootEl);
+  }
+
   let overlay = document.getElementById('sidekickKeyModalOverlay')
     || document.getElementById('geminiModalOverlay');
   if (!overlay) {

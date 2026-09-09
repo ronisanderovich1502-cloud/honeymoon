@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Noto+Sans+Hebrew:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="styles.css?v=20260909g">
+    <link rel="stylesheet" href="styles.css?v=20260909h">
 </head>
 <body>
     <div class="container">
@@ -24,7 +24,7 @@
                     <div class="header-actions">
                         <a href="index.html" class="icon-btn" title="דף הבית" style="text-decoration:none" onclick="localStorage.removeItem('honeymoon-country')">🏠</a>
                         <a href="japan.html" class="icon-btn" title="לפרק יפן" style="text-decoration:none" onclick="localStorage.setItem('honeymoon-country','japan')">🇯🇵</a>
-                        <button class="icon-btn" id="sidekickHeaderBtn" title="Trip Planner Sidekick">✨</button>
+                        <button class="icon-btn sidekick-header-btn" id="sidekickHeaderBtn" title="Trip Planner Sidekick">✨ AI</button>
                         <button class="icon-btn" id="syncSettingsBtn" title="סנכרון Monday">
                             <div class="sync-dot" id="syncDot"></div>☁️
                         </button>
@@ -199,6 +199,6 @@
         </div>
     </div>
 
-    <script type="module" src="thailand-app.js?v=20260909g"></script>
+    <script type="module" src="thailand-app.js?v=20260909h"></script>
 </body>
 </html>
