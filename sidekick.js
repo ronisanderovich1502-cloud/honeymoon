@@ -129,13 +129,10 @@ function closeSidekickKeyModal() {
 }
 
 function setProvider(next) {
+  // Always honor the tab the user clicked — do not bounce to another provider
+  // just because that one already has a saved key.
   provider = normalizeProvider(next);
   localStorage.setItem(STORAGE_PROVIDER, provider);
-  // Prefer a provider that already has a key
-  if (!activeToken() && hasAnyKey()) {
-    provider = firstProviderWithKey();
-    localStorage.setItem(STORAGE_PROVIDER, provider);
-  }
   syncProviderTabs();
   fillKeyInputs();
   updateModalStatus();
